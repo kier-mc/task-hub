@@ -1,0 +1,15 @@
+// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+  modules: ["@pinia/nuxt", "nuxt-vitest", "@nuxtjs/supabase"],
+  css: ["@/assets/scss/reset.scss", "@/assets/scss/main.scss"],
+  app: {
+    head: {
+      link: [
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css?family=Inter&display=swap",
+        },
+      ],
+    },
+  },
+});
