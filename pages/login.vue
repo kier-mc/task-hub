@@ -7,9 +7,12 @@
           v-model="credentials[formData.formID]"
         />
       </template>
-      <button type="button" class="button">Submit</button>
+      <button type="button" class="button" @click="handleClick">Submit</button>
+      <br />
+      <br />
+      <br />
+      {{ credentials }}
     </form>
-    {{ credentials }}
   </div>
 </template>
 
@@ -44,8 +47,21 @@ const data: Array<CompFormObject> = [
   },
 ];
 
-const credentials: Ref<{ [key: string]: any }> = ref({
-  email: "",
-  password: "",
+const credentials: Ref<{ [key: string]: string }> = ref({
+  email: ref(""),
+  password: ref(""),
 });
+
+async function handleClick() {
+  // Only test for the presence of an @ symbol between two sets of indeterminate characters
+  // Intended to help guide a user to input their email instead of an author name
+  if (!/^.{1,}@.{1,}/.test(credentials.value.email)) {
+    console.log("Invalid email");
+    return;
+  }
+  if (credentials.value.password.length >= 12) {
+    console.log("Password too short");
+    return;
+  }
+}
 </script>

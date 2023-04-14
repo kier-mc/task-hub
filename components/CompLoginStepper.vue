@@ -3,9 +3,9 @@
     <div class="stepper__timeline">
       <ol>
         <li
-          v-for="entry in props.data"
+          v-for="entry in propData"
           :key="entry.index"
-          :data-active="active === entry.index ? true : false"
+          :data-active="activeSlide === entry.index ? true : false"
         >
           {{ entry.header }}
         </li>
@@ -14,12 +14,15 @@
     <div class="stepper__container" ref="container">
       <section
         class="entry"
-        v-for="entry in props.data"
+        v-for="entry in propData"
         :key="entry.index"
-        :data-active="active === entry.index ? true : false"
+        :data-active="activeSlide === entry.index ? true : false"
       >
         <template v-for="formData in entry.formData">
-          <MiniCompFormInput :formData="formData" />
+          <MiniCompFormInput
+            :formData="formData"
+            v-model="newUserDetails[formData.formID]"
+          />
         </template>
       </section>
     </div>
@@ -28,15 +31,16 @@
         type="button"
         class="button"
         @click="prevStep($event)"
-        :disabled="active === 0 ? true : false"
+        :disabled="activeSlide === 0 ? true : false"
       >
         Previous
       </button>
       <button type="button" class="button" @click="nextStep($event)">
-        {{ active === props.data.length - 1 ? "Submit" : "Next" }}
+        {{ activeSlide === propData.length - 1 ? "Submit" : "Next" }}
       </button>
     </div>
   </section>
+  {{ newUserDetails }}
 </template>
 
 <style scoped lang="scss">
@@ -131,54 +135,105 @@
 </style>
 
 <script setup lang="ts">
-const props = defineProps({
-  data: { type: Array as PropType<CompStepperPropData[]>, required: true },
-});
-const active: Ref<number> = ref(0);
+import * as argon2 from "argon2";
+
+const activeSlide: Ref<number> = ref(0);
 const container: Ref<HTMLElement | null> = ref(null);
 const step: Ref<number> = ref(0);
 const current: Ref<number> = ref(0);
-const prefersReducedMotion = ref(false);
+
+const propData: Array<CompStepperPropData> = [
+  {
+    index: 0,
+    header: "Required Information",
+    formData: [
+      {
+        index: 0,
+        formID: "email",
+        attrType: "text",
+        labelText: "Email",
+        hintText: "Requires confirmation",
+      },
+      {
+        index: 1,
+        formID: "password",
+        attrType: "password",
+        labelText: "Password",
+        hintText: "Password must be at least 12 characters long",
+      },
+    ],
+  },
+  {
+    index: 1,
+    header: "Personalisation",
+    formData: [
+      {
+        index: 0,
+        formID: "name",
+        attrType: "text",
+        labelText: "Preferred name",
+        hintText: "Used when authoring tasks",
+      },
+    ],
+  },
+];
+
+const newUserDetails: Ref<{ [key: string]: string }> = ref({
+  email: "",
+  password: "",
+  name: "",
+});
 
 function updateTransformStep(): void {
-  if (!props.data) return;
   if (!container.value) return;
-  step.value = (container.value.clientWidth / props.data.length) * -1;
+  step.value = (container.value.clientWidth / propData.length) * -1;
 }
 
 function nextStep(event: Event): void {
-  if (!props.data) return;
   if (!container.value) return;
-  if (active.value < props.data.length - 1) {
-    active.value += 1;
+  if (activeSlide.value < propData.length - 1) {
+    activeSlide.value += 1;
     current.value += step.value;
     container.value.style.transform = `translateX(${current.value}px)`;
+  } else {
+    createUser();
   }
 }
 
 function prevStep(event: Event): void {
   if (!container.value) return;
-  if (active.value > 0) {
-    active.value -= 1;
+  if (activeSlide.value > 0) {
+    activeSlide.value -= 1;
     current.value -= step.value;
     container.value.style.transform = `translateX(${current.value}px)`;
   }
 }
 
-// Seemingly doubles the speed of transitions for some reason
-// Might just be the effect of transform without a transition?
-function setTransitions() {
-  if (!container.value) return;
-  if (prefersReducedMotion) {
-    container.value.style.transition = "none";
+async function createUser() {
+  const { data, error } = await useSupabaseAuthClient().auth.signUp({
+    email: newUserDetails.value.email,
+    password: newUserDetails.value.password,
+    options: {
+      data: {
+        name: newUserDetails.value.name,
+      },
+    },
+  });
+  // Supabase doesn't return a message by default if the email is already registered
+  // https://github.com/supabase/supabase-js/issues/296#issuecomment-1372552875
+  if (data?.user?.identities?.length === 0) {
+    console.log("This email is already registered");
+    return;
+  }
+  if (error) {
+    console.log(error);
+  } else {
+    console.log("Account created");
+    console.log(data);
   }
 }
 
 onMounted(() => {
   updateTransformStep();
-  prefersReducedMotion.value = window.matchMedia(
-    `(prefers-reduced-motion)`
-  ).matches;
-  // setTransitions();
 });
 </script>
