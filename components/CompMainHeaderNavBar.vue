@@ -19,9 +19,13 @@
       <section class="nav__section" v-for="data in navData" :key="data.index">
         <h1 class="nav__title">{{ data.title }}</h1>
         <ul class="nav__links">
-          <li v-for="link in data.links" :key="data.index">
-            <NuxtLink :to="link.url">{{ link.name }}</NuxtLink>
-          </li>
+          <template v-for="link in data.links" :key="data.index">
+            <NuxtLink :to="link.url">
+              <li>
+                {{ link.name }}
+              </li>
+            </NuxtLink>
+          </template>
         </ul>
       </section>
     </div>
@@ -29,41 +33,46 @@
 </template>
 
 <style scoped lang="scss">
-$header-height: 48px;
-$header-inline-padding: 1rem;
-$nav-button-size: 32px;
+@import "../assets/scss/variables.scss";
 .header {
   position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1280px;
-  height: $header-height;
+  max-width: var(--content-max-width);
+  height: var(--header-height);
   z-index: 30;
-  padding-inline: $header-inline-padding;
+  padding-inline: var(--header-inline-padding);
   margin: 0 auto;
   background-color: inherit;
   &__menu-button {
     all: unset;
     aspect-ratio: 1/1;
-    min-width: $nav-button-size;
+    min-width: var(--nav-button-size);
     z-index: 20;
     mask: url("./assets/img/svg/menu.svg") no-repeat center center;
     mask-size: cover;
     -webkit-mask: url("./assets/img/svg/menu.svg") no-repeat center center;
     -webkit-mask-size: cover;
-    background-color: hsl(0, 0%, 90%);
+    background-color: hsl(0, 0%, 80%);
     background-repeat: no-repeat;
     background-position: center;
+    transition: background-color 200ms;
     cursor: pointer;
+    &[aria-expanded="true"] {
+      background-color: hsl(0, 0%, 90%);
+    }
   }
 }
 .nav {
   position: relative;
-  max-width: 1280px;
+  max-width: var(--content-max-width);
   margin: 0 auto;
   user-select: none;
+  // Format longer transitions on new lines
+  /* prettier-ignore */
   &__menu {
+    will-change: opacity, transform;
     opacity: 0;
     transform: translateY(-100%);
     position: absolute;
@@ -75,11 +84,15 @@ $nav-button-size: 32px;
     padding: 0 1rem 1rem 1rem;
     color: hsl(0, 0%, 90%);
     backdrop-filter: blur(0.25rem);
-    transition: opacity 250ms cubic-bezier(0.77, 0, 0.175, 1),
+    transition:
+      opacity 250ms cubic-bezier(0.77, 0, 0.175, 1),
       transform 200ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
-    @media screen and (max-width: 640px) {
+    @media screen and (max-width: $breakpoint-smallest) {
       flex-direction: column;
       width: 100%;
+    }
+    @media (prefers-reduced-motion) {
+      transition: opacity 250ms cubic-bezier(0.77, 0, 0.175, 1);
     }
     &--visible {
       opacity: 1;
@@ -111,13 +124,13 @@ $nav-button-size: 32px;
     cursor: default;
   }
   &__links li {
-    width: 25ch;
+    width: var(--nav-link-width);
     padding: 1rem;
     border-radius: 0.5rem;
     background-color: hsl(0, 0%, 12.5%);
     cursor: pointer;
     transition: background-color 175ms;
-    @media screen and (max-width: 640px) {
+    @media screen and (max-width: $breakpoint-smallest) {
       width: 100%;
     }
   }

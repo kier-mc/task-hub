@@ -23,15 +23,16 @@
         </template>
       </section>
     </div>
-    <div class="controls">
+    <div class="stepper__controls">
       <button
         type="button"
+        class="button"
         @click="prevStep($event)"
         :disabled="active === 0 ? true : false"
       >
         Previous
       </button>
-      <button type="button" @click="nextStep($event)">
+      <button type="button" class="button" @click="nextStep($event)">
         {{ active === props.data.length - 1 ? "Submit" : "Next" }}
       </button>
     </div>
@@ -41,6 +42,7 @@
 <style scoped lang="scss">
 .stepper {
   isolation: isolate;
+  overflow: hidden;
   display: grid;
   grid-template-columns: max-content auto;
   column-gap: 1rem;
@@ -49,7 +51,7 @@
   border-radius: 0.5rem;
   margin: 0 auto;
   background-color: hsl(0, 0%, 20%);
-  overflow: hidden;
+  cursor: default;
   &__timeline {
     // Adjusts box in line with parent padding to hide section transitions
     // Unresponsive; should be tied to variable or similar and have values calculated
@@ -84,7 +86,7 @@
         position: absolute;
         inset: 0;
         transform: translateY(var(--height-offset));
-        height: 1px;
+        height: 2px;
         background: #3ab09e;
         transition: transform 150ms;
       }
@@ -104,7 +106,11 @@
   }
   &__container {
     display: flex;
-    transition: transform 200ms;
+    transition: transform 175ms;
+  }
+  &__controls {
+    grid-column: 2 / span all;
+    margin-top: 1rem;
   }
 }
 .entry {
@@ -116,31 +122,10 @@
     filter: none;
   }
 }
-.controls {
-  grid-column: 2 / span all;
-  margin-top: 1rem;
-}
-button {
-  all: unset;
-  padding: 0.5rem;
-  border: 1px solid hsl(0, 0%, 10%);
-  border-radius: 0.25rem;
-  background-color: hsl(0, 0%, 12.5%);
-  user-select: none;
-  cursor: pointer;
-  transition: background-color 175ms, opacity 175ms;
-  &:hover {
-    background-color: hsl(0, 0%, 10%);
-  }
+
+.button {
   &:not(:last-child) {
     margin-right: 1rem;
-  }
-  &:disabled {
-    opacity: 0.25;
-    cursor: not-allowed;
-  }
-  &:disabled:hover {
-    background-color: hsl(0, 0%, 12.5%);
   }
 }
 </style>
@@ -153,6 +138,7 @@ const active: Ref<number> = ref(0);
 const container: Ref<HTMLElement | null> = ref(null);
 const step: Ref<number> = ref(0);
 const current: Ref<number> = ref(0);
+const prefersReducedMotion = ref(false);
 
 function updateTransformStep(): void {
   if (!props.data) return;
@@ -179,7 +165,20 @@ function prevStep(event: Event): void {
   }
 }
 
+// Seemingly doubles the speed of transitions for some reason
+// Might just be the effect of transform without a transition?
+function setTransitions() {
+  if (!container.value) return;
+  if (prefersReducedMotion) {
+    container.value.style.transition = "none";
+  }
+}
+
 onMounted(() => {
   updateTransformStep();
+  prefersReducedMotion.value = window.matchMedia(
+    `(prefers-reduced-motion)`
+  ).matches;
+  // setTransitions();
 });
 </script>

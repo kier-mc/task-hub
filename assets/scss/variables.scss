@@ -1,0 +1,6 @@
+// Prefer CSS native variables defined in main.scss, so they can be accessed via JS if needed
+// CSS variables cannot be used in media queries as part of the query itself, so prefer SCSS variables instead
+// Import breakpoints to CSS native variables using identical names in main.scss for JS access
+
+// Breakpoints
+$breakpoint-smallest: 640px;

@@ -19,12 +19,14 @@ const data: Array<CompStepperPropData> = [
     formData: [
       {
         index: 0,
+        formID: "email",
         attrType: "text",
         labelText: "Email",
         hintText: "Requires confirmation",
       },
       {
         index: 1,
+        formID: "password",
         attrType: "password",
         labelText: "Password",
         hintText: "Password must be at least 12 characters long",
@@ -37,6 +39,7 @@ const data: Array<CompStepperPropData> = [
     formData: [
       {
         index: 0,
+        formID: "phone",
         attrType: "text",
         labelText: "Phone number",
         hintText: "Used for optional 2FA",
@@ -49,6 +52,7 @@ const data: Array<CompStepperPropData> = [
     formData: [
       {
         index: 0,
+        formID: "preferred-name",
         attrType: "text",
         labelText: "Preferred name",
         hintText: "Used when authoring tasks",

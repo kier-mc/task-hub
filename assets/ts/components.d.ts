@@ -1,5 +1,6 @@
 interface CompFormObject {
   index: number;
+  formID: string;
   attrType: string;
   labelText: string;
   hintText?: string;
@@ -9,6 +10,3 @@ interface CompStepperPropData {
   header: string;
   formData: Array<CompFormObject>;
 }
-// interface CompStepperProps {
-//   propData: Array<CompStepperObject>;
-// }

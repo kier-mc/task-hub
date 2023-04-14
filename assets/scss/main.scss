@@ -1,5 +1,40 @@
+@import "../assets/scss/variables.scss";
+:root {
+  // Breakpoints
+  --breakpoint-smallest: #{$breakpoint-smallest};
+  // Main layout
+  --content-max-width: 1280px;
+  // Header
+  --header-height: 48px;
+  --header-inline-padding: 1rem;
+  --nav-button-size: 32px;
+  --nav-link-width: 25ch;
+}
+
 body {
   background-color: hsl(0, 0%, 20%);
   color: hsl(0, 0%, 90%);
   font-family: Inter, sans-serif;
+}
+
+.button {
+  all: unset;
+  max-width: max-content;
+  padding: 0.5rem;
+  border: 1px solid hsl(0, 0%, 10%);
+  border-radius: 0.25rem;
+  background-color: hsl(0, 0%, 12.5%);
+  user-select: none;
+  cursor: pointer;
+  transition: background-color 175ms, opacity 175ms;
+  &:hover {
+    background-color: hsl(0, 0%, 10%);
+  }
+  &:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+  }
+  &:disabled:hover {
+    background-color: hsl(0, 0%, 12.5%);
+  }
 }
