@@ -1,11 +1,15 @@
 <template>
   <div class="temp">
     <form class="login">
-      <template v-for="formData in data">
-        <MiniCompFormInput :formData="formData" />
+      <template v-for="formData in data" :key="formData.id">
+        <MiniCompFormInput
+          :formData="formData"
+          v-model="credentials[formData.formID]"
+        />
       </template>
       <button type="button" class="button">Submit</button>
     </form>
+    {{ credentials }}
   </div>
 </template>
 
@@ -39,4 +43,9 @@ const data: Array<CompFormObject> = [
     labelText: "Password",
   },
 ];
+
+const credentials: Ref<{ [key: string]: any }> = ref({
+  email: "",
+  password: "",
+});
 </script>

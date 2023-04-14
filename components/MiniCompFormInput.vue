@@ -8,8 +8,13 @@
       :type="props.formData.attrType"
       :id="props.formData.formID"
       :name="props.formData.formID"
+      @input="
+        $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+      "
     />
-    <span class="input-group__hint">{{ props.formData.hintText }}</span>
+    <span v-if="props.formData.hintText" class="input-group__hint">{{
+      props.formData.hintText
+    }}</span>
   </div>
 </template>
 
