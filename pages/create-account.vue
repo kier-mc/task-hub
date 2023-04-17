@@ -1,6 +1,6 @@
 <template>
   <div class="temp">
-    <CompLoginStepper />
+    <CompCreateAccountStepper />
   </div>
 </template>
 
