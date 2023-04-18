@@ -19,7 +19,7 @@
       <section class="nav__section" v-for="data in navData" :key="data.index">
         <h1 class="nav__title">{{ data.title }}</h1>
         <ul class="nav__links">
-          <template v-for="link in data.links" :key="data.index">
+          <template v-for="link in data.links" :key="link.index">
             <NuxtLink :to="link.url">
               <li>
                 {{ link.name }}
@@ -149,7 +149,7 @@
 <script setup lang="ts">
 const menuIsOpen: Ref<boolean> = ref(false);
 const button: Ref<HTMLElement | null> = ref(null);
-
+const user = useSupabaseUser();
 const navData: Array<NavDataObject> = [
   {
     index: 0,
@@ -159,16 +159,26 @@ const navData: Array<NavDataObject> = [
         index: 0,
         name: "Home",
         url: "/",
+        requiresAuth: false,
+        alwaysDisplay: true,
       },
       {
         index: 1,
         name: "Login",
         url: "/login",
+        requiresAuth: false,
       },
       {
         index: 2,
         name: "Create Account",
         url: "/create-account",
+        requiresAuth: false,
+      },
+      {
+        index: 3,
+        name: "Logout",
+        url: "#",
+        requiresAuth: true,
       },
     ],
   },
@@ -180,11 +190,13 @@ const navData: Array<NavDataObject> = [
         index: 0,
         name: "Create Item",
         url: "#",
+        requiresAuth: true,
       },
       {
         index: 1,
         name: "View All Items",
         url: "#",
+        requiresAuth: true,
       },
     ],
   },

@@ -21,7 +21,7 @@
         <template v-for="formData in entry.formData">
           <MiniCompFormInput
             :formData="formData"
-            v-model="newUserDetails[formData.formID]"
+            v-model="credentials[formData.formID]"
           />
         </template>
       </section>
@@ -30,17 +30,17 @@
       <button
         type="button"
         class="button"
-        @click="prevStep($event)"
+        @click="prevStep()"
         :disabled="activeSlide === 0 ? true : false"
       >
         Previous
       </button>
-      <button type="button" class="button" @click="nextStep($event)">
+      <button type="button" class="button" @click="nextStep()">
         {{ activeSlide === propData.length - 1 ? "Submit" : "Next" }}
       </button>
     </div>
+    <div ref="notifications" style="margin-top: 1.5rem"></div>
   </section>
-  {{ newUserDetails }}
 </template>
 
 <style scoped lang="scss">
@@ -50,7 +50,7 @@
   display: grid;
   grid-template-columns: max-content auto;
   column-gap: 1rem;
-  max-width: 600px;
+  max-width: 640px;
   padding: 1rem;
   border-radius: 0.5rem;
   margin: 0 auto;
@@ -135,13 +135,16 @@
 </style>
 
 <script setup lang="ts">
-import * as argon2 from "argon2";
-
+/* Function imports */
+import { createUser } from "~/assets/ts/auth";
+/* Reactive variables */
 const activeSlide: Ref<number> = ref(0);
-const container: Ref<HTMLElement | null> = ref(null);
 const step: Ref<number> = ref(0);
 const current: Ref<number> = ref(0);
-
+/* Template refs */
+const container: Ref<HTMLElement | null> = ref(null);
+const notifications: Ref<HTMLElement | null> = ref(null);
+/* Prop/v-model-related data */
 const propData: Array<CompStepperPropData> = [
   {
     index: 0,
@@ -177,59 +180,46 @@ const propData: Array<CompStepperPropData> = [
     ],
   },
 ];
-
-const newUserDetails: Ref<{ [key: string]: string }> = ref({
+const credentials: NewAccountDataObject = reactive({
   email: "",
   password: "",
   name: "",
 });
-
+/*
+ * updateTransformStep()
+ * Calculates the width of a single step section in pixels
+ * Used for to determine "step" for CSS translation
+ */
 function updateTransformStep(): void {
   if (!container.value) return;
   step.value = (container.value.clientWidth / propData.length) * -1;
 }
-
-function nextStep(event: Event): void {
+/*
+ * nextStep(event)
+ * Controls behaviour for "next"/"submit" button
+ * If the active step is the last step, calls createUser()
+ * A ternary operator in the template controls button text
+ */
+function nextStep(): void {
   if (!container.value) return;
   if (activeSlide.value < propData.length - 1) {
     activeSlide.value += 1;
     current.value += step.value;
     container.value.style.transform = `translateX(${current.value}px)`;
   } else {
-    createUser();
+    createUser(ref(notifications) as Ref<HTMLElement>, ref(credentials));
   }
 }
-
-function prevStep(event: Event): void {
+/*
+ * prevStep(event)
+ * Controls behaviour for "previous" button
+ */
+function prevStep(): void {
   if (!container.value) return;
   if (activeSlide.value > 0) {
     activeSlide.value -= 1;
     current.value -= step.value;
     container.value.style.transform = `translateX(${current.value}px)`;
-  }
-}
-
-async function createUser() {
-  const { data, error } = await useSupabaseAuthClient().auth.signUp({
-    email: newUserDetails.value.email,
-    password: newUserDetails.value.password,
-    options: {
-      data: {
-        name: newUserDetails.value.name,
-      },
-    },
-  });
-  // Supabase doesn't return a message by default if the email is already registered
-  // https://github.com/supabase/supabase-js/issues/296#issuecomment-1372552875
-  if (data?.user?.identities?.length === 0) {
-    console.log("This email is already registered");
-    return;
-  }
-  if (error) {
-    console.log(error);
-  } else {
-    console.log("Account created");
-    console.log(data);
   }
 }
 

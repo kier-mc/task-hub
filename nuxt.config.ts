@@ -12,4 +12,19 @@ export default defineNuxtConfig({
       ],
     },
   },
+  // vite: {
+  //   server: {
+  //     fs: {
+  //       // Allow serving files from one level up to the project root
+  //       // allow: [".."],
+  //       strict: false,
+  //     },
+  //   },
+  // },
+  hooks: {
+    ready(nuxt) {
+      console.log("Workspace dir:", nuxt.options.workspaceDir);
+      console.log("Modules dir:", nuxt.options.modulesDir);
+    },
+  },
 });

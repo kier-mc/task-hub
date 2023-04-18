@@ -1,18 +1,24 @@
 <template>
   <div class="temp">
     <form class="login">
-      <template v-for="formData in data" :key="formData.id">
+      <template v-for="formData in propData" :key="formData.id">
         <MiniCompFormInput
           :formData="formData"
           v-model="credentials[formData.formID]"
         />
       </template>
-      <button type="button" class="button" @click="handleClick">Submit</button>
-      <br />
-      <br />
-      <br />
-      {{ credentials }}
+      <div style="margin-bottom: 2rem" ref="notifications"></div>
+      <button
+        type="button"
+        class="button"
+        @click="
+          loginUser(ref(notifications) as Ref<HTMLElement>, ref(credentials))
+        "
+      >
+        Submit
+      </button>
     </form>
+    {{ credentials }}
   </div>
 </template>
 
@@ -32,7 +38,16 @@
 </style>
 
 <script setup lang="ts">
-const data: Array<CompFormObject> = [
+/* Type imports */
+import { User } from "@supabase/gotrue-js";
+/* Function imports */
+import { loginUser } from "../assets/ts/auth";
+/* Reactive variables */
+const user: Ref<User | null> = useSupabaseUser();
+/* Template refs */
+const notifications: Ref<HTMLElement | null> = ref(null);
+/* Prop/v-model-related data */
+const propData: Array<CompFormObject> = [
   {
     index: 0,
     formID: "email",
@@ -46,22 +61,8 @@ const data: Array<CompFormObject> = [
     labelText: "Password",
   },
 ];
-
-const credentials: Ref<{ [key: string]: string }> = ref({
-  email: ref(""),
-  password: ref(""),
+const credentials: LoginCredentialsDataObject = reactive({
+  email: "",
+  password: "",
 });
-
-async function handleClick() {
-  // Only test for the presence of an @ symbol between two sets of indeterminate characters
-  // Intended to help guide a user to input their email instead of an author name
-  if (!/^.{1,}@.{1,}/.test(credentials.value.email)) {
-    console.log("Invalid email");
-    return;
-  }
-  if (credentials.value.password.length >= 12) {
-    console.log("Password too short");
-    return;
-  }
-}
 </script>

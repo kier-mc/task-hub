@@ -10,3 +10,14 @@ interface CompStepperPropData {
   header: string;
   formData: Array<CompFormObject>;
 }
+interface LoginCredentialsDataObject {
+  [key: string]: string;
+  email: string;
+  password: string;
+}
+interface NewAccountDataObject {
+  [key: string]: string;
+  email: string;
+  password: string;
+  name: string;
+}

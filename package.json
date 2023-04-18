@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.4.7",
-    "argon2": "^0.30.3",
     "pinia": "^2.0.33"
   }
 }

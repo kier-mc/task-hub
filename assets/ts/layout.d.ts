@@ -2,6 +2,8 @@ interface NavDataLinkObject {
   index: number;
   name: string;
   url: string;
+  requiresAuth: boolean;
+  alwaysDisplay?: true;
 }
 
 interface NavDataObject {
