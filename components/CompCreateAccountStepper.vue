@@ -39,7 +39,6 @@
         {{ activeSlide === propData.length - 1 ? "Submit" : "Next" }}
       </button>
     </div>
-    <div ref="notifications" style="margin-top: 1.5rem"></div>
   </section>
 </template>
 
@@ -89,7 +88,7 @@
         content: "";
         position: absolute;
         inset: 0;
-        transform: translateY(var(--height-offset));
+        transform: translate3d(0, var(--height-offset), 0);
         height: 2px;
         background: #3ab09e;
         transition: transform 150ms;
@@ -205,9 +204,9 @@ function nextStep(): void {
   if (activeSlide.value < propData.length - 1) {
     activeSlide.value += 1;
     current.value += step.value;
-    container.value.style.transform = `translateX(${current.value}px)`;
+    container.value.style.transform = `translate3d(${current.value}px, 0, 0)`;
   } else {
-    createUser(ref(notifications) as Ref<HTMLElement>, ref(credentials));
+    createUser(ref(credentials));
   }
 }
 /*
@@ -219,7 +218,7 @@ function prevStep(): void {
   if (activeSlide.value > 0) {
     activeSlide.value -= 1;
     current.value -= step.value;
-    container.value.style.transform = `translateX(${current.value}px)`;
+    container.value.style.transform = `translate3d(${current.value}px, 0, 0)`;
   }
 }
 

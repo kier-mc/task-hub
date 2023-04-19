@@ -1,4 +1,5 @@
 <template>
+  <CompToast />
   <div class="container-header">
     <CompMainHeaderNavBar />
   </div>
@@ -13,7 +14,7 @@
   background-color: hsl(0, 0%, 10%);
 }
 .container-content {
-  max-width: 1280px;
+  max-width: var(--content-max-width);
   margin: 0 auto;
 }
 </style>

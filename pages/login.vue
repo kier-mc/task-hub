@@ -7,18 +7,10 @@
           v-model="credentials[formData.formID]"
         />
       </template>
-      <div style="margin-bottom: 2rem" ref="notifications"></div>
-      <button
-        type="button"
-        class="button"
-        @click="
-          loginUser(ref(notifications) as Ref<HTMLElement>, ref(credentials))
-        "
-      >
+      <button type="button" class="button" @click="loginUser(ref(credentials))">
         Submit
       </button>
     </form>
-    {{ credentials }}
   </div>
 </template>
 
@@ -45,7 +37,6 @@ import { loginUser } from "../assets/ts/auth";
 /* Reactive variables */
 const user: Ref<User | null> = useSupabaseUser();
 /* Template refs */
-const notifications: Ref<HTMLElement | null> = ref(null);
 /* Prop/v-model-related data */
 const propData: Array<CompFormObject> = [
   {

@@ -50,9 +50,10 @@
     aspect-ratio: 1/1;
     min-width: var(--nav-button-size);
     z-index: 20;
-    mask: url("./assets/img/svg/menu.svg") no-repeat center center;
+    mask: url("../public/assets/img/svg/menu.svg") no-repeat center center;
     mask-size: cover;
-    -webkit-mask: url("./assets/img/svg/menu.svg") no-repeat center center;
+    -webkit-mask: url("../public/assets/img/svg/menu.svg") no-repeat center
+      center;
     -webkit-mask-size: cover;
     background-color: hsl(0, 0%, 80%);
     background-repeat: no-repeat;
@@ -74,7 +75,7 @@
   &__menu {
     will-change: opacity, transform;
     opacity: 0;
-    transform: translateY(-100%);
+    transform: translate3d(0, -100%, 0);
     position: absolute;
     top: 0;
     right: 0;
@@ -96,7 +97,7 @@
     }
     &--visible {
       opacity: 1;
-      transform: translateY(0);
+      transform: translate3d(0, 0%, 0);
     }
     &::before {
       content: "";

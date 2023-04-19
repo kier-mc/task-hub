@@ -1,6 +1,7 @@
 /* Type definitions */
 import { User } from "@supabase/gotrue-js";
-
+import { useNotificationsStore } from "~/composables/notifications";
+const notificationsStore = useNotificationsStore();
 /*
  * IMPORTANT
  * Passwords need hashing here before submission
@@ -11,11 +12,9 @@ import { User } from "@supabase/gotrue-js";
 /*
  * async loginUser(ref, credentials)
  * Attempts login via SupabaseAuthClient
- * @param ref: carrier element for messages to notify user
  * @param credentials: object containing data to pass
  */
 export async function loginUser(
-  ref: Ref<HTMLElement>,
   credentials: Ref<LoginCredentialsDataObject>
 ): Promise<void> {
   const { data, error } = await useSupabaseAuthClient().auth.signInWithPassword(
@@ -25,23 +24,20 @@ export async function loginUser(
     }
   );
   if (error) {
-    ref.value.textContent = error.message;
+    notificationsStore.setMessage(error.message, "error");
     return;
   }
-  ref.value.textContent = `Logged in as ${
-    (data.user as User).user_metadata.name
-  }`;
+  notificationsStore.setMessage(
+    `Logged in as ${(data.user as User).user_metadata.name}`,
+    "success"
+  );
 }
 /*
  * async createUser(ref, credentials)
  * Attempts account creation via SupabaseAuthClient
- * @param ref: carrier element for messages to notify user
  * @param credentials: object containing data to pass
  */
-export async function createUser(
-  ref: Ref<HTMLElement>,
-  credentials: Ref<NewAccountDataObject>
-) {
+export async function createUser(credentials: Ref<NewAccountDataObject>) {
   const { data, error } = await useSupabaseAuthClient().auth.signUp({
     email: credentials.value.email,
     password: credentials.value.password,
@@ -52,14 +48,17 @@ export async function createUser(
     },
   });
   if (error) {
-    ref.value.textContent = error.message;
+    notificationsStore.setMessage(error.message, "error");
     return;
   }
   // Supabase doesn't notify if the email address is already registered
   // https://github.com/supabase/supabase-js/issues/296#issuecomment-1372552875
   if (data.user?.identities?.length === 0) {
-    ref.value.textContent = "This email is already registered";
+    notificationsStore.setMessage(
+      "Email address is already registered",
+      "error"
+    );
     return;
   }
-  ref.value.textContent = "Account created successfully";
+  notificationsStore.setMessage("Account created successfully", "success");
 }
