@@ -50,9 +50,9 @@
     aspect-ratio: 1/1;
     min-width: var(--nav-button-size);
     z-index: 20;
-    mask: url("../public/assets/img/svg/menu.svg") no-repeat center center;
+    mask: url("/img/svg/menu.svg") no-repeat center center;
     mask-size: cover;
-    -webkit-mask: url("../public/assets/img/svg/menu.svg") no-repeat center
+    -webkit-mask: url("/img/svg/menu.svg") no-repeat center
       center;
     -webkit-mask-size: cover;
     background-color: hsl(0, 0%, 80%);
@@ -150,7 +150,7 @@
 <script setup lang="ts">
 const menuIsOpen: Ref<boolean> = ref(false);
 const button: Ref<HTMLElement | null> = ref(null);
-const user = useSupabaseUser();
+// const user = useSupabaseUser();
 const navData: Array<NavDataObject> = [
   {
     index: 0,

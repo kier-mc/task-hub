@@ -42,9 +42,9 @@
     all: unset;
     aspect-ratio: 1/1;
     min-width: 1.25rem;
-    mask: url("../public/assets/img/svg/xmark.svg") no-repeat center center;
+    mask: url("/img/svg/xmark.svg") no-repeat center center;
     mask-size: cover;
-    -webkit-mask: url("../public/assets/img/svg/xmark.svg") no-repeat center
+    -webkit-mask: url("/img/svg/xmark.svg") no-repeat center
       center;
     -webkit-mask-size: cover;
     background-color: hsl(0, 0%, 80%);

@@ -1,3 +1,3 @@
-# To-Do Application
+#To-do
 
-TODO: this readme.md file
+To-do: this readme.md
