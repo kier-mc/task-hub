@@ -7,5 +7,6 @@ node_modules
 .env
 dist
 .DS_Store
-__dev
+.vscode
+.dev
 __test__/coverage
