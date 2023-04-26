@@ -22,10 +22,4 @@ onMounted(() => {
     "test"
   );
 });
-/*
- * TODO:
- * Rename assets folder to styles, move typescript to composables
- * Update all relevant paths
- * Change CSS SVG paths
- */
 </script>

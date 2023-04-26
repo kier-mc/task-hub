@@ -26,10 +26,12 @@ export async function loginUser(
     notificationsStore.setMessage(error.message, "error");
     return;
   }
-  notificationsStore.setMessage(
-    `Logged in as ${(data.user as User).user_metadata.name}`,
-    "success"
-  );
+  if (data.user) {
+    notificationsStore.setMessage(
+      `Logged in as ${data.user.user_metadata.name}`,
+      "success"
+    );
+  }
 }
 /*
  * async createUser(ref, credentials)
