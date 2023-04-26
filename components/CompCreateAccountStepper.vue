@@ -219,36 +219,6 @@ function prevStep(): void {
     container.value.style.transform = `translate3d(${current.value}px, 0, 0)`;
   }
 }
-/*
- * async createUser(ref, credentials)
- * Attempts account creation via SupabaseAuthClient
- * @param credentials: object containing data to pass
- */
- async function createUser(credentials: Ref<NewAccountDataObject>) {
-  const { data, error } = await useSupabaseAuthClient().auth.signUp({
-    email: credentials.value.email,
-    password: credentials.value.password,
-    options: {
-      data: {
-        name: credentials.value.name,
-      },
-    },
-  });
-  if (error) {
-    notificationsStore.setMessage(error.message, "error");
-    return;
-  }
-  // Supabase doesn't notify if the email address is already registered
-  // https://github.com/supabase/supabase-js/issues/296#issuecomment-1372552875
-  if (data.user?.identities?.length === 0) {
-    notificationsStore.setMessage(
-      "Email address is already registered",
-      "error"
-    );
-    return;
-  }
-  notificationsStore.setMessage("Account created successfully", "success");
-}
 onMounted(() => {
   updateTransformStep();
 });

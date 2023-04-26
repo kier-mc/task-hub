@@ -54,27 +54,4 @@ const credentials: LoginCredentialsDataObject = reactive({
   email: "",
   password: "",
 });
-/*
- * async loginUser(ref, credentials)
- * Attempts login via SupabaseAuthClient
- * @param credentials: object containing data to pass
- */
- async function loginUser(
-  credentials: Ref<LoginCredentialsDataObject>
-): Promise<void> {
-  const { data, error } = await useSupabaseAuthClient().auth.signInWithPassword(
-    {
-      email: credentials.value.email,
-      password: credentials.value.password,
-    }
-  );
-  if (error) {
-    notificationsStore.setMessage(error.message, "error");
-    return;
-  }
-  notificationsStore.setMessage(
-    `Logged in as ${(data.user as User).user_metadata.name}`,
-    "success"
-  );
-}
 </script>

@@ -44,8 +44,7 @@
     min-width: 1.25rem;
     mask: url("/img/svg/xmark.svg") no-repeat center center;
     mask-size: cover;
-    -webkit-mask: url("/img/svg/xmark.svg") no-repeat center
-      center;
+    -webkit-mask: url("/img/svg/xmark.svg") no-repeat center center;
     -webkit-mask-size: cover;
     background-color: hsl(0, 0%, 80%);
     transition: background-color 175ms;
@@ -59,4 +58,12 @@
 
 <script setup lang="ts">
 const notifications = useNotificationsStore();
+
+notifications.$subscribe(() => {
+  if (notifications.message) {
+    setTimeout(() => {
+      notifications.clearAll();
+    }, 5000);
+  }
+});
 </script>

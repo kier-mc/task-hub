@@ -1,6 +1,8 @@
 <template>
   <header class="header">
-    <h1 class="header-title">To-Do</h1>
+    <h1 class="header-title">
+      <NuxtLink to="/">To-Do</NuxtLink>
+    </h1>
     <button
       type="button"
       class="header__menu-button"
@@ -52,8 +54,7 @@
     z-index: 20;
     mask: url("/img/svg/menu.svg") no-repeat center center;
     mask-size: cover;
-    -webkit-mask: url("/img/svg/menu.svg") no-repeat center
-      center;
+    -webkit-mask: url("/img/svg/menu.svg") no-repeat center center;
     -webkit-mask-size: cover;
     background-color: hsl(0, 0%, 80%);
     background-repeat: no-repeat;
@@ -63,6 +64,10 @@
     &[aria-expanded="true"] {
       background-color: hsl(0, 0%, 90%);
     }
+  }
+  & a {
+    all: unset;
+    cursor: pointer;
   }
 }
 .nav {
