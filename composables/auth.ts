@@ -1,5 +1,7 @@
 /* Type definitions */
 import { User } from "@supabase/gotrue-js";
+import * as bcrypt from "bcryptjs";
+const salt = await bcrypt.genSalt(12);
 /*
  * IMPORTANT
  * Passwords need hashing here before submission
@@ -16,10 +18,11 @@ export async function loginUser(
   credentials: Ref<LoginCredentialsDataObject>
 ): Promise<void> {
   const notificationsStore = useNotificationsStore();
+  const hash = bcrypt.hashSync(credentials.value.password, salt);
   const { data, error } = await useSupabaseAuthClient().auth.signInWithPassword(
     {
       email: credentials.value.email,
-      password: credentials.value.password,
+      password: hash,
     }
   );
   if (error) {
@@ -40,9 +43,10 @@ export async function loginUser(
  */
 export async function createUser(credentials: Ref<NewAccountDataObject>) {
   const notificationsStore = useNotificationsStore();
+  const hash = bcrypt.hashSync(credentials.value.password, salt);
   const { data, error } = await useSupabaseAuthClient().auth.signUp({
     email: credentials.value.email,
-    password: credentials.value.password,
+    password: hash,
     options: {
       data: {
         name: credentials.value.name,
