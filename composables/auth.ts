@@ -1,30 +1,37 @@
-/* Type definitions */
-import { User } from "@supabase/gotrue-js";
-import * as bcrypt from "bcryptjs";
-const salt = await bcrypt.genSalt(12);
 /*
- * IMPORTANT
- * Passwords need hashing here before submission
- * Native argon2 needs C++ compilation tools
- * Not necessarily straightforward on Windows
+ * AUTH.TS
+ * Contains functions related to user auth i.e login, logout, create account etc.
+ * Hashing not required: https://github.com/orgs/supabase/discussions/437
+ * notificationsStore will fail if declared globally as it will init prior to Pinia
+ * Declared at start of each function instead, which can only be called after init
  */
 
 /*
+ * function clearCredentials(credentials)
+ * Helper function to wipe credentials object once login/creation submissions occur
+ * @param credentials: object containing data to erase; inherited from parent function
+ */
+function clearCredentials(credentials: Ref<LoginCredentialsDataObject>) {
+  credentials.value.email = "";
+  credentials.value.password = "";
+}
+/*
  * async loginUser(ref, credentials)
  * Attempts login via SupabaseAuthClient
+ * Updates notificationsStore and redirects to home page
  * @param credentials: object containing data to pass
  */
 export async function loginUser(
   credentials: Ref<LoginCredentialsDataObject>
 ): Promise<void> {
   const notificationsStore = useNotificationsStore();
-  const hash = bcrypt.hashSync(credentials.value.password, salt);
   const { data, error } = await useSupabaseAuthClient().auth.signInWithPassword(
     {
       email: credentials.value.email,
-      password: hash,
+      password: credentials.value.password,
     }
   );
+  clearCredentials(credentials);
   if (error) {
     notificationsStore.setMessage(error.message, "error");
     return;
@@ -34,25 +41,27 @@ export async function loginUser(
       `Logged in as ${data.user.user_metadata.name}`,
       "success"
     );
+    navigateTo("/");
   }
 }
 /*
  * async createUser(ref, credentials)
  * Attempts account creation via SupabaseAuthClient
+ * Updates notificationsStore and redirects to home page
  * @param credentials: object containing data to pass
  */
 export async function createUser(credentials: Ref<NewAccountDataObject>) {
   const notificationsStore = useNotificationsStore();
-  const hash = bcrypt.hashSync(credentials.value.password, salt);
   const { data, error } = await useSupabaseAuthClient().auth.signUp({
     email: credentials.value.email,
-    password: hash,
+    password: credentials.value.name,
     options: {
       data: {
         name: credentials.value.name,
       },
     },
   });
+  clearCredentials(credentials);
   if (error) {
     notificationsStore.setMessage(error.message, "error");
     return;
@@ -67,4 +76,25 @@ export async function createUser(credentials: Ref<NewAccountDataObject>) {
     return;
   }
   notificationsStore.setMessage("Account created successfully", "success");
+  navigateTo("/");
+}
+/*
+ * async logout()
+ * Attemps logout via SupabaseAuthClient
+ * Updates notificationsStore and redirects to home page
+ */
+export async function logout() {
+  const notificationsStore = useNotificationsStore();
+  const user = useSupabaseUser();
+  if (!user.value) {
+    notificationsStore.setMessage("No user currently logged in", "error");
+    return;
+  }
+  const { error } = await useSupabaseAuthClient().auth.signOut();
+  if (error) {
+    notificationsStore.setMessage(error.message, "error");
+    return;
+  }
+  notificationsStore.setMessage("Logged out successfully", "success");
+  navigateTo("/");
 }

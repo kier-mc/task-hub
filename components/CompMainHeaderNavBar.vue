@@ -18,18 +18,61 @@
       class="nav__menu"
       :class="{ 'nav__menu--visible': menuIsOpen }"
     >
-      <section class="nav__section" v-for="data in navData" :key="data.index">
-        <h1 class="nav__title">{{ data.title }}</h1>
-        <ul class="nav__links">
-          <template v-for="link in data.links" :key="link.index">
-            <NuxtLink :to="link.url">
-              <li>
-                {{ link.name }}
-              </li>
-            </NuxtLink>
-          </template>
-        </ul>
-      </section>
+      <!-- Menu if user is logged in -->
+      <template v-if="user">
+        <template v-for="data in navData" :key="data.index">
+          <section class="nav__section" v-if="data.display !== 'auth=false'">
+            <h1 class="nav__title">{{ data.title }}</h1>
+            <ul class="nav__links">
+              <template v-for="link in data.links" :key="link.index">
+                <template v-if="link.display !== 'auth=false'">
+                  <template v-if="link.type === 'route'">
+                    <li @click="navigateTo(link.url)">
+                      {{ link.name }}
+                    </li>
+                  </template>
+                  <template v-else-if="link.type === 'logout'">
+                    <li @click="logout">
+                      {{ link.name }}
+                    </li>
+                  </template>
+                </template>
+              </template>
+            </ul>
+          </section>
+        </template>
+      </template>
+      <!-- Menu is user is not logged in -->
+      <template v-else>
+        <template v-for="data in navData" :key="data.index">
+          <section
+            class="nav__section"
+            v-if="data.display === 'auth=false' || data.display === 'always'"
+          >
+            <h1 class="nav__title">{{ data.title }}</h1>
+            <ul class="nav__links">
+              <template v-for="link in data.links" :key="link.index">
+                <template
+                  v-if="
+                    link.display === 'auth=false' || link.display === 'always'
+                  "
+                >
+                  <template v-if="link.type === 'route'">
+                    <li @click="navigateTo(link.url)">
+                      {{ link.name }}
+                    </li>
+                  </template>
+                  <template v-else-if="link.type === 'logout'">
+                    <li @click="logout">
+                      {{ link.name }}
+                    </li>
+                  </template>
+                </template>
+              </template>
+            </ul>
+          </section>
+        </template>
+      </template>
     </div>
   </nav>
 </template>
@@ -155,54 +198,60 @@
 <script setup lang="ts">
 const menuIsOpen: Ref<boolean> = ref(false);
 const button: Ref<HTMLElement | null> = ref(null);
-// const user = useSupabaseUser();
+const user = useSupabaseUser();
 const navData: Array<NavDataObject> = [
   {
     index: 0,
     title: "Site",
+    display: "always",
     links: [
       {
         index: 0,
         name: "Home",
+        type: "route",
+        display: "always",
         url: "/",
-        requiresAuth: false,
-        alwaysDisplay: true,
       },
       {
         index: 1,
         name: "Login",
+        type: "route",
+        display: "auth=false",
         url: "/login",
-        requiresAuth: false,
       },
       {
         index: 2,
         name: "Create Account",
+        type: "route",
+        display: "auth=false",
         url: "/create-account",
-        requiresAuth: false,
       },
       {
         index: 3,
         name: "Logout",
-        url: "#",
-        requiresAuth: true,
+        type: "logout",
+        display: "auth=true",
       },
     ],
   },
   {
     index: 1,
     title: "Actions",
+    display: "auth=true",
     links: [
       {
         index: 0,
         name: "Create Item",
-        url: "#",
-        requiresAuth: true,
+        type: "route",
+        display: "auth=true",
+        url: "/",
       },
       {
         index: 1,
         name: "View All Items",
-        url: "#",
-        requiresAuth: true,
+        type: "route",
+        display: "auth=true",
+        url: "/",
       },
     ],
   },

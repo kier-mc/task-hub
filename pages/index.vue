@@ -15,11 +15,4 @@
 <script setup lang="ts">
 const user = useSupabaseUser();
 const notifications = useNotificationsStore();
-
-onMounted(() => {
-  notifications.setMessage(
-    "Test notification to avoid unnecessary server requests",
-    "test"
-  );
-});
 </script>

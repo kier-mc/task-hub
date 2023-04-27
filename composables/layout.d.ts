@@ -1,13 +1,14 @@
 interface NavDataLinkObject {
   index: number;
   name: string;
-  url: string;
-  requiresAuth: boolean;
-  alwaysDisplay?: true;
+  type: string;
+  display: "always" | "auth=true" | "auth=false";
+  url?: string;
 }
 
 interface NavDataObject {
   index: number;
   title: string;
+  display: "always" | "auth=true" | "auth=false";
   links: Array<NavDataLinkObject>;
 }
