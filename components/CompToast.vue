@@ -57,12 +57,24 @@
 </style>
 
 <script setup lang="ts">
+/* Reactive variables */
 const notifications = useNotificationsStore();
-
+const timeout: Ref<NodeJS.Timeout | null> = ref(null);
+/*
+ * Watch the notifications store for updates via $subscribe
+ * If updated, add a timeout for 5000ms so notifications can close automatically
+ * State of the timeout is tracked through a ref
+ * This allows resetting the timeout if a new message is added before removing the prior
+ * Ensures all notifications get the 5000ms timeout applied
+ */
 notifications.$subscribe(() => {
   if (notifications.message) {
-    setTimeout(() => {
+    if (timeout.value !== null) {
+      window.clearTimeout(timeout.value);
+    }
+    timeout.value = setTimeout(() => {
       notifications.clearAll();
+      timeout.value = null;
     }, 5000);
   }
 });
