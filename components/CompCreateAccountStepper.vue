@@ -135,7 +135,6 @@
 
 <script setup lang="ts">
 /* Reactive variables */
-const notificationsStore = useNotificationsStore();
 const activeSlide: Ref<number> = ref(0);
 const step: Ref<number> = ref(0);
 const current: Ref<number> = ref(0);

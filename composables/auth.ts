@@ -38,7 +38,11 @@ export async function loginUser(
   }
   if (data.user) {
     notificationsStore.setMessage(
-      `Logged in as ${data.user.user_metadata.name}`,
+      `Logged in as ${
+        data.user.user_metadata.name
+          ? data.user.user_metadata.name
+          : data.user.email
+      }`,
       "success"
     );
     navigateTo("/");
