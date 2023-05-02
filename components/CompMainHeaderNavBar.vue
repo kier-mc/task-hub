@@ -42,7 +42,7 @@
           </section>
         </template>
       </template>
-      <!-- Menu is user is not logged in -->
+      <!-- Menu if user is not logged in -->
       <template v-else>
         <template v-for="data in navData" :key="data.index">
           <section
