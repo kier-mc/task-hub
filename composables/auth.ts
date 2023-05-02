@@ -87,7 +87,7 @@ export async function createUser(credentials: Ref<NewAccountDataObject>) {
  * Attemps logout via SupabaseAuthClient
  * Updates notificationsStore and redirects to home page
  */
-export async function logout() {
+export async function logoutUser() {
   const notificationsStore = useNotificationsStore();
   const user = useSupabaseUser();
   if (!user.value) {

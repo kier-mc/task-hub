@@ -32,7 +32,7 @@
                     </li>
                   </template>
                   <template v-else-if="link.type === 'logout'">
-                    <li @click="logout">
+                    <li @click="logoutUser">
                       {{ link.name }}
                     </li>
                   </template>
@@ -63,7 +63,7 @@
                     </li>
                   </template>
                   <template v-else-if="link.type === 'logout'">
-                    <li @click="logout">
+                    <li @click="logoutUser">
                       {{ link.name }}
                     </li>
                   </template>

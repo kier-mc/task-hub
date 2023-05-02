@@ -30,8 +30,6 @@
 </style>
 
 <script setup lang="ts">
-/* Type imports */
-import { User } from "@supabase/gotrue-js";
 /* Reactive variables */
 const notificationsStore = useNotificationsStore();
 /* Template refs */
