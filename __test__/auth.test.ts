@@ -160,4 +160,26 @@ describe("Tests related to creating an account", () => {
     expect(notifications.message).toBe("Account created successfully");
     expect(notifications.type).toBe("success");
   });
+  /*
+   * Calls auth.ts > createUser()
+   * Should update notifications.message with an error message
+   * Should update notifications.type as "error"
+   */
+  test("Using a preexisting email should push an error message as a notification", async () => {
+    // Instantiate the notification store
+    const notifications = useNotificationsStore();
+    // Fake credentials to supply to the endpoint
+    newUserCredentials.email = "alreadyregisteredemail@domain.com";
+    newUserCredentials.password = "validpassword";
+    newUserCredentials.name = "User";
+    // Mock a fake success message and intercept the auth client create account function
+    const mock = { user: { identities: [] } };
+    useSupabaseAuthClient().auth.signUp = mocked.mockResolvedValueOnce({
+      data: mock,
+    });
+    // Call the createUser function as it is used and create assertions
+    await createUser(ref(newUserCredentials));
+    expect(notifications.message).toBe("Email address is already registered");
+    expect(notifications.type).toBe("error");
+  });
 });
