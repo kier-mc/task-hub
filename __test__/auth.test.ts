@@ -64,7 +64,7 @@ describe("Tests related to logging in", () => {
    * Should update notifications.message with an error
    * Should update notifications.type as "error"
    */
-  test("Blank credentials push an error message as a notification", async () => {
+  test("Blank credentials fail and push an error notification", async () => {
     // Instantiate the notification store
     const notifications = useNotificationsStore();
     // Mock a fake error message and intercept the auth client login function
@@ -81,7 +81,7 @@ describe("Tests related to logging in", () => {
    * Should update notifications.message with a success message
    * Should update notifications.type as "success"
    */
-  test("Valid credentials push a success message as a notification", async () => {
+  test("Valid credentials succeed and push a success notification", async () => {
     // Instantiate the notification store
     const notifications = useNotificationsStore();
     // Fake credentials to supply to the endpoint
@@ -125,7 +125,7 @@ describe("Tests related to creating an account", () => {
    * Should update notifications.message with an error message
    * Should update notifications.type as "error"
    */
-  test("Using empty credentials should push an error message as a notification", async () => {
+  test("Empty credentials fail and push an error notification", async () => {
     // Instantiate the notification store
     const notifications = useNotificationsStore();
     // Mock a fake error message and intercept the auth client create account function
@@ -143,7 +143,7 @@ describe("Tests related to creating an account", () => {
    * Should update notifications.message with a success message
    * Should update notifications.type as "success"
    */
-  test("Using valid credentials should push a success message as a notification", async () => {
+  test("Valid credentials succeed and push a success notification", async () => {
     // Instantiate the notification store
     const notifications = useNotificationsStore();
     // Fake credentials to supply to the endpoint
@@ -165,7 +165,7 @@ describe("Tests related to creating an account", () => {
    * Should update notifications.message with an error message
    * Should update notifications.type as "error"
    */
-  test("Using a preexisting email should push an error message as a notification", async () => {
+  test("Using a preexisting email fails and pushes an error notification", async () => {
     // Instantiate the notification store
     const notifications = useNotificationsStore();
     // Fake credentials to supply to the endpoint
@@ -180,6 +180,22 @@ describe("Tests related to creating an account", () => {
     // Call the createUser function as it is used and create assertions
     await createUser(ref(newUserCredentials));
     expect(notifications.message).toBe("Email address is already registered");
+    expect(notifications.type).toBe("error");
+  });
+});
+
+describe("Tests related to logging out", () => {
+  /*
+   * Calls auth.ts > logoutUser()
+   * Should update notifications.message with an error message
+   * Should update notifications.type as "error"
+   */
+  test("Attempting to logout with no active user fails and pushes an error notification", async () => {
+    // Instantiate the notification store
+    const notifications = useNotificationsStore();
+    // Call the logoutUser function as it is used and create assertions
+    await logoutUser();
+    expect(notifications.message).toBe("No user currently logged in");
     expect(notifications.type).toBe("error");
   });
 });
