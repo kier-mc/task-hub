@@ -58,7 +58,7 @@ export async function createUser(credentials: Ref<NewAccountDataObject>) {
   const notificationsStore = useNotificationsStore();
   const { data, error } = await useSupabaseAuthClient().auth.signUp({
     email: credentials.value.email,
-    password: credentials.value.name,
+    password: credentials.value.password,
     options: {
       data: {
         name: credentials.value.name,

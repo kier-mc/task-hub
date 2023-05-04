@@ -30,9 +30,6 @@
 </style>
 
 <script setup lang="ts">
-/* Reactive variables */
-const notificationsStore = useNotificationsStore();
-/* Template refs */
 /* Prop/v-model-related data */
 const propData: Array<CompFormObject> = [
   {

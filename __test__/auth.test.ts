@@ -1,13 +1,24 @@
 // @vitest-environment nuxt
 /*
  * At the end of testing, a 404 error is returned referencing api/_supabase/session
- * Doesn't appear to affect tests as all execute with no issues
- * Have searched+ for a response but nothing concrete exists
- * Edited @nuxtjs/supabase/dist/runtime/plugins/supabase.client.mjs with a try/catch block to quiet the issue
- * No observable difference in the rest of the app
+ * Tests and live Supabase-related functions all execute without issue
+ * Many hours spent searching for solution but nothing concrete exists
+ * Edited @nuxtjs/supabase/dist/runtime/plugins/supabase.client.mjs with a try/catch block to silence the issue
+ * No observable difference in functionality with the edit but should seek a better solution/raise an issue on Github
+ *
  */
-/* Type imports */
-import type { Store } from "pinia";
+/* supabase.client.mjs edit (for reference) */
+// const setServerSession = async (event, session) => {
+//   try {
+//     return await $fetch("/api/_supabase/session", {
+//     method: "POST",
+//     body: { event, session }
+//     });
+//   }
+//   catch (error) {
+//     console.log(error)
+//   }
+// };
 /* Vitest imports */
 import {
   vi,
@@ -109,6 +120,11 @@ describe("Tests related to creating an account", () => {
     newUserCredentials.password = "";
     newUserCredentials.name = "";
   });
+  /*
+   * Calls auth.ts > createUser()
+   * Should update notifications.message with an error message
+   * Should update notifications.type as "error"
+   */
   test("Using empty credentials should push an error message as a notification", async () => {
     // Instantiate the notification store
     const notifications = useNotificationsStore();
@@ -121,5 +137,27 @@ describe("Tests related to creating an account", () => {
     await createUser(ref(newUserCredentials));
     expect(notifications.message).toBe("Signup requires a valid password");
     expect(notifications.type).toBe("error");
+  });
+  /*
+   * Calls auth.ts > createUser()
+   * Should update notifications.message with a success message
+   * Should update notifications.type as "success"
+   */
+  test("Using valid credentials should push a success message as a notification", async () => {
+    // Instantiate the notification store
+    const notifications = useNotificationsStore();
+    // Fake credentials to supply to the endpoint
+    newUserCredentials.email = "validemail@domain.com";
+    newUserCredentials.password = "validpassword";
+    newUserCredentials.name = "User";
+    // Mock a fake success message and intercept the auth client create account function
+    const mock = {};
+    useSupabaseAuthClient().auth.signUp = mocked.mockResolvedValueOnce({
+      data: mock,
+    });
+    // Call the createUser function as it is used and create assertions
+    await createUser(ref(newUserCredentials));
+    expect(notifications.message).toBe("Account created successfully");
+    expect(notifications.type).toBe("success");
   });
 });
