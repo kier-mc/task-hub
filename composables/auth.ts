@@ -83,14 +83,14 @@ export async function createUser(credentials: Ref<NewAccountDataObject>) {
   navigateTo("/");
 }
 /*
- * async logout()
+ * async logoutUser()
  * Attemps logout via SupabaseAuthClient
  * Updates notificationsStore and redirects to home page
  */
 export async function logoutUser() {
   const notificationsStore = useNotificationsStore();
-  const user = useSupabaseUser();
-  if (!user.value) {
+  const request = await useSupabaseAuthClient().auth.getUser();
+  if (!request.data.user) {
     notificationsStore.setMessage("No user currently logged in", "error");
     return;
   }

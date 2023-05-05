@@ -20,16 +20,7 @@
 //   }
 // };
 /* Vitest imports */
-import {
-  vi,
-  describe,
-  test,
-  expect,
-  beforeAll,
-  afterAll,
-  beforeEach,
-  afterEach,
-} from "vitest";
+import { vi, describe, test, expect, beforeAll, beforeEach } from "vitest";
 /* Pinia imports */
 import { setActivePinia, createPinia } from "pinia";
 /* Functions to be tested */
@@ -39,14 +30,9 @@ import { loginUser, createUser, logoutUser } from "~/composables/auth";
 const mocked = vi.fn();
 vi.mock("@nuxtjs/supabase");
 
-// Create a new Pinia instance
+// Create a new Pinia instance, reset the notifications and reset all mocks
 beforeAll(() => {
   setActivePinia(createPinia());
-});
-// Reset all mock values and the notifications store
-afterAll(() => {
-  useNotificationsStore().$reset;
-  vi.resetAllMocks();
 });
 
 describe("Tests related to logging in", () => {
@@ -55,9 +41,11 @@ describe("Tests related to logging in", () => {
     password: "",
   });
   // Reset credentials to empty strings
-  afterEach(() => {
+  beforeEach(() => {
     loginCredentials.email = "";
     loginCredentials.password = "";
+    useNotificationsStore().$reset;
+    vi.resetAllMocks();
   });
   /*
    * Calls auth.ts > loginUser()
@@ -67,12 +55,13 @@ describe("Tests related to logging in", () => {
   test("Blank credentials fail and push an error notification", async () => {
     // Instantiate the notification store
     const notifications = useNotificationsStore();
-    // Mock a fake error message and intercept the auth client login function
+    // Mock an error response from the endpoint via auth.signInWithPassword()
     const mock = { message: "Invalid login credentials" };
-    useSupabaseAuthClient().auth.signInWithPassword =
-      mocked.mockResolvedValueOnce({ error: mock });
+    const request = (useSupabaseAuthClient().auth.signInWithPassword =
+      mocked.mockResolvedValueOnce({ error: mock }));
     // Call the loginUser function as it is used and create assertions
     await loginUser(ref(loginCredentials));
+    expect(request).toHaveBeenCalledOnce();
     expect(notifications.message).toBe("Invalid login credentials");
     expect(notifications.type).toBe("error");
   });
@@ -87,23 +76,27 @@ describe("Tests related to logging in", () => {
     // Fake credentials to supply to the endpoint
     loginCredentials.email = "validemail@domain.com";
     loginCredentials.password = "validpassword";
-    // Mock the expected success message and intercept the auth client login function
+    // Mock a response from the endpoint via auth.signInWithPassword() when no user.user_metadata.name is present
     const mock = {
       user: { email: "validemail@domain.com", user_metadata: { name: "" } },
     };
-    useSupabaseAuthClient().auth.signInWithPassword =
-      mocked.mockResolvedValueOnce({ data: mock });
+    const requestWithoutName =
+      (useSupabaseAuthClient().auth.signInWithPassword =
+        mocked.mockResolvedValueOnce({ data: mock }));
     // Call the loginUser function as it is used and create assertions
     await loginUser(ref(loginCredentials));
+    expect(requestWithoutName).toHaveBeenCalledOnce();
     expect(notifications.message).toBe("Logged in as validemail@domain.com");
     expect(notifications.type).toBe("success");
-    // Reset all mocks, update the name value in the user_metadata and remock
+    // Mock a response from the endpoint via auth.signInWithPassword() when user.user_metadata.name is present
+    // Reset all mocks and update the user.user_metadata with a truthy value
     vi.resetAllMocks();
     mock.user.user_metadata.name = "User";
-    useSupabaseAuthClient().auth.signInWithPassword =
-      mocked.mockResolvedValueOnce({ data: mock });
+    const requestWithName = (useSupabaseAuthClient().auth.signInWithPassword =
+      mocked.mockResolvedValueOnce({ data: mock }));
     // Call the loginUser function as it is used and create assertions
     await loginUser(ref(loginCredentials));
+    expect(requestWithName).toHaveBeenCalledOnce();
     expect(notifications.message).toBe("Logged in as User");
     expect(notifications.type).toBe("success");
   });
@@ -115,10 +108,12 @@ describe("Tests related to creating an account", () => {
     password: "",
     name: "",
   });
-  afterEach(() => {
+  beforeEach(() => {
     newUserCredentials.email = "";
     newUserCredentials.password = "";
     newUserCredentials.name = "";
+    useNotificationsStore().$reset;
+    vi.resetAllMocks();
   });
   /*
    * Calls auth.ts > createUser()
@@ -128,13 +123,15 @@ describe("Tests related to creating an account", () => {
   test("Empty credentials fail and push an error notification", async () => {
     // Instantiate the notification store
     const notifications = useNotificationsStore();
-    // Mock a fake error message and intercept the auth client create account function
+    // Mock an error response from the endpoint via auth.signUp()
     const mock = { message: "Signup requires a valid password" };
-    useSupabaseAuthClient().auth.signUp = mocked.mockResolvedValueOnce({
-      error: mock,
-    });
+    const request = (useSupabaseAuthClient().auth.signUp =
+      mocked.mockResolvedValueOnce({
+        error: mock,
+      }));
     // Call the createUser function as it is used and create assertions
     await createUser(ref(newUserCredentials));
+    expect(request).toHaveBeenCalledOnce();
     expect(notifications.message).toBe("Signup requires a valid password");
     expect(notifications.type).toBe("error");
   });
@@ -150,13 +147,15 @@ describe("Tests related to creating an account", () => {
     newUserCredentials.email = "validemail@domain.com";
     newUserCredentials.password = "validpassword";
     newUserCredentials.name = "User";
-    // Mock a fake success message and intercept the auth client create account function
+    // Mock a valid response from the endpoint via auth.signUp()
     const mock = {};
-    useSupabaseAuthClient().auth.signUp = mocked.mockResolvedValueOnce({
-      data: mock,
-    });
+    const request = (useSupabaseAuthClient().auth.signUp =
+      mocked.mockResolvedValueOnce({
+        data: mock,
+      }));
     // Call the createUser function as it is used and create assertions
     await createUser(ref(newUserCredentials));
+    expect(request).toHaveBeenCalledOnce();
     expect(notifications.message).toBe("Account created successfully");
     expect(notifications.type).toBe("success");
   });
@@ -172,19 +171,25 @@ describe("Tests related to creating an account", () => {
     newUserCredentials.email = "alreadyregisteredemail@domain.com";
     newUserCredentials.password = "validpassword";
     newUserCredentials.name = "User";
-    // Mock a fake success message and intercept the auth client create account function
+    // Mock a response lacking user.identities from the endpoint via auth.signUp()
     const mock = { user: { identities: [] } };
-    useSupabaseAuthClient().auth.signUp = mocked.mockResolvedValueOnce({
-      data: mock,
-    });
+    const request = (useSupabaseAuthClient().auth.signUp =
+      mocked.mockResolvedValueOnce({
+        data: mock,
+      }));
     // Call the createUser function as it is used and create assertions
     await createUser(ref(newUserCredentials));
+    expect(request).toHaveBeenCalledOnce();
     expect(notifications.message).toBe("Email address is already registered");
     expect(notifications.type).toBe("error");
   });
 });
 
 describe("Tests related to logging out", () => {
+  beforeEach(() => {
+    useNotificationsStore().$reset;
+    vi.resetAllMocks();
+  });
   /*
    * Calls auth.ts > logoutUser()
    * Should update notifications.message with an error message
@@ -193,9 +198,36 @@ describe("Tests related to logging out", () => {
   test("Attempting to logout with no active user fails and pushes an error notification", async () => {
     // Instantiate the notification store
     const notifications = useNotificationsStore();
+    // Mock an error response from the endpoint via auth.getUser()
+    const mock = { error: "error" };
+    const request = (useSupabaseAuthClient().auth.getUser =
+      mocked.mockResolvedValueOnce({
+        data: mock,
+      }));
     // Call the logoutUser function as it is used and create assertions
     await logoutUser();
+    expect(request).toHaveBeenCalledOnce();
     expect(notifications.message).toBe("No user currently logged in");
     expect(notifications.type).toBe("error");
+  });
+  /*
+   * Calls auth.ts > logoutUser()
+   * Should update notifications.message with a success message
+   * Should update notifications.type as "success"
+   */
+  test("Attempting to logout with an active user succeeds and pushes a success notification", async () => {
+    // Instantiate the notification store
+    const notifications = useNotificationsStore();
+    // Mock a valid response from the endpoint via auth.getUser()
+    const mock = { user: {} };
+    const request = (useSupabaseAuthClient().auth.getUser =
+      mocked.mockResolvedValueOnce({
+        data: mock,
+      }));
+    // Call the logoutUser function as it is used and create assertions
+    await logoutUser();
+    expect(request).toHaveBeenCalledOnce();
+    expect(notifications.message).toBe("Logged out successfully");
+    expect(notifications.type).toBe("success");
   });
 });
