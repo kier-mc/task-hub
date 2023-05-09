@@ -31,7 +31,6 @@ export async function loginUser(
       password: credentials.value.password,
     }
   );
-  clearCredentials(credentials);
   if (error) {
     notificationsStore.setMessage(error.message, "error");
     return;
@@ -45,6 +44,7 @@ export async function loginUser(
       }`,
       "success"
     );
+    clearCredentials(credentials);
     navigateTo("/");
   }
 }
@@ -65,7 +65,6 @@ export async function createUser(credentials: Ref<NewAccountDataObject>) {
       },
     },
   });
-  clearCredentials(credentials);
   if (error) {
     notificationsStore.setMessage(error.message, "error");
     return;
@@ -80,7 +79,8 @@ export async function createUser(credentials: Ref<NewAccountDataObject>) {
     return;
   }
   notificationsStore.setMessage("Account created successfully", "success");
-  navigateTo("/");
+  clearCredentials(credentials);
+  navigateTo("/login");
 }
 /*
  * async logoutUser()
