@@ -11,7 +11,7 @@
  * Helper function to wipe credentials object once login/creation submissions occur
  * @param credentials: object containing data to erase; inherited from parent function
  */
-function clearCredentials(credentials: Ref<LoginCredentialsDataObject>) {
+function clearCredentials(credentials: Ref<LoginCredentialsDataObject>): void {
   credentials.value.email = "";
   credentials.value.password = "";
 }
@@ -87,7 +87,7 @@ export async function createUser(credentials: Ref<NewAccountDataObject>) {
  * Attemps logout via SupabaseAuthClient
  * Updates notificationsStore and redirects to home page
  */
-export async function logoutUser() {
+export async function logoutUser(): Promise<void> {
   const notificationsStore = useNotificationsStore();
   const request = await useSupabaseAuthClient().auth.getUser();
   if (!request.data.user) {

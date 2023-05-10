@@ -1,12 +1,23 @@
 // Main database schema type definitions
 interface Database {
-  author: {
-    author_id?: number;
-    name?: string;
+  users: {
+    user_id: number;
+    user_uuid: string;
+    created_at: string;
+    email: string;
+    preferred_name: string;
+  };
+  tasks: {
+    task_id: number;
+    created_at: string;
+    author_id: number;
+    task: string;
+    description: string;
+    frequency__id: number;
   };
   frequency: {
-    frequency_id?: number;
-    name?: string;
+    frequency_id: number;
+    repeats_every: string;
   };
 }
 
@@ -21,7 +32,7 @@ interface DBResponse {
 
 // Specific response extensions
 interface AuthorResponse extends DBResponse {
-  data: Array<Database["author"]>;
+  data: Array<Database["users"]>;
 }
 
 interface FrequencyResponse extends DBResponse {
