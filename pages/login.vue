@@ -2,7 +2,7 @@
   <div class="temp">
     <form class="login">
       <template v-for="formData in propData" :key="formData.id">
-        <MiniCompFormInput
+        <CompFormHandler
           :formData="formData"
           v-model="credentials[formData.formID]"
         />
@@ -35,12 +35,14 @@ const propData: Array<CompFormObject> = [
   {
     index: 0,
     formID: "email",
+    elementType: "input",
     attrType: "text",
     labelText: "Email",
   },
   {
     index: 1,
     formID: "password",
+    elementType: "input",
     attrType: "password",
     labelText: "Password",
   },

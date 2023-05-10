@@ -228,6 +228,13 @@ const navData: Array<NavDataObject> = [
       },
       {
         index: 3,
+        name: "Hub",
+        type: "route",
+        display: "auth=true",
+        url: "/hub",
+      },
+      {
+        index: 4,
         name: "Logout",
         type: "logout",
         display: "auth=true",

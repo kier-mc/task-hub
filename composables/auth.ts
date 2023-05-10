@@ -45,7 +45,7 @@ export async function loginUser(
       "success"
     );
     clearCredentials(credentials);
-    navigateTo("/");
+    navigateTo("/hub");
   }
 }
 /*

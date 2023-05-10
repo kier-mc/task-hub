@@ -19,7 +19,7 @@
         :data-active="activeSlide === entry.index ? true : false"
       >
         <template v-for="formData in entry.formData">
-          <MiniCompFormInput
+          <CompFormHandler
             :formData="formData"
             v-model="credentials[formData.formID]"
           />
@@ -149,6 +149,7 @@ const propData: Array<CompStepperPropData> = [
       {
         index: 0,
         formID: "email",
+        elementType: "input",
         attrType: "text",
         labelText: "Email",
         hintText: "Requires confirmation",
@@ -156,6 +157,7 @@ const propData: Array<CompStepperPropData> = [
       {
         index: 1,
         formID: "password",
+        elementType: "input",
         attrType: "password",
         labelText: "Password",
         hintText: "Password must be at least 12 characters long",
@@ -169,6 +171,7 @@ const propData: Array<CompStepperPropData> = [
       {
         index: 0,
         formID: "name",
+        elementType: "input",
         attrType: "text",
         labelText: "Preferred name",
         hintText: "Used when authoring tasks",
