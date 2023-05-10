@@ -15,10 +15,6 @@ interface CompStepperPropData {
   header: string;
   formData: Array<CompFormObject>;
 }
-interface CompNewTodoPropData {
-  index: number;
-  formData: Array<CompFormObject>;
-}
 interface LoginCredentialsDataObject {
   [key: string]: string;
   email: string;
