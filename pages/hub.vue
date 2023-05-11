@@ -207,7 +207,6 @@ async function createNewTask(task: TaskDataObject): Promise<void> {
   notifications.setMessage("Successfully created task", "success");
   return;
 }
-
 const taskStore = useTaskStore();
 onMounted(() => {
   emitDefaultFrequency();
