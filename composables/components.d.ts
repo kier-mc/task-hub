@@ -26,7 +26,7 @@ interface NewAccountDataObject {
   password: string;
   name: string;
 }
-interface TodoDataObject {
+interface TaskDataObject {
   [key: string]: string;
   task: string;
   description: string;
