@@ -33,16 +33,8 @@
       <br />
       <template v-if="!taskStore.length()"> No tasks found </template>
       <template v-else>
-        taskStore length = {{ taskStore.length() }}
         <template v-for="task in taskStore.tasks">
-          <h3>{{ task.task }}</h3>
-          {{ task.description }}
-          <br />
-          <br />
-          <span style="font-size: 0.8rem">
-            Frequency:
-            {{ frequencies[(task as Database["tasks"]).frequency_id] }}
-          </span>
+          <CompTask :data="task" />
         </template>
       </template>
     </div>
@@ -199,15 +191,7 @@ async function createNewTask(task: TaskDataObject): Promise<void> {
   notifications.setMessage("Successfully created task", "success");
   return;
 }
-const frequencies: { [key: number]: string } = {
-  1: "daily",
-  2: "weekly",
-  3: "fortnightly",
-  4: "monthly",
-  5: "tri-annually",
-  6: "semi-annually",
-  7: "annually",
-};
+
 const taskStore = useTaskStore();
 onMounted(() => {
   emitDefaultFrequency();
