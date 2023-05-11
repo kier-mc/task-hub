@@ -199,10 +199,7 @@ async function createNewTask(task: TaskDataObject): Promise<void> {
   notifications.setMessage("Successfully created task", "success");
   return;
 }
-interface FrequencyHashmap {
-  [key: number]: string;
-}
-const frequencies: FrequencyHashmap = {
+const frequencies: { [key: number]: string } = {
   1: "daily",
   2: "weekly",
   3: "fortnightly",

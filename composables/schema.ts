@@ -17,7 +17,14 @@ interface Database {
   };
   frequency: {
     frequency_id: number;
-    repeats_every: string;
+    repeats_every:
+      | "daily"
+      | "weekly"
+      | "fortnightly"
+      | "monthly"
+      | "tri-annually"
+      | "semi-annually"
+      | "annually";
   };
 }
 
