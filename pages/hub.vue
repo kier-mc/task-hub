@@ -22,7 +22,12 @@
     </div>
     <div class="view-task" style="margin-top: 1.5rem">
       <h2>View Tasks</h2>
-      <button type="button" class="button" @click="taskStore.getTasks()">
+      <button
+        type="button"
+        class="button"
+        @click="taskStore.getTasks()"
+        style="margin-right: 1rem"
+      >
         Fetch Tasks
       </button>
       <button type="button" class="button" @click="taskStore.clearTasks()">
@@ -33,9 +38,9 @@
       <br />
       <template v-if="!taskStore.length()"> No tasks found </template>
       <template v-else>
-        <template v-for="task in taskStore.tasks">
+        <div class="tasks" v-for="task in taskStore.tasks">
           <CompTask :data="task" />
-        </template>
+        </div>
       </template>
     </div>
   </div>
@@ -49,6 +54,17 @@
 .create-task {
   & h2 {
     padding-bottom: 1rem;
+  }
+}
+.view-task {
+  & h2 {
+    padding-bottom: 1rem;
+    margin-top: 5rem;
+  }
+}
+.tasks {
+  &:not(:last-child) {
+    margin-bottom: 1rem;
   }
 }
 </style>
