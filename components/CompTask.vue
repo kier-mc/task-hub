@@ -40,11 +40,7 @@
         frequencies[(data as Database["tasks"]).frequency_id]
       }}</template>
       <template v-else>
-        <CompFormHandler
-          class="custom_select"
-          :formData="propData"
-          v-model="task['frequency']"
-        />
+        <CompFormHandler :formData="propData" v-model="task['frequency']" />
       </template>
     </div>
     {{ task }}
@@ -105,10 +101,6 @@
   &--edited {
     border: 1px solid hsl(10, 50%, 50%);
   }
-}
-.custom-select {
-  font-size: 0.5rem;
-  color: red;
 }
 </style>
 
@@ -185,6 +177,7 @@ function toggleEditMode() {
   }
 }
 async function updateTask() {
+  if (!container.value) return;
   const { data, error } = await useSupabaseClient<Database>()
     .from("tasks")
     .update({
@@ -201,6 +194,8 @@ async function updateTask() {
     `Task "${task.task}" updated successfully`,
     "success"
   );
+  hasBeenEdited.value = false;
+  container.value.classList.remove("task--edited");
 }
 onMounted(() => {
   task.task = props.data.task;
