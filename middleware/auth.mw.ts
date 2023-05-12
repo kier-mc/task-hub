@@ -1,11 +1,11 @@
-export default defineNuxtRouteMiddleware((to, _from) => {
-  const user = useSupabaseUser();
-  const notifications = useNotificationsStore();
-  if (!user.value) {
-    notifications.setMessage(
-      "You must be logged in to access this resource",
+export default defineNuxtRouteMiddleware(async (_to, _from) => {
+  const notificationsStore = useNotificationsStore();
+  const request = await useSupabaseAuthClient().auth.getUser();
+  if (!request.data.user) {
+    notificationsStore.setMessage(
+      "You must be signed in to view this page",
       "error"
     );
-    return navigateTo("/login");
+    return navigateTo("/login", { redirectCode: 401 });
   }
 });

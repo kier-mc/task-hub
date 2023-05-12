@@ -2,7 +2,7 @@ import { useNotificationsStore } from "./notifications";
 import { setActivePinia, createPinia } from "pinia";
 
 setActivePinia(createPinia());
-const notifications = useNotificationsStore();
+const notificationsStore = useNotificationsStore();
 
 export const useTaskStore = defineStore("tasks", {
   state: () => ({
@@ -13,11 +13,15 @@ export const useTaskStore = defineStore("tasks", {
       return this.tasks.length;
     },
     async getTasks() {
+      const request = await useSupabaseAuthClient().auth.getUser();
+      if (!request.data.user) {
+        return navigateTo("/login");
+      }
       const { data, error } = await useSupabaseClient<Database>()
         .from("tasks")
         .select("*");
       if (error) {
-        notifications.setMessage(error.message, "error");
+        notificationsStore.setMessage(error.message, "error");
         return;
       }
       if (data) {
