@@ -103,7 +103,7 @@ const propData: Array<CompFormObject> = [
   },
 ];
 const user = useSupabaseUser();
-const notifications = useNotificationsStore();
+const notificationsStore = useNotificationsStore();
 const task: TaskDataObject = reactive({
   task: "",
   description: "",
@@ -133,7 +133,7 @@ async function getAuthor(): Promise<number> {
     .select("*")
     .eq("email", user.value.email);
   if (error) {
-    notifications.setMessage(error.message, "error");
+    notificationsStore.setMessage(error.message, "error");
     return -1;
   }
   if (data) {
@@ -152,7 +152,7 @@ async function getFrequency(): Promise<number> {
     .select("*")
     .eq("repeat_every", task.frequency);
   if (error) {
-    notifications.setMessage(error.message, "error");
+    notificationsStore.setMessage(error.message, "error");
     return -1;
   }
   if (data) {
@@ -182,7 +182,7 @@ function validateInput(): void {
  */
 async function createNewTask(task: TaskDataObject): Promise<void> {
   if (!isValidInput) {
-    notifications.setMessage(
+    notificationsStore.setMessage(
       "You must enter a task name before submitting",
       "error"
     );
@@ -201,14 +201,15 @@ async function createNewTask(task: TaskDataObject): Promise<void> {
       },
     ]);
   if (error) {
-    notifications.setMessage(error.message, "error");
+    notificationsStore.setMessage(error.message, "error");
     return;
   }
-  notifications.setMessage("Successfully created task", "success");
+  notificationsStore.setMessage("Successfully created task", "success");
   return;
 }
 const taskStore = useTaskStore();
 onMounted(() => {
   emitDefaultFrequency();
+  taskStore.getTasks();
 });
 </script>

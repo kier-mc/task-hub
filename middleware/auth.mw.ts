@@ -1,3 +1,6 @@
+/*
+ * Message isn't currently displaying to user
+ */
 export default defineNuxtRouteMiddleware(async (_to, _from) => {
   const notificationsStore = useNotificationsStore();
   const request = await useSupabaseAuthClient().auth.getUser();
