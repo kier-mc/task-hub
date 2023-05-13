@@ -47,7 +47,10 @@
         />
       </template>
     </div>
-    {{ task }}
+    Props: {{ data }}
+    <br />
+    <br />
+    Local version: {{ task }}
   </div>
 </template>
 
@@ -181,7 +184,6 @@ function toggleEditMode() {
   }
 }
 async function updateTask() {
-  if (!container.value) return;
   const { data, error } = await useSupabaseClient<Database>()
     .from("tasks")
     .update({
@@ -194,11 +196,12 @@ async function updateTask() {
     notificationsStore.setMessage(error.message, "error");
     return;
   }
-  notificationsStore.setMessage(
-    `Task "${task.task}" updated successfully`,
-    "success"
-  );
+  notificationsStore.setMessage(`Task updated successfully`, "success");
   hasBeenEdited.value = false;
+  props.data.task = task.task;
+  props.data.description = task.description;
+  props.data.frequency_id = frequencyToID[task.frequency];
+  if (!container.value) return;
   container.value.classList.remove("task--edited");
 }
 onMounted(() => {
