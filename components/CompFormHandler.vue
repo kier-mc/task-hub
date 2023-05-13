@@ -25,6 +25,7 @@
         @input="
           $emit('update:modelValue', ($event.target as HTMLSelectElement).value)
         "
+        v-model="defaultOption"
       >
         <option
           v-for="option in props.formData.options"
@@ -82,5 +83,7 @@ $input-padding: 0.5rem;
 <script setup lang="ts">
 const props = defineProps({
   formData: { type: Object as PropType<CompFormObject>, required: true },
+  defaultOption: { type: String as PropType<String>, required: false },
 });
+const defaultOption: Ref<String | undefined> = ref(props.defaultOption);
 </script>

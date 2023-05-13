@@ -40,7 +40,11 @@
         frequencies[(data as Database["tasks"]).frequency_id]
       }}</template>
       <template v-else>
-        <CompFormHandler :formData="propData" v-model="task['frequency']" />
+        <CompFormHandler
+          :formData="propData"
+          v-model="task['frequency']"
+          :defaultOption="task['frequency']"
+        />
       </template>
     </div>
     {{ task }}
