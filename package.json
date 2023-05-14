@@ -10,9 +10,6 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
   },
-  "overrides": {
-    "vue": "latest"
-  },
   "devDependencies": {
     "@nuxt/types": "^2.16.3",
     "@nuxt/typescript-build": "^3.0.1",
@@ -26,7 +23,8 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@pinia/nuxt": "^0.4.9",
-    "pinia": "^2.0.35"
+    "@pinia/nuxt": "^0.4.10",
+    "pinia": "^2.0.36",
+    "vue": "^3.3.2"
   }
 }
