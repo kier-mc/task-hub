@@ -48,6 +48,7 @@
   }
   &[data-active="true"] {
     opacity: 1;
+    z-index: 1000;
     transform: translate3d(0, 0%, 0);
   }
   &__close-button {
