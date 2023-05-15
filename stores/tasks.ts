@@ -6,7 +6,8 @@ const notificationsStore = useNotificationsStore();
 
 export const useTaskStore = defineStore("tasks", {
   state: () => ({
-    tasks: [] as any,
+    // Need a better solution here than "any"
+    tasks: [] as Database["tasks"][],
   }),
   actions: {
     length() {
@@ -25,7 +26,7 @@ export const useTaskStore = defineStore("tasks", {
         return;
       }
       if (data) {
-        this.tasks = data;
+        this.tasks = data as Database["tasks"][];
         return;
       }
     },
