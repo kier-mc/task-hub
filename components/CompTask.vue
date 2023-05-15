@@ -1,19 +1,9 @@
-<!-- 
-    Elements are currently editable, but the backend functionality needs to be handled
-    Consider an edit button, perhaps top right of the task, that allows editability to be enabled
-    Frequency would likely work best as a <select> element
--->
 <template>
-  <div class="task" ref="container">
+  <div class="task" :class="{ 'task--edited': hasBeenEdited }">
     <div class="task__title">
       <h3
         :contenteditable="isEditable ? 'true' : 'false'"
-        @input="
-          updateTaskLocally(
-            'task',
-            ($event.target as HTMLHeadingElement).textContent ?? ''
-          )
-        "
+        @input="handleTaskInput('task', $event)"
       >
         {{ data.task }}
       </h3>
@@ -26,12 +16,7 @@
     <div
       class="task__description"
       :contenteditable="isEditable ? 'true' : 'false'"
-      @input="
-        updateTaskLocally(
-          'description',
-          ($event.target as HTMLDivElement).textContent ?? ''
-        )
-      "
+      @input="handleTaskInput('description', $event)"
     >
       {{ data.description }}
     </div>
@@ -42,15 +27,12 @@
       <template v-else>
         <CompFormHandler
           :formData="propData"
-          v-model="task['frequency']"
-          :defaultOption="task['frequency']"
+          v-model="localTask['frequency']"
+          :defaultOption="localTask['frequency']"
+          @update:modelValue="handleTaskInput('frequency', $event)"
         />
       </template>
     </div>
-    Props: {{ data }}
-    <br />
-    <br />
-    Local version: {{ task }}
   </div>
 </template>
 
@@ -125,8 +107,8 @@ const propData: CompFormObject = {
     { value: "weekly", text: "Weekly" },
     { value: "fortnightly", text: "Fortnightly" },
     { value: "monthly", text: "Monthly" },
-    { value: "tri-annually", text: "Tri-annually (3 months)" },
-    { value: "semi-annually", text: "Semi-annually (6 months)" },
+    { value: "triannually", text: "Tri-annually (3 months)" },
+    { value: "biannually", text: "Bi-annually (6 months)" },
     { value: "annually", text: "Annually" },
   ],
 };
@@ -135,8 +117,8 @@ const frequencies: { [key: number]: string } = {
   2: "weekly",
   3: "fortnightly",
   4: "monthly",
-  5: "tri-annually",
-  6: "semi-annually",
+  5: "triannually",
+  6: "biannually",
   7: "annually",
 };
 const frequencyToID: { [key: string]: number } = {
@@ -144,37 +126,29 @@ const frequencyToID: { [key: string]: number } = {
   weekly: 2,
   fortnightly: 3,
   monthly: 4,
-  "tri-annually": 5,
-  "semi-annually": 6,
+  triannually: 5,
+  semiannually: 6,
   annually: 7,
 };
+
 const container: Ref<HTMLDivElement | null> = ref(null);
-const task = reactive({
+const localTask = reactive({
   task: "",
   description: "",
   frequency: "",
 });
-function updateTaskLocally(
-  prop: "task" | "description" | "frequency",
-  value: string
-) {
-  task[prop] = value;
-}
 const notificationsStore = useNotificationsStore();
 const hasBeenEdited: Ref<boolean> = ref(false);
 const isEditable: Ref<boolean> = ref(false);
 function handleEdit() {
-  if (!container.value) return;
   if (
-    task.task !== props.data.task ||
-    task.description !== props.data.description ||
-    task.frequency !== frequencies[props.data.frequency_id]
+    localTask.task !== props.data.task ||
+    localTask.description !== props.data.description ||
+    localTask.frequency !== frequencies[props.data.frequency_id]
   ) {
     hasBeenEdited.value = true;
-    container.value.classList.add("task--edited");
   } else {
     hasBeenEdited.value = false;
-    container.value.classList.remove("task--edited");
   }
 }
 function toggleEditMode() {
@@ -187,9 +161,9 @@ async function updateTask() {
   const { data, error } = await useSupabaseClient<Database>()
     .from("tasks")
     .update({
-      task: task.task,
-      description: task.description,
-      frequency_id: frequencyToID[task.frequency],
+      task: localTask.task,
+      description: localTask.description,
+      frequency_id: frequencyToID[localTask.frequency],
     })
     .eq("task_id", props.data.task_id);
   if (error) {
@@ -198,18 +172,28 @@ async function updateTask() {
   }
   notificationsStore.setMessage(`Task updated successfully`, "success");
   hasBeenEdited.value = false;
-  props.data.task = task.task;
-  props.data.description = task.description;
-  props.data.frequency_id = frequencyToID[task.frequency];
+  props.data.task = localTask.task;
+  props.data.description = localTask.description;
+  props.data.frequency_id = frequencyToID[localTask.frequency];
   if (!container.value) return;
   container.value.classList.remove("task--edited");
 }
 onMounted(() => {
-  task.task = props.data.task;
-  task.description = props.data.description;
-  task.frequency = frequencies[props.data.frequency_id];
+  localTask.task = props.data.task;
+  localTask.description = props.data.description;
+  localTask.frequency = frequencies[props.data.frequency_id];
 });
-onUpdated(() => {
+function handleTaskInput(
+  prop: "task" | "description" | "frequency",
+  event: Event,
+  value?: string
+) {
+  if (prop !== "frequency") {
+    const target = event.target as HTMLHeadingElement | HTMLDivElement;
+    localTask[prop] = target.textContent ?? "";
+  } else {
+    if (value) localTask.frequency = value;
+  }
   handleEdit();
-});
+}
 </script>
