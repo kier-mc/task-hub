@@ -22,7 +22,7 @@
     </div>
     <div class="task__frequency">
       <template v-if="!isEditable">{{
-        frequencies[(data as Database["tasks"]).frequency_id]
+        convertFrequency((data as Database["tasks"]).frequency_id)
       }}</template>
       <template v-else>
         <CompFormHandler
@@ -94,6 +94,9 @@
 </style>
 
 <script setup lang="ts">
+/* Pinia stores */
+const notificationsStore = useNotificationsStore();
+/* Prop/v-model-related data */
 const props = defineProps({
   data: { type: Object as PropType<Database["tasks"]>, required: true },
 });
@@ -112,58 +115,116 @@ const propData: CompFormObject = {
     { value: "annually", text: "Annually" },
   ],
 };
-const frequencies: { [key: number]: string } = {
-  1: "daily",
-  2: "weekly",
-  3: "fortnightly",
-  4: "monthly",
-  5: "triannually",
-  6: "biannually",
-  7: "annually",
-};
-const frequencyToID: { [key: string]: number } = {
-  daily: 1,
-  weekly: 2,
-  fortnightly: 3,
-  monthly: 4,
-  triannually: 5,
-  semiannually: 6,
-  annually: 7,
-};
-
-const container: Ref<HTMLDivElement | null> = ref(null);
+/* Reactive variables */
+const hasBeenEdited: Ref<boolean> = ref(false);
+const isEditable: Ref<boolean> = ref(false);
 const localTask = reactive({
   task: "",
   description: "",
   frequency: "",
 });
-const notificationsStore = useNotificationsStore();
-const hasBeenEdited: Ref<boolean> = ref(false);
-const isEditable: Ref<boolean> = ref(false);
-function handleEdit() {
+/*
+ * convertFrequency(value)
+ * Converts between string/numeric representations of database frequencies
+ * Ensures values make sense to either the database or the user, depending on who's reading
+ * @param value: string or number to be converted
+ * @returns: a string or a number, depending on param
+ */
+function convertFrequency(value: number | string): string | number {
+  // Lookup label via ID
+  const frequencyLabels: Record<
+    Database["frequency"]["frequency_id"],
+    Database["frequency"]["repeats_every"]
+  > = {
+    1: "daily",
+    2: "weekly",
+    3: "fortnightly",
+    4: "monthly",
+    5: "triannually",
+    6: "biannually",
+    7: "annually",
+  };
+  // Lookup ID via label
+  const frequencyIDs: Record<
+    Database["frequency"]["repeats_every"],
+    Database["frequency"]["frequency_id"]
+  > = {
+    daily: 1,
+    weekly: 2,
+    fortnightly: 3,
+    monthly: 4,
+    triannually: 5,
+    biannually: 6,
+    annually: 7,
+  };
+  if (typeof value === "number") {
+    return frequencyLabels[value as keyof typeof frequencyLabels];
+  } else if (typeof value === "string") {
+    return frequencyIDs[value as keyof typeof frequencyIDs];
+  } else {
+    throw new Error("Parameter must be either a string or a number");
+  }
+}
+/*
+ * handleTaskInput(prop, event, ?value)
+ * Called on a task when edit mode is induced
+ * Updates localTask reactive variable to sync with changes made
+ * @param prop: string that references the value to be altered
+ * @param event: relevant input event, passed by $event in the template
+ * @param ?value: optional string populated via modelValue emit
+ */
+function handleTaskInput(
+  prop: "task" | "description" | "frequency",
+  event: Event,
+  value?: string
+): void {
+  if (prop !== "frequency") {
+    const target = event.target as HTMLHeadingElement | HTMLDivElement;
+    localTask[prop] = target.textContent ?? "";
+  } else {
+    if (value) localTask.frequency = value;
+  }
+  detectChanges();
+}
+/*
+ * detectChanges()
+ * Determines differences between prop data/local data
+ * Updates hasBeenEdited value to be referenced elsewhere
+ */
+function detectChanges(): void {
   if (
     localTask.task !== props.data.task ||
     localTask.description !== props.data.description ||
-    localTask.frequency !== frequencies[props.data.frequency_id]
+    localTask.frequency !== convertFrequency(props.data.frequency_id)
   ) {
     hasBeenEdited.value = true;
   } else {
     hasBeenEdited.value = false;
   }
 }
-function toggleEditMode() {
+/*
+ * toggleEditMode()
+ * Determines whether a task is editable or not
+ * If hasBeenEdited is true, calls updateTask to commit the changes
+ */
+function toggleEditMode(): void {
   isEditable.value = !isEditable.value;
   if (hasBeenEdited.value) {
     updateTask();
   }
 }
-async function updateTask() {
-  const { data, error } = await useSupabaseClient<Database>()
+/*
+ * async updateTask()
+ * Connects to database, updates data and pushes notification
+ * Called if a task has been edited, differences are present and the user commits the alteration
+ */
+async function updateTask(): Promise<void> {
+  const { error } = await useSupabaseClient<Database>()
     .from("tasks")
     .update({
       task: localTask.task,
       description: localTask.description,
-      frequency_id: frequencyToID[localTask.frequency],
+      frequency_id: convertFrequency(localTask.frequency),
     })
     .eq("task_id", props.data.task_id);
   if (error) {
@@ -174,26 +235,12 @@ async function updateTask() {
   hasBeenEdited.value = false;
   props.data.task = localTask.task;
   props.data.description = localTask.description;
-  props.data.frequency_id = frequencyToID[localTask.frequency];
-  if (!container.value) return;
-  container.value.classList.remove("task--edited");
+  props.data.frequency_id = convertFrequency(localTask.frequency) as number;
 }
+/* onMounted, create a reactive copy of the prop data for potential edits */
 onMounted(() => {
   localTask.task = props.data.task;
   localTask.description = props.data.description;
-  localTask.frequency = frequencies[props.data.frequency_id];
+  localTask.frequency = convertFrequency(props.data.frequency_id) as string;
 });
-function handleTaskInput(
-  prop: "task" | "description" | "frequency",
-  event: Event,
-  value?: string
-) {
-  if (prop !== "frequency") {
-    const target = event.target as HTMLHeadingElement | HTMLDivElement;
-    localTask[prop] = target.textContent ?? "";
-  } else {
-    if (value) localTask.frequency = value;
-  }
-  handleEdit();
-}
 </script>
