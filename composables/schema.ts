@@ -22,8 +22,8 @@ interface Database {
       | "weekly"
       | "fortnightly"
       | "monthly"
-      | "tri-annually"
-      | "semi-annually"
+      | "triannually"
+      | "biannually"
       | "annually";
   };
 }
