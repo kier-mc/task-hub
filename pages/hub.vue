@@ -97,7 +97,7 @@ const propData: Array<CompFormObject> = [
       { value: "fortnightly", text: "Fortnightly" },
       { value: "monthly", text: "Monthly" },
       { value: "triannually", text: "Tri-annually (3 months)" },
-      { value: "binnually", text: "Bi-annually (6 months)" },
+      { value: "biannually", text: "Bi-annually (6 months)" },
       { value: "annually", text: "Annually" },
     ],
   },
