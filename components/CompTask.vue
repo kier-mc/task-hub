@@ -1,5 +1,21 @@
 <template>
   <div class="task" :class="{ 'task--edited': hasBeenEdited }">
+    <div class="modal" :class="{ 'modal--visible': modalVisible }">
+      <div class="modal__message">
+        Are you sure you want to delete this task?
+      </div>
+      <div class="modal__options">
+        <button class="button modal__button" @click="modalVisible = false">
+          Cancel
+        </button>
+        <button
+          class="button modal__button modal__button--delete"
+          @click="deleteTask"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
     <div class="task__header">
       <h3
         class="task__title"
@@ -15,7 +31,11 @@
           :class="isEditable ? 'task__edit--editable' : 'task__edit'"
           @click="toggleEditMode"
         ></button>
-        <button type="button" class="header-button task__delete"></button>
+        <button
+          type="button"
+          class="header-button task__delete"
+          @click="modalVisible = true"
+        ></button>
       </div>
     </div>
     <div
@@ -54,6 +74,7 @@
   cursor: pointer;
 }
 .task {
+  position: relative;
   max-width: 50ch;
   border: 1px solid hsl(0, 0%, 30%);
   border-radius: 0.5rem;
@@ -103,11 +124,63 @@
     border: 1px solid hsl(10, 50%, 50%);
   }
 }
+.modal {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  display: grid;
+  align-items: center;
+  inset: 0;
+  z-index: 10;
+  padding: 0.5rem;
+  transition: opacity 175ms, visibility 175ms, backdrop-filter 175ms;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: 0.5rem;
+    background-color: hsla(0, 0%, 10%, 0.85);
+    backdrop-filter: blur(0.25rem);
+  }
+  &--visible {
+    visibility: visible;
+    opacity: 1;
+    z-index: 10;
+  }
+  &__message {
+    position: relative;
+    z-index: 10;
+    margin: auto;
+  }
+  &__options {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 1rem;
+    z-index: 10;
+  }
+  &__button {
+    z-index: 10;
+    border: 1px solid hsl(0, 0%, 30%);
+    font-size: 0.9rem;
+    transition: background-color 175ms;
+    align-self: start;
+    &--delete {
+      background-color: hsl(10, 50%, 50%);
+      &:hover {
+        background-color: hsl(10, 75%, 50%);
+      }
+    }
+  }
+}
 </style>
 
 <script setup lang="ts">
 /* Pinia stores */
 const notificationsStore = useNotificationsStore();
+const taskStore = useTaskStore();
 /* Prop/v-model-related data */
 const props = defineProps({
   data: { type: Object as PropType<Database["tasks"]>, required: true },
@@ -130,6 +203,7 @@ const propData: CompFormObject = {
 /* Reactive variables */
 const hasBeenEdited: Ref<boolean> = ref(false);
 const isEditable: Ref<boolean> = ref(false);
+const modalVisible: Ref<boolean> = ref(false);
 const localTask = reactive({
   task: "",
   description: "",
@@ -248,6 +322,23 @@ async function updateTask(): Promise<void> {
   props.data.task = localTask.task;
   props.data.description = localTask.description;
   props.data.frequency_id = convertFrequency(localTask.frequency) as number;
+}
+/*
+ * async deleteTask()
+ * Connects to database, deletes data and pushes notification
+ */
+async function deleteTask(): Promise<void> {
+  const { error } = await useSupabaseClient<Database>()
+    .from("tasks")
+    .delete()
+    .eq("task_id", props.data.task_id);
+  if (error) {
+    notificationsStore.setMessage(error.message, "error");
+    return;
+  }
+  notificationsStore.setMessage(`Task deleted successfully`, "success");
+  modalVisible.value = false;
+  taskStore.getTasks();
 }
 /* onMounted, create a reactive copy of the prop data for potential edits */
 onMounted(() => {
