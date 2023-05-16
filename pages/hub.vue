@@ -96,8 +96,8 @@ const propData: Array<CompFormObject> = [
       { value: "weekly", text: "Weekly" },
       { value: "fortnightly", text: "Fortnightly" },
       { value: "monthly", text: "Monthly" },
-      { value: "tri-annually", text: "Tri-annually (3 months)" },
-      { value: "semi-annually", text: "Semi-annually (6 months)" },
+      { value: "triannually", text: "Tri-annually (3 months)" },
+      { value: "binnually", text: "Bi-annually (6 months)" },
       { value: "annually", text: "Annually" },
     ],
   },
@@ -205,7 +205,6 @@ async function createNewTask(task: TaskDataObject): Promise<void> {
     return;
   }
   notificationsStore.setMessage("Successfully created task", "success");
-  return;
 }
 const taskStore = useTaskStore();
 onMounted(() => {
