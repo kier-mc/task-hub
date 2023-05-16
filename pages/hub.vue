@@ -4,11 +4,21 @@
       <h2>Create To-Do</h2>
       <form>
         <template v-for="formData in propData" :key="formData.index">
-          <CompFormHandler
-            :formData="formData"
-            v-model="task[formData.formID]"
-            @input="validateInput"
-          />
+          <template v-if="formData.elementType === 'select'">
+            <CompFormHandler
+              :formData="formData"
+              :defaultOption="'daily'"
+              v-model="task[formData.formID]"
+              @input="validateInput"
+            />
+          </template>
+          <template v-else>
+            <CompFormHandler
+              :formData="formData"
+              v-model="task[formData.formID]"
+              @input="validateInput"
+            />
+          </template>
         </template>
         <button
           type="button"
