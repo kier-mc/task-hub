@@ -1,17 +1,22 @@
 <template>
   <div class="task" :class="{ 'task--edited': hasBeenEdited }">
-    <div class="task__title">
+    <div class="task__header">
       <h3
+        class="task__title"
         :contenteditable="isEditable ? 'true' : 'false'"
         @input="handleTaskInput('task', $event)"
       >
         {{ data.task }}
       </h3>
-      <button
-        type="button"
-        :class="isEditable ? 'task__button--editable' : 'task__button'"
-        @click="toggleEditMode"
-      ></button>
+      <div class="task__options">
+        <button
+          type="button"
+          class="header-button"
+          :class="isEditable ? 'task__edit--editable' : 'task__edit'"
+          @click="toggleEditMode"
+        ></button>
+        <button type="button" class="header-button task__delete"></button>
+      </div>
     </div>
     <div
       class="task__description"
@@ -37,48 +42,55 @@
 </template>
 
 <style scoped lang="scss">
+.header-button {
+  all: unset;
+  aspect-ratio: 1/1;
+  min-width: 24px;
+  mask-size: cover;
+  -webkit-mask-size: cover;
+  background-color: hsl(0, 0%, 50%);
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+}
 .task {
   max-width: 50ch;
   border: 1px solid hsl(0, 0%, 30%);
   border-radius: 0.5rem;
   background-color: hsl(0, 0%, 15%);
-  &__title,
+  &__header,
   &__description,
   &__frequency {
     padding: 0.5rem;
   }
-  &__title {
+  &__header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     border-radius: 0.5rem 0.5rem 0 0;
     background-color: hsl(0, 0%, 10%);
-    font-size: 1.05rem;
   }
-  &__button {
-    all: unset;
-    aspect-ratio: 1/1;
-    min-width: 24px;
+  &__title {
+    font-size: 1.15rem;
+  }
+  &__options {
+    display: flex;
+    column-gap: 0.25rem;
+  }
+  &__edit {
     mask: url("/img/svg/edit.svg") no-repeat center center;
-    mask-size: cover;
     -webkit-mask: url("/img/svg/edit.svg") no-repeat center center;
-    -webkit-mask-size: cover;
-    background-color: hsl(0, 0%, 50%);
-    background-repeat: no-repeat;
-    background-position: center;
-    cursor: pointer;
     &--editable {
-      all: unset;
-      aspect-ratio: 1/1;
-      min-width: 24px;
       mask: url("/img/svg/save.svg") no-repeat center center;
       mask-size: cover;
       -webkit-mask: url("/img/svg/save.svg") no-repeat center center;
       -webkit-mask-size: cover;
       background-color: hsl(0, 0%, 80%);
-      background-repeat: no-repeat;
-      background-position: center;
-      cursor: pointer;
     }
+  }
+  &__delete {
+    mask: url("/img/svg/xmark.svg") no-repeat center center;
+    -webkit-mask: url("/img/svg/xmark.svg") no-repeat center center;
   }
   &__description {
     font-size: 0.9rem;
