@@ -8,14 +8,14 @@
             <CompFormHandler
               :formData="formData"
               :defaultOption="'daily'"
-              v-model="task[formData.formID]"
+              v-model="newTask[formData.formID]"
               @input="validateInput"
             />
           </template>
           <template v-else>
             <CompFormHandler
               :formData="formData"
-              v-model="task[formData.formID]"
+              v-model="newTask[formData.formID]"
               @input="validateInput"
             />
           </template>
@@ -23,7 +23,7 @@
         <button
           type="button"
           class="button"
-          @click="createNewTask(task)"
+          @click="createNewTask(newTask)"
           :disabled="!isValidInput"
         >
           Submit
@@ -114,7 +114,7 @@ const propData: Array<CompFormObject> = [
 ];
 const user = useSupabaseUser();
 const notificationsStore = useNotificationsStore();
-const task: TaskDataObject = reactive({
+const newTask: TaskDataObject = reactive({
   task: "",
   description: "",
   frequency: "",
@@ -127,8 +127,8 @@ const isValidInput: Ref<boolean> = ref(false);
  * Called in onMounted() hook
  */
 function emitDefaultFrequency(): void {
-  if (task.frequency !== "") return;
-  task.frequency = "daily";
+  if (newTask.frequency !== "") return;
+  newTask.frequency = "daily";
 }
 /*
  * function getAuthor()
@@ -160,7 +160,7 @@ async function getFrequency(): Promise<number> {
   const { data, error } = await useSupabaseClient<Database>()
     .from("frequency")
     .select("*")
-    .eq("repeat_every", task.frequency);
+    .eq("repeat_every", newTask.frequency);
   if (error) {
     notificationsStore.setMessage(error.message, "error");
     return -1;
@@ -177,7 +177,7 @@ async function getFrequency(): Promise<number> {
  * Called in createNewTask() and used in template with :disabled attribute on button
  */
 function validateInput(): void {
-  if (task.task === "") {
+  if (newTask.task === "") {
     isValidInput.value = false;
     return;
   }
@@ -190,7 +190,7 @@ function validateInput(): void {
  * Calls getAuthor() and getFrequency() to convert entered values to internal IDs
  * Early return if no valid task entered prior to submission
  */
-async function createNewTask(task: TaskDataObject): Promise<void> {
+async function createNewTask(taskData: TaskDataObject): Promise<void> {
   if (!isValidInput) {
     notificationsStore.setMessage(
       "You must enter a task name before submitting",
@@ -205,8 +205,8 @@ async function createNewTask(task: TaskDataObject): Promise<void> {
     .insert([
       {
         author_id: author,
-        task: task.task,
-        description: task.description,
+        task: taskData.task,
+        description: taskData.description,
         frequency_id: frequency,
       },
     ]);
@@ -215,6 +215,7 @@ async function createNewTask(task: TaskDataObject): Promise<void> {
     return;
   }
   notificationsStore.setMessage("Successfully created task", "success");
+  taskStore.getTasks();
 }
 const taskStore = useTaskStore();
 onMounted(() => {
