@@ -10,9 +10,7 @@
         :type="props.formData.attrType"
         :id="props.formData.formID"
         :name="props.formData.formID"
-        @input="
-          $emit('update:modelValue', ($event.target as HTMLInputElement).value)
-        "
+        @input="emitEvent($event)"
       />
       <span v-if="props.formData.hintText" class="form-group__hint">{{
         props.formData.hintText
@@ -22,9 +20,7 @@
     <template v-else-if="props.formData.elementType === 'select'">
       <select
         class="form-group__select"
-        @input="
-          $emit('update:modelValue', ($event.target as HTMLSelectElement).value)
-        "
+        @input="emitEvent($event)"
         v-model="defaultOption"
       >
         <option
@@ -74,9 +70,6 @@ $input-padding: 0.5rem;
     border: 1px solid hsl(0, 0%, 30%);
     font-size: 1rem;
   }
-  &__option {
-    color: red;
-  }
 }
 </style>
 
@@ -86,4 +79,16 @@ const props = defineProps({
   defaultOption: { type: String as PropType<String>, required: false },
 });
 const defaultOption: Ref<String | undefined> = ref(props.defaultOption);
+
+const emit = defineEmits<{
+  (event: "update:model-value", value: string): void;
+  (event: "input", value: string): void;
+}>();
+
+function emitEvent(event: Event) {
+  const target = event.target as HTMLInputElement | HTMLSelectElement;
+  const value = target.value;
+  emit("update:model-value", value);
+  emit("input", value);
+}
 </script>
