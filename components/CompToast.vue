@@ -117,7 +117,7 @@ notifications.$subscribe(() => {
       if (!timer.value) return;
       timer.value.style.transition = "transform 5250ms";
       timer.value.style.transform = "translateX(-100%)";
-    }, 5);
+    }, 50);
     window.clearTimeout(timeout.value);
   }
   // Clear any notifications and clean up any inline styles after a 5000ms delay
