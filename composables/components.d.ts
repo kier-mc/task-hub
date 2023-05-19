@@ -9,6 +9,7 @@ interface CompFormObject {
   options?: {
     value: string;
     text: string;
+    isDisabled?: boolean;
   }[];
   default?: string;
 }

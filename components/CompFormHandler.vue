@@ -10,6 +10,7 @@
         :type="props.formData.attrType"
         :id="props.formData.formID"
         :name="props.formData.formID"
+        :value="modelValue"
         @input="emitEvent($event)"
       />
       <span v-if="props.formData.hintText" class="form-group__hint">{{
@@ -21,12 +22,14 @@
       <select
         class="form-group__select"
         @input="emitEvent($event)"
-        v-model="props.formData.default"
+        :value="modelValue"
       >
         <option
           v-for="option in props.formData.options"
           class="form-group__option"
           :value="option.value"
+          :disabled="option.isDisabled ? true : false"
+          :selected="option.value === 'unset'"
         >
           {{ option.text }}
         </option>
@@ -76,6 +79,7 @@ $input-padding: 0.5rem;
 <script setup lang="ts">
 const props = defineProps({
   formData: { type: Object as PropType<CompFormObject>, required: true },
+  modelValue: { type: String },
 });
 
 const emit = defineEmits<{

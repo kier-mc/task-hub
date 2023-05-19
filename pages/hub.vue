@@ -4,21 +4,11 @@
       <h2>Create To-Do</h2>
       <form>
         <template v-for="formData in propData" :key="formData.index">
-          <template v-if="formData.elementType === 'select'">
-            <CompFormHandler
-              :formData="formData"
-              :defaultOption="'daily'"
-              v-model="newTask[formData.formID]"
-              @input="validateInput"
-            />
-          </template>
-          <template v-else>
-            <CompFormHandler
-              :formData="formData"
-              v-model="newTask[formData.formID]"
-              @input="validateInput"
-            />
-          </template>
+          <CompFormHandler
+            :formData="formData"
+            v-model="newTask[formData.formID]"
+            @input="validateInput()"
+          />
         </template>
         <button
           type="button"
@@ -48,7 +38,11 @@
       <br />
       <template v-if="!taskStore.length()"> No tasks found </template>
       <template v-else>
-        <div class="tasks" v-for="task in taskStore.tasks">
+        <div
+          class="tasks"
+          v-for="(task, index) in taskStore.tasks"
+          :key="index"
+        >
           <CompTask :data="task" />
         </div>
       </template>
@@ -102,6 +96,7 @@ const propData: Array<CompFormObject> = [
     elementType: "select",
     labelText: "Frequency",
     options: [
+      { value: "unset", text: "Please select an option", isDisabled: true },
       { value: "daily", text: "Daily" },
       { value: "weekly", text: "Weekly" },
       { value: "fortnightly", text: "Fortnightly" },
@@ -110,6 +105,7 @@ const propData: Array<CompFormObject> = [
       { value: "biannually", text: "Bi-annually (6 months)" },
       { value: "annually", text: "Annually" },
     ],
+    default: "unset",
   },
 ];
 const user = useSupabaseUser();
@@ -117,19 +113,9 @@ const notificationsStore = useNotificationsStore();
 const newTask: TaskDataObject = reactive({
   task: "",
   description: "",
-  frequency: "",
+  frequency: "unset",
 });
 const isValidInput: Ref<boolean> = ref(false);
-/*
- * function emitDefaultFrequency()
- * Short function to set the default frequency as the value for task on mounted
- * Returns if the frequency isn't empty
- * Called in onMounted() hook
- */
-function emitDefaultFrequency(): void {
-  if (newTask.frequency !== "") return;
-  newTask.frequency = "daily";
-}
 /*
  * function getAuthor()
  * Queries the database to get the user_id from the current user's email
@@ -180,6 +166,9 @@ function validateInput(): void {
   if (newTask.task === "") {
     isValidInput.value = false;
     return;
+  } else if (newTask.frequency === "unset") {
+    isValidInput.value = false;
+    return;
   }
   isValidInput.value = true;
   return;
@@ -215,11 +204,16 @@ async function createNewTask(taskData: TaskDataObject): Promise<void> {
     return;
   }
   notificationsStore.setMessage("Successfully created task", "success");
+  clearAllFields();
   taskStore.getTasks();
 }
+function clearAllFields() {
+  newTask.task = "";
+  newTask.description = "";
+  newTask.frequency = "unset";
+}
 const taskStore = useTaskStore();
-onMounted(() => {
-  emitDefaultFrequency();
+onMounted(async () => {
   taskStore.getTasks();
 });
 </script>
