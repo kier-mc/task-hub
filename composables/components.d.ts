@@ -4,11 +4,13 @@ interface CompFormObject {
   elementType: "input" | "select";
   attrType?: string;
   labelText: string;
+  value?: string;
   hintText?: string;
   options?: {
     value: string;
     text: string;
   }[];
+  default?: string;
 }
 interface CompStepperPropData {
   index: number;

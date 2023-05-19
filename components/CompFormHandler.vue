@@ -21,7 +21,7 @@
       <select
         class="form-group__select"
         @input="emitEvent($event)"
-        v-model="defaultOption"
+        v-model="props.formData.default"
       >
         <option
           v-for="option in props.formData.options"
@@ -76,9 +76,7 @@ $input-padding: 0.5rem;
 <script setup lang="ts">
 const props = defineProps({
   formData: { type: Object as PropType<CompFormObject>, required: true },
-  defaultOption: { type: String as PropType<String>, required: false },
 });
-const defaultOption: Ref<String | undefined> = ref(props.defaultOption);
 
 const emit = defineEmits<{
   (event: "update:model-value", value: string): void;
