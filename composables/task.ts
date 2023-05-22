@@ -1,14 +1,9 @@
-/* Pinia imports */
-import { setActivePinia, createPinia } from "pinia";
-
-const pinia = setActivePinia(createPinia());
-const notificationsStore = useNotificationsStore(pinia);
-/*
- * convertFrequency(value)
+/**
  * Converts between string/numeric representations of database frequencies
- * Ensures values make sense to either the database or the user, depending on who's reading
- * @param value: string or number to be converted
- * @returns: a string or a number, depending on param
+ * i.e. "1" becomes "daily" and "daily" becomes "1".
+ * Ensures values make sense to either the database or the user, depending on who is reading.
+ * @param value {number|string} number or string to be converted
+ * @returns {string|number} a string or a number, depending on param
  */
 export function convertFrequency(value: number | string): string | number {
   // Lookup label via ID
