@@ -208,13 +208,12 @@ const localTask = reactive({
   description: "",
   frequency: "",
 });
-/*
- * handleTaskInput(prop, event, ?value)
- * Called on a task when edit mode is induced
- * Updates localTask reactive variable to sync with changes made
- * @param prop: string that references the value to be altered
- * @param event: relevant input event, passed by $event in the template
- * @param ?value: optional string populated via modelValue emit
+/**
+ * Called on a task when edit mode is induced.
+ * Updates localTask reactive variable to sync with changes made.
+ * @param prop {"task"|"description"|"frequency"} - string that references the value to be altered
+ * @param event {Event} - relevant input event, passed by $event in the template
+ * @param {string}[value] - optional string populated via modelValue emit
  */
 function handleTaskInput(
   prop: "task" | "description" | "frequency",
@@ -229,10 +228,9 @@ function handleTaskInput(
   }
   detectChanges();
 }
-/*
- * detectChanges()
- * Determines differences between prop data/local data
- * Updates hasBeenEdited value to be referenced elsewhere
+/**
+ * Determines differences between prop data/local copy.
+ * Updates hasBeenEdited value to be utilised in other logic.
  */
 function detectChanges(): void {
   if (
@@ -245,10 +243,9 @@ function detectChanges(): void {
     hasBeenEdited.value = false;
   }
 }
-/*
- * toggleEditMode()
- * Determines whether a task is editable or not
- * If hasBeenEdited is true, calls updateTask to commit the changes
+/**
+ * Determines whether a task is in an editable state or not.
+ * If hasBeenEdited is true when it is called, call updateTask to commit the changes.
  */
 function toggleEditMode(): void {
   isEditable.value = !isEditable.value;
@@ -256,10 +253,10 @@ function toggleEditMode(): void {
     updateTask();
   }
 }
-/*
- * async updateTask()
- * Connects to database, updates data and pushes notification
- * Called if a task has been edited, differences are present and the user commits the alteration
+/**
+ * Connects to database, updates data and pushes a notification to the user.
+ * Commits only if a task has been edited, differences are present between the prop
+ * and local copy and the user opts to commit the alteration.
  */
 async function updateTask(): Promise<void> {
   const { error } = await useSupabaseClient<Database>()
@@ -280,9 +277,8 @@ async function updateTask(): Promise<void> {
   props.data.description = localTask.description;
   props.data.frequency_id = convertFrequency(localTask.frequency) as number;
 }
-/*
- * async deleteTask()
- * Connects to database, deletes data and pushes notification
+/**
+ * Connects to database, deletes data and pushes a notification to the user.
  */
 async function deleteTask(): Promise<void> {
   const { error } = await useSupabaseClient<Database>()
