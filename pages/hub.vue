@@ -1,219 +1,54 @@
 <template>
-  <div class="temp">
-    <div class="create-task">
-      <h2>Create To-Do</h2>
-      <form>
-        <template v-for="formData in propData" :key="formData.index">
-          <CompFormHandler
-            :formData="formData"
-            v-model="newTask[formData.formID]"
-            @input="validateInput()"
-          />
-        </template>
-        <button
-          type="button"
-          class="button"
-          @click="createNewTask(newTask)"
-          :disabled="!isValidInput"
-        >
-          Submit
-        </button>
-      </form>
+  <div class="hub-container">
+    <div class="welcome">
+      <span v-if="user.data.user" class="welcome__username"
+        >Hi
+        {{
+          user.data.user.user_metadata.name.length > 0
+            ? user.data.user.user_metadata.name
+            : user.data.user.email
+        }}
+      </span>
     </div>
-    <div class="view-task" style="margin-top: 1.5rem">
-      <h2>View Tasks</h2>
-      <button
-        type="button"
-        class="button"
-        @click="taskStore.getTasks()"
-        style="margin-right: 1rem"
-      >
-        Fetch Tasks
-      </button>
-      <button type="button" class="button" @click="taskStore.clearTasks()">
-        Clear Tasks
-      </button>
-      <br />
-      <br />
-      <br />
-      <template v-if="!taskStore.length()"> No tasks found </template>
-      <template v-else>
-        <div
-          class="tasks"
-          v-for="(task, index) in taskStore.tasks"
-          :key="index"
-        >
-          <CompTask :data="task" />
-        </div>
-      </template>
+    <div class="weather">Weather section</div>
+    <div class="tasks">
+      <CompCreateTask class="create-task" />
+      <CompTaskList class="task-list" />
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-.temp {
+.hub-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
   padding: 1rem;
-  background-color: hsl(0, 0%, 17.5%);
+  background-color: hsla(0, 0%, 17.5%, 80%);
 }
-.create-task {
-  & h2 {
-    padding-bottom: 1rem;
+// SHARED PROPERTIES FOR EACH SECTION
+.welcome,
+.weather,
+.tasks {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: hsla(0, 0%, 12.5%, 80%);
+}
+.welcome {
+  grid-column: 1;
+  &__username {
+    font-size: 2rem;
   }
 }
-.view-task {
-  & h2 {
-    padding-bottom: 1rem;
-    margin-top: 5rem;
-  }
+.weather {
+  grid-column: 2 / 4;
 }
 .tasks {
-  &:not(:last-child) {
-    margin-bottom: 1rem;
-  }
+  grid-column: 1 / 4;
 }
 </style>
 
 <script setup lang="ts">
 definePageMeta({ middleware: "auth-mw" });
-const propData: Array<CompFormObject> = [
-  {
-    index: 0,
-    formID: "task",
-    elementType: "input",
-    attrType: "text",
-    labelText: "Task",
-  },
-  {
-    index: 1,
-    formID: "description",
-    elementType: "input",
-    attrType: "text",
-    labelText: "Description",
-  },
-  {
-    index: 2,
-    formID: "frequency",
-    elementType: "select",
-    labelText: "Frequency",
-    options: [
-      { value: "unset", text: "Please select an option", isDisabled: true },
-      { value: "daily", text: "Daily" },
-      { value: "weekly", text: "Weekly" },
-      { value: "fortnightly", text: "Fortnightly" },
-      { value: "monthly", text: "Monthly" },
-      { value: "triannually", text: "Tri-annually (3 months)" },
-      { value: "biannually", text: "Bi-annually (6 months)" },
-      { value: "annually", text: "Annually" },
-    ],
-    default: "unset",
-  },
-];
-const user = useSupabaseUser();
-const notificationsStore = useNotificationsStore();
-const newTask: TaskDataObject = reactive({
-  task: "",
-  description: "",
-  frequency: "unset",
-});
-const isValidInput: Ref<boolean> = ref(false);
-/*
- * function getAuthor()
- * Queries the database to get the user_id from the current user's email
- * Derives this from the JWT value
- * @return: the user_id as a number, or -1 if nothing can be found
- */
-async function getAuthor(): Promise<number> {
-  if (!user.value) throw new Error("No active user found");
-  const { data, error } = await useSupabaseClient<Database>()
-    .from("users")
-    .select("*")
-    .eq("email", user.value.email);
-  if (error) {
-    notificationsStore.setMessage(error.message, "error");
-    return -1;
-  }
-  if (data) {
-    return data[0].user_id;
-  }
-  return -1;
-}
-/*
- * function getFrequency()
- * Queries the database to get the frequency_id from the select value
- * @return: the frequency_id as a number, or -1 if nothing can be found
- */
-async function getFrequency(): Promise<number> {
-  const { data, error } = await useSupabaseClient<Database>()
-    .from("frequency")
-    .select("*")
-    .eq("repeat_every", newTask.frequency);
-  if (error) {
-    notificationsStore.setMessage(error.message, "error");
-    return -1;
-  }
-  if (data) {
-    return data[0].frequency_id;
-  }
-  return -1;
-}
-/*
- * function validateInput()
- * Checks to see if the task.task field is populated
- * If true, sets isValidInput ref to true and returns, and vice-versa
- * Called in createNewTask() and used in template with :disabled attribute on button
- */
-function validateInput(): void {
-  if (newTask.task === "") {
-    isValidInput.value = false;
-    return;
-  } else if (newTask.frequency === "unset") {
-    isValidInput.value = false;
-    return;
-  }
-  isValidInput.value = true;
-  return;
-}
-/*
- * function createNewTask()
- * Attempts to create a new to-do from the supplied data
- * Calls getAuthor() and getFrequency() to convert entered values to internal IDs
- * Early return if no valid task entered prior to submission
- */
-async function createNewTask(taskData: TaskDataObject): Promise<void> {
-  if (!isValidInput) {
-    notificationsStore.setMessage(
-      "You must enter a task name before submitting",
-      "error"
-    );
-    return;
-  }
-  const author = await getAuthor();
-  const frequency = await getFrequency();
-  const { data, error } = await useSupabaseClient<Database>()
-    .from("tasks")
-    .insert([
-      {
-        author_id: author,
-        task: taskData.task,
-        description: taskData.description,
-        frequency_id: frequency,
-      },
-    ]);
-  if (error) {
-    notificationsStore.setMessage(error.message, "error");
-    return;
-  }
-  notificationsStore.setMessage("Successfully created task", "success");
-  clearAllFields();
-  taskStore.getTasks();
-}
-function clearAllFields() {
-  newTask.task = "";
-  newTask.description = "";
-  newTask.frequency = "unset";
-}
-const taskStore = useTaskStore();
-onMounted(async () => {
-  taskStore.getTasks();
-});
+const user = await useSupabaseAuthClient().auth.getUser();
 </script>
