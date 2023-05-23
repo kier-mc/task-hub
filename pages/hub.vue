@@ -2,7 +2,7 @@
   <div class="hub-container">
     <div class="welcome">
       <span v-if="user.data.user" class="welcome__username"
-        >Hi
+        >Welcome
         {{
           user.data.user.user_metadata.name.length > 0
             ? user.data.user.user_metadata.name
@@ -12,8 +12,8 @@
     </div>
     <div class="weather">Weather section</div>
     <div class="tasks">
-      <CompCreateTask class="create-task" />
-      <CompTaskList class="task-list" />
+      <CompCreateTask class="tasks__create" />
+      <CompTaskList class="tasks__list" />
     </div>
   </div>
 </template>
@@ -23,13 +23,11 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  padding: 1rem;
-  background-color: hsla(0, 0%, 17.5%, 80%);
+  margin-top: 1rem;
 }
 // SHARED PROPERTIES FOR EACH SECTION
 .welcome,
-.weather,
-.tasks {
+.weather {
   padding: 1rem;
   border-radius: 0.5rem;
   background-color: hsla(0, 0%, 12.5%, 80%);
@@ -45,6 +43,21 @@
 }
 .tasks {
   grid-column: 1 / 4;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  border-radius: 0.5rem;
+  background-color: hsla(0, 0%, 12.5%, 80%);
+  &__create,
+  &__list {
+    padding: 1rem;
+  }
+  &__create {
+    grid-column: 1;
+  }
+  &__list {
+    grid-column: 2 / 4;
+  }
 }
 </style>
 

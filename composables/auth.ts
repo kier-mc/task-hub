@@ -17,7 +17,7 @@ function clearCredentials(credentials: Ref<LoginCredentialsDataObject>): void {
 /**
  * Attempts login via SupabaseAuthClient (@nuxtjs/supabase).
  * Pushes a notification to the user and redirects to hub page.
- * @param credentials: object containing data (username, password) to pass to backend
+ * @param credentials {Ref<LoginCredentialsDataObject>} object containing data (username, password) to pass to backend
  */
 export async function loginUser(
   credentials: Ref<LoginCredentialsDataObject>
@@ -49,7 +49,7 @@ export async function loginUser(
 /**
  * Attempts account creation via SupabaseAuthClient (@nuxtjs/supabase).
  * Pushes a notification to the user and redirects to login page.
- * @param credentials: object containing data (username, password) to pass to backend
+ * @param credentials {Ref<LoginCredentialsDataObject>} object containing data (username, password) to pass to backend
  */
 export async function createUser(credentials: Ref<NewAccountDataObject>) {
   const notificationsStore = useNotificationsStore();

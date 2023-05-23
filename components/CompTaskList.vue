@@ -1,8 +1,7 @@
 <template>
-  <div class="view-task" style="margin-top: 1.5rem">
-    <h2>View Tasks</h2>
+  <div class="view-task">
     <!-- BUTTONS FOR DEVELOPMENT/DEBUGGING ONLY -->
-    <button
+    <!-- <button
       type="button"
       class="button"
       @click="taskStore.getTasks()"
@@ -12,7 +11,7 @@
     </button>
     <button type="button" class="button" @click="taskStore.clearTasks()">
       Clear Tasks
-    </button>
+    </button> -->
     <!-- TASKS -->
     <template v-if="!taskStore.taskCount()"> No tasks found </template>
     <template v-else>

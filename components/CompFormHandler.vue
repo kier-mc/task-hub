@@ -53,13 +53,14 @@ $input-padding: 0.5rem;
   }
   &__input {
     all: unset;
-    max-width: 25ch;
     padding: $input-padding;
-    margin-bottom: 0.5rem;
-    background-color: hsl(0, 0%, 15%);
+    border: 1px solid hsl(0, 0%, 25%);
+    border-radius: 0.25rem;
+    background-color: hsl(0, 0%, 10%);
     cursor: text;
   }
   &__hint {
+    margin-bottom: 0.25rem;
     font-size: 0.75rem;
     opacity: 0.5;
   }
@@ -68,7 +69,6 @@ $input-padding: 0.5rem;
     margin-left: calc($input-padding / 2);
   }
   &__select {
-    max-width: 25ch;
     padding: 0.5rem 0.5rem 0.5rem 0.35rem;
     border: 1px solid hsl(0, 0%, 30%);
     font-size: 1rem;

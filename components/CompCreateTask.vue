@@ -1,6 +1,5 @@
 <template>
   <div class="create-task">
-    <h2>Create To-Do</h2>
     <form>
       <template v-for="formData in propData" :key="formData.index">
         <CompFormHandler
@@ -14,6 +13,7 @@
         class="button"
         @click="createNewTask(newTask)"
         :disabled="!isValidInput"
+        :aria-disabled="!isValidInput"
       >
         Submit
       </button>

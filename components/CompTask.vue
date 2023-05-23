@@ -16,7 +16,7 @@
         </button>
       </div>
     </div>
-    <div class="task__header">
+    <div :class="isExpanded ? 'task__header--expanded' : 'task__header'">
       <h3
         class="task__title"
         :contenteditable="isEditable ? 'true' : 'false'"
@@ -25,6 +25,12 @@
         {{ data.task }}
       </h3>
       <div class="task__options">
+        <button
+          type="button"
+          class="header-button"
+          :class="isExpanded ? 'task__expand--expanded' : 'task__expand'"
+          @click="isExpanded = !isExpanded"
+        ></button>
         <button
           type="button"
           class="header-button"
@@ -39,23 +45,30 @@
       </div>
     </div>
     <div
-      class="task__description"
+      :class="isExpanded ? 'task__description--expanded' : 'task__description'"
       :contenteditable="isEditable ? 'true' : 'false'"
       @input="handleTaskInput('description', $event)"
     >
       {{ data.description }}
     </div>
-    <div class="task__frequency">
-      <template v-if="!isEditable">{{
-        convertFrequency((data as Database["tasks"]).frequency_id)
-      }}</template>
-      <template v-else>
-        <CompFormHandler
-          :formData="propData"
-          v-model="localTask['frequency']"
-          @update:modelValue="handleTaskInput('frequency', $event)"
-        />
-      </template>
+    <div class="task__footer">
+      <div class="task__timestamp">
+        Created on
+        <span class="task__timestamp--highlighted">{{ convertedDate }}</span> at
+        <span class="task__timestamp--highlighted">{{ convertedTime }}</span>
+      </div>
+      <div class="task__frequency">
+        <template v-if="!isEditable">
+          {{ convertFrequency((data as Database["tasks"]).frequency_id) }}
+        </template>
+        <template v-else>
+          <CompFormHandler
+            :formData="propData"
+            v-model="localTask['frequency']"
+            @update:modelValue="handleTaskInput('frequency', $event)"
+          />
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -67,28 +80,40 @@
   min-width: 24px;
   mask-size: cover;
   -webkit-mask-size: cover;
-  background-color: hsl(0, 0%, 50%);
+  background-color: hsl(0, 0%, 70%);
   background-repeat: no-repeat;
   background-position: center;
   cursor: pointer;
+  transition: background-color 175ms;
+  &:hover {
+    background-color: hsl(0, 0%, 80%);
+  }
 }
 .task {
   position: relative;
-  max-width: 50ch;
   border: 1px solid hsl(0, 0%, 30%);
   border-radius: 0.5rem;
   background-color: hsl(0, 0%, 15%);
   &__header,
-  &__description,
-  &__frequency {
+  &__header--expanded,
+  &__description--expanded,
+  &__footer {
     padding: 0.5rem;
   }
-  &__header {
+  &__header,
+  &__header--expanded {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-radius: 0.5rem 0.5rem 0 0;
     background-color: hsl(0, 0%, 10%);
+  }
+  &__header {
+    border-bottom: 1px solid hsla(0, 0%, 35%, 0);
+    transition: border-bottom 125ms;
+    &--expanded {
+      border-bottom: 1px solid hsla(0, 0%, 35%, 1);
+    }
   }
   &__title {
     font-size: 1.15rem;
@@ -96,6 +121,20 @@
   &__options {
     display: flex;
     column-gap: 0.25rem;
+  }
+  &__expand {
+    mask: url("/img/svg/expand-more.svg") no-repeat center center;
+    -webkit-mask: url("/img/svg/expand-more.svg") no-repeat center center;
+    &--expanded {
+      mask: url("/img/svg/expand-less.svg") no-repeat center center;
+      mask-size: cover;
+      -webkit-mask: url("/img/svg/expand-less.svg") no-repeat center center;
+      -webkit-mask-size: cover;
+      background-color: hsl(0, 0%, 90%);
+      &:hover {
+        background-color: hsl(0, 0%, 90%);
+      }
+    }
   }
   &__edit {
     mask: url("/img/svg/edit.svg") no-repeat center center;
@@ -105,19 +144,45 @@
       mask-size: cover;
       -webkit-mask: url("/img/svg/save.svg") no-repeat center center;
       -webkit-mask-size: cover;
-      background-color: hsl(0, 0%, 80%);
+      background-color: hsl(0, 0%, 90%);
+      &:hover {
+        background-color: hsl(0, 0%, 90%);
+      }
     }
   }
   &__delete {
-    mask: url("/img/svg/xmark.svg") no-repeat center center;
-    -webkit-mask: url("/img/svg/xmark.svg") no-repeat center center;
+    mask: url("/img/svg/delete.svg") no-repeat center center;
+    -webkit-mask: url("/img/svg/delete.svg") no-repeat center center;
+  }
+  &__description,
+  &__description--expanded {
+    display: grid;
+    font-size: 0.9rem;
   }
   &__description {
+    $transition-time: 175ms;
+    grid-template-rows: 0px;
+    opacity: 0;
+    padding: 0 0.5rem;
+    transition: opacity $transition-time, grid-template-rows $transition-time,
+      padding $transition-time;
+    &--expanded {
+      opacity: 1;
+      grid-template-rows: 1fr;
+      transition: opacity $transition-time, grid-template-rows $transition-time,
+        padding $transition-time;
+    }
+  }
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid hsl(0, 0%, 35%);
     font-size: 0.9rem;
   }
-  &__frequency {
-    text-align: right;
-    font-size: 0.9rem;
+  &__timestamp {
+    &--highlighted {
+      border-bottom: 1px dotted hsl(0, 0%, 75%);
+    }
   }
   &--edited {
     border: 1px solid hsl(10, 50%, 50%);
@@ -200,14 +265,17 @@ const propData: CompFormObject = {
   ],
 };
 /* Reactive variables */
-const hasBeenEdited: Ref<boolean> = ref(false);
 const isEditable: Ref<boolean> = ref(false);
+const isExpanded: Ref<boolean> = ref(false);
+const hasBeenEdited: Ref<boolean> = ref(false);
 const modalVisible: Ref<boolean> = ref(false);
 const localTask = reactive({
   task: "",
   description: "",
   frequency: "",
 });
+const convertedDate: Ref<string> = ref("");
+const convertedTime: Ref<string> = ref("");
 /**
  * Called on a task when edit mode is induced.
  * Updates localTask reactive variable to sync with changes made.
@@ -249,6 +317,7 @@ function detectChanges(): void {
  */
 function toggleEditMode(): void {
   isEditable.value = !isEditable.value;
+  isEditable.value ? (isExpanded.value = true) : (isExpanded.value = false);
   if (hasBeenEdited.value) {
     updateTask();
   }
@@ -293,10 +362,34 @@ async function deleteTask(): Promise<void> {
   modalVisible.value = false;
   taskStore.getTasks();
 }
-/* onMounted, create a reactive copy of the prop data for potential edits */
+/**
+ * Reads ISO 8601 timestamp from props and converts to simpler format.
+ * Updates local refs with converted values.
+ * @param inputDate {string} - ISO 8601 timestamp to be converted
+ */
+function convertDate(inputDate: string): void {
+  if (!inputDate) return;
+  const date = new Date(inputDate);
+  const year = date.getFullYear();
+  const month =
+    date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
+  const day =
+    date.getDate() + 1 < 10 ? `0${date.getDate() + 1}` : date.getDate() + 1;
+  const hours = date.getHours();
+  const minutes =
+    date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+  // Update refs
+  convertedDate.value = `${year}/${month}/${day}`;
+  convertedTime.value = `${hours}:${minutes}`;
+}
+/*
+Create a reactive copy of the prop data for potential edits
+Read the timestamp from the props and attempt to populate date/time refs
+*/
 onMounted(() => {
   localTask.task = props.data.task;
   localTask.description = props.data.description;
   localTask.frequency = convertFrequency(props.data.frequency_id) as string;
+  convertDate(props.data.created_at);
 });
 </script>
