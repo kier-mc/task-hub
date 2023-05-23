@@ -14,7 +14,7 @@
       Clear Tasks
     </button>
     <!-- TASKS -->
-    <template v-if="!taskStore.length()"> No tasks found </template>
+    <template v-if="!taskStore.taskCount()"> No tasks found </template>
     <template v-else>
       <div class="tasks" v-for="(task, index) in taskStore.tasks" :key="index">
         <CompTask :data="task" />

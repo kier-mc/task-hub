@@ -4,15 +4,25 @@ import { setActivePinia, createPinia } from "pinia";
 setActivePinia(createPinia());
 const notificationsStore = useNotificationsStore();
 
+/**
+ * A Pinia store for handling tasks.
+ * Can fetch tasks asynchronously from the database.
+ * Stores them in an array and makes several methods available for interacting with them.
+ */
 export const useTaskStore = defineStore("tasks", {
   state: () => ({
-    // Need a better solution here than "any"
     tasks: [] as Database["tasks"][],
   }),
   actions: {
-    length() {
+    /**
+     * Returns the number of currently stored tasks.
+     */
+    taskCount() {
       return this.tasks.length;
     },
+    /**
+     * Fetches tasks from the database asynchronously and stores them in an array.
+     */
     async getTasks() {
       const request = await useSupabaseAuthClient().auth.getUser();
       if (!request.data.user) {
@@ -30,6 +40,10 @@ export const useTaskStore = defineStore("tasks", {
         return;
       }
     },
+    /**
+     * Clears all currently stored tasks.
+     * Does not clear tasks from the database; only the local copies are deleted.
+     */
     clearTasks() {
       this.tasks = [];
     },
