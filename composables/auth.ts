@@ -6,20 +6,18 @@
  * Declared at start of each function instead, which can only be called after init
  */
 
-/*
- * function clearCredentials(credentials)
- * Helper function to wipe credentials object once login/creation submissions occur
- * @param credentials: object containing data to erase; inherited from parent function
+/**
+ * Helper function to wipe credentials object once login/account creation submissions occur.
+ * @param credentials {Ref<LoginCredentialsDataObject>} object containing data to erase; inherited from parent function
  */
 function clearCredentials(credentials: Ref<LoginCredentialsDataObject>): void {
   credentials.value.email = "";
   credentials.value.password = "";
 }
-/*
- * async loginUser(ref, credentials)
- * Attempts login via SupabaseAuthClient
- * Updates notificationsStore and redirects to home page
- * @param credentials: object containing data to pass
+/**
+ * Attempts login via SupabaseAuthClient (@nuxtjs/supabase).
+ * Pushes a notification to the user and redirects to hub page.
+ * @param credentials: object containing data (username, password) to pass to backend
  */
 export async function loginUser(
   credentials: Ref<LoginCredentialsDataObject>
@@ -48,11 +46,10 @@ export async function loginUser(
     navigateTo("/hub");
   }
 }
-/*
- * async createUser(ref, credentials)
- * Attempts account creation via SupabaseAuthClient
- * Updates notificationsStore and redirects to home page
- * @param credentials: object containing data to pass
+/**
+ * Attempts account creation via SupabaseAuthClient (@nuxtjs/supabase).
+ * Pushes a notification to the user and redirects to login page.
+ * @param credentials: object containing data (username, password) to pass to backend
  */
 export async function createUser(credentials: Ref<NewAccountDataObject>) {
   const notificationsStore = useNotificationsStore();
@@ -82,10 +79,9 @@ export async function createUser(credentials: Ref<NewAccountDataObject>) {
   clearCredentials(credentials);
   navigateTo("/login");
 }
-/*
- * async logoutUser()
- * Attemps logout via SupabaseAuthClient
- * Updates notificationsStore and redirects to home page
+/**
+ * Attemps logout via SupabaseAuthClient (@nuxtjs/supabase).
+ * Pushes a notification to the user and redirects to root page.
  */
 export async function logoutUser(): Promise<void> {
   const notificationsStore = useNotificationsStore();
