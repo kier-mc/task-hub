@@ -18,4 +18,9 @@ export default defineNuxtConfig({
       ],
     },
   },
+  runtimeConfig: {
+    public: {
+      openWeatherKey: process.env.OPENWEATHER_KEY,
+    },
+  },
 });

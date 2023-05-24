@@ -10,7 +10,9 @@
         }}
       </span>
     </div>
-    <div class="weather">Weather section</div>
+    <div class="weather">
+      <WeatherDisplay />
+    </div>
     <div class="tasks">
       <TaskCreate class="tasks__create" />
       <TaskList class="tasks__list" />
