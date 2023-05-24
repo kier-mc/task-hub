@@ -150,7 +150,7 @@ const propData: Array<CompStepperPropData> = [
         index: 0,
         formID: "email",
         elementType: "input",
-        attrType: "text",
+        attrType: "email",
         labelText: "Email",
         hintText: "Requires confirmation",
       },
