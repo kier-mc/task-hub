@@ -16,7 +16,7 @@
     <template v-if="!taskStore.taskCount()"> No tasks found </template>
     <template v-else>
       <div class="tasks" v-for="(task, index) in taskStore.tasks" :key="index">
-        <CompTask :data="task" />
+        <TaskItem :data="task" />
       </div>
     </template>
   </div>

@@ -1,7 +1,7 @@
 <template>
-  <CompToast />
+  <ToastSystem />
   <div class="container-header">
-    <CompMainHeaderNavBar />
+    <HeaderElement />
   </div>
   <div class="container-content">
     <slot />

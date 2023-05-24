@@ -2,7 +2,7 @@
   <div class="create-task">
     <form>
       <template v-for="formData in propData" :key="formData.index">
-        <CompFormHandler
+        <FormHandler
           :formData="formData"
           v-model="newTask[formData.formID]"
           @input="validateInput()"

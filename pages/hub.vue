@@ -12,8 +12,8 @@
     </div>
     <div class="weather">Weather section</div>
     <div class="tasks">
-      <CompCreateTask class="tasks__create" />
-      <CompTaskList class="tasks__list" />
+      <CreateTask class="tasks__create" />
+      <TaskList class="tasks__list" />
     </div>
   </div>
 </template>

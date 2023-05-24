@@ -2,7 +2,7 @@
   <div class="temp">
     <form class="login">
       <template v-for="formData in propData" :key="formData.id">
-        <CompFormHandler
+        <FormHandler
           :formData="formData"
           v-model="credentials[formData.formID]"
         />
