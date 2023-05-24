@@ -62,7 +62,7 @@
           {{ convertFrequency((data as Database["tasks"]).frequency_id) }}
         </template>
         <template v-else>
-          <CompFormHandler
+          <FormHandler
             :formData="propData"
             v-model="localTask['frequency']"
             @update:modelValue="handleTaskInput('frequency', $event)"
