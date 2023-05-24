@@ -1,6 +1,6 @@
 <template>
   <div class="temp">
-    <CreateAccount />
+    <AccountCreate />
   </div>
 </template>
 

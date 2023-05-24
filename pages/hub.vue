@@ -12,7 +12,7 @@
     </div>
     <div class="weather">Weather section</div>
     <div class="tasks">
-      <CreateTask class="tasks__create" />
+      <TaskCreate class="tasks__create" />
       <TaskList class="tasks__list" />
     </div>
   </div>

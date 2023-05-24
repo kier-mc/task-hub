@@ -1,7 +1,7 @@
 <template>
   <ToastSystem />
   <div class="container-header">
-    <HeaderElement />
+    <AppHeader />
   </div>
   <div class="container-content">
     <slot />
