@@ -134,12 +134,6 @@
 </style>
 
 <script setup lang="ts">
-/* Reactive variables */
-const activeSlide: Ref<number> = ref(0);
-const step: Ref<number> = ref(0);
-const current: Ref<number> = ref(0);
-/* Template refs */
-const container: Ref<HTMLElement | null> = ref(null);
 /* Prop/v-model-related data */
 const propData: Array<CompStepperPropData> = [
   {
@@ -179,25 +173,29 @@ const propData: Array<CompStepperPropData> = [
     ],
   },
 ];
+/* Reactive variables */
+const activeSlide: Ref<number> = ref(0);
+const step: Ref<number> = ref(0);
+const current: Ref<number> = ref(0);
 const credentials: NewAccountDataObject = reactive({
   email: "",
   password: "",
   name: "",
 });
-/*
- * updateTransformStep()
- * Calculates the width of a single step section in pixels
- * Used for to determine "step" for CSS translation
+/* Template refs */
+const container: Ref<HTMLElement | null> = ref(null);
+/**
+ * Calculates the width of a single step section in pixels.
+ * Used for to determine "step" for CSS translation.
  */
 function updateTransformStep(): void {
   if (!container.value) return;
   step.value = (container.value.clientWidth / propData.length) * -1;
 }
-/*
- * nextStep(event)
- * Controls behaviour for "next"/"submit" button
- * If the active step is the last step, calls createUser()
- * A ternary operator in the template controls button text
+/**
+ * Controls behaviour for "next"/"submit" button by updating activeSlide ref and translating container element.
+ * If the active step is the last step in the sequence, calls createUser().
+ * A ternary operator in the template controls the button text content.
  */
 function nextStep(): void {
   if (!container.value) return;
@@ -209,9 +207,9 @@ function nextStep(): void {
     createUser(ref(credentials));
   }
 }
-/*
- * prevStep(event)
- * Controls behaviour for "previous" button
+/**
+ * Controls behaviour for "previous" button by updating activeSlide ref and translating container element.
+ *
  */
 function prevStep(): void {
   if (!container.value) return;
@@ -221,6 +219,7 @@ function prevStep(): void {
     container.value.style.transform = `translate3d(${current.value}px, 0, 0)`;
   }
 }
+/* Calculate the transform step once all content is rendered to the DOM */
 onMounted(() => {
   updateTransformStep();
 });
