@@ -10,6 +10,9 @@
         :type="props.formData.attrType"
         :id="props.formData.formID"
         :name="props.formData.formID"
+        :autocomplete="
+          props.formData.autocomplete ? props.formData.autocomplete : 'on'
+        "
         :value="modelValue"
         @input="emitEvent($event)"
       />
