@@ -37,6 +37,7 @@ const propData: Array<CompFormObject> = [
     formID: "email",
     elementType: "input",
     attrType: "text",
+    autocomplete: "email",
     labelText: "Email",
   },
   {
@@ -44,6 +45,7 @@ const propData: Array<CompFormObject> = [
     formID: "password",
     elementType: "input",
     attrType: "password",
+    autocomplete: "current-password",
     labelText: "Password",
   },
 ];
