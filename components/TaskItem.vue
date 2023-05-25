@@ -362,26 +362,6 @@ async function deleteTask(): Promise<void> {
   modalVisible.value = false;
   taskStore.getTasks();
 }
-/**
- * Reads ISO 8601 timestamp from props and converts to simpler format.
- * Updates local refs with converted values.
- * @param inputDate {string} - ISO 8601 timestamp to be converted
- */
-function convertDate(inputDate: string): void {
-  if (!inputDate) return;
-  const date = new Date(inputDate);
-  const year = date.getFullYear();
-  const month =
-    date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
-  const day =
-    date.getDate() + 1 < 10 ? `0${date.getDate() + 1}` : date.getDate() + 1;
-  const hours = date.getHours();
-  const minutes =
-    date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
-  // Update refs
-  convertedDate.value = `${year}/${month}/${day}`;
-  convertedTime.value = `${hours}:${minutes}`;
-}
 /*
 Create a reactive copy of the prop data for potential edits
 Read the timestamp from the props and attempt to populate date/time refs
@@ -390,6 +370,9 @@ onMounted(() => {
   localTask.task = props.data.task;
   localTask.description = props.data.description;
   localTask.frequency = convertFrequency(props.data.frequency_id) as string;
-  convertDate(props.data.created_at);
+  convertedDate.value = convertDate(props.data.created_at, "en-GB") as string;
+  convertedTime.value = convertTime(props.data.created_at, "en-GB", {
+    timeStyle: "short",
+  }) as string;
 });
 </script>
