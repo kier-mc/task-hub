@@ -171,7 +171,6 @@ interface OpenWeatherMapResponse {
   /** HTTP response code. */
   cod: number;
 }
-
 interface OpenWeatherMapWeatherObject {
   /** Weather condition ID. */
   id: number;
@@ -181,4 +180,10 @@ interface OpenWeatherMapWeatherObject {
   description: string;
   /** Weather icon ID. */
   icon: string;
+}
+interface WeatherStoreGetWeatherOptions {
+  forceUpdate?: boolean;
+}
+interface WeatherStoreGetTemperatureOptions {
+  type?: "average" | "feels_like" | "max" | "min";
 }
