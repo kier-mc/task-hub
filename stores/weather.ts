@@ -23,7 +23,7 @@ export const useWeatherStore = defineStore("weather", {
      * @param location {string} - A string to be parsed by the API as a location.
      * Ideally, it will be passed as a place name followed by an ISO 3166 country code,
      * e.g. "Halton, GB", although this isn't strictly necessary for the lookup to function.
-     * @returns {(OpenWeatherMapResponse|void)} - An object containing data regarding weather
+     * @returns {(OpenWeatherMapResponse|Promise<void>)} - An object containing data regarding weather
      * for the location that was passed as a parameter. If the location is invalid or the call
      * fails for any other reason, the function returns void and pushes a generic error notification
      * to the user.
@@ -54,14 +54,11 @@ export const useWeatherStore = defineStore("weather", {
      * @param location {string} - A string to be parsed by the API as a location.
      * Ideally, it will be passed as a place name followed by an ISO 3166 country code,
      * e.g. "Halton, GB", although this isn't strictly necessary for the lookup to function.
-     * @returns {(OpenWeatherMapResponse|void)} - An object containing data regarding weather
-     * for the location that was passed as a parameter. If the location is invalid or the call
-     * fails for any other reason, the function returns void and pushes a generic error notification
-     * to the user.
+     * @returns {(Promise<void>)} - A successful update will silently update the local weather data.
+     * If the location is invalid or the call fails for any other reason,
+     * the function returns void and pushes a generic error notification to the user.
      */
-    async updateWeather(
-      location: string
-    ): Promise<OpenWeatherMapResponse | void> {
+    async updateWeather(location: string): Promise<void> {
       const config = useRuntimeConfig();
       const key = config.public.openWeatherKey;
       const endpoint = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${key}`;
