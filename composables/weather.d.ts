@@ -168,7 +168,7 @@ interface OpenWeatherMapResponse {
   id: number;
   /** The city name for the location specified in the call. */
   name: string;
-  /** Internal parameter */
+  /** HTTP response code. */
   cod: number;
 }
 
