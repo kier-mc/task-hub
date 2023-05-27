@@ -19,7 +19,7 @@
         :data-active="activeSlide === entry.index ? true : false"
       >
         <template v-for="formData in entry.formData">
-          <CompFormHandler
+          <FormHandler
             :formData="formData"
             v-model="credentials[formData.formID]"
           />
