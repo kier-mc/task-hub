@@ -173,6 +173,15 @@ const propData: Array<CompStepperPropData> = [
         labelText: "Preferred name",
         hintText: "Used when authoring tasks",
       },
+      {
+        index: 1,
+        formID: "location",
+        elementType: "input",
+        attrType: "text",
+        autocomplete: "country",
+        labelText: "Location",
+        hintText: "Used for providing weather information",
+      },
     ],
   },
 ];
@@ -184,6 +193,7 @@ const credentials: NewAccountDataObject = reactive({
   email: "",
   password: "",
   name: "",
+  location: "",
 });
 /* Template refs */
 const container: Ref<HTMLElement | null> = ref(null);
