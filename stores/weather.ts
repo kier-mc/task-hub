@@ -105,19 +105,39 @@ export const useWeatherStore = defineStore("weather", {
       location: string,
       options?: WeatherStoreGetWeatherOptions
     ): Promise<OpenWeatherMapResponse | void> {
-      if (!this.data) {
-        console.log("No Pinia store data found. Fetching and returning...");
-        const response = await fetchFromEndpoint(location);
-        if (!response) return;
-        this.data = response;
-        return this.data;
-      }
-      if (options?.forceUpdate) {
+      // If data is found in localStorage
+      if (localStorage.getItem("weatherData")) {
+        console.log("Data found in localStorage. Comparing to stored data...");
+        const parsedLocalWeatherData: OpenWeatherMapResponse = JSON.parse(
+          localStorage.getItem("weatherData") as string
+        );
+        const currentDateTime = Math.floor(new Date().getTime() / 1000);
+        const lastCallDateTime = parsedLocalWeatherData.dt;
+        if (currentDateTime - lastCallDateTime > 600 || options?.forceUpdate) {
+          console.log(
+            `Data in localStorage is out of date by ${
+              currentDateTime - 600 - lastCallDateTime
+            } seconds. Fetching and returning new data...`
+          );
+          const response = await fetchFromEndpoint(location);
+          if (!response) return;
+          localStorage.setItem("weatherData", JSON.stringify(response));
+          this.data = response;
+          return this.data;
+        }
         console.log(
-          "Parameter explicitly requests data from endpoint. Fetching and returning..."
+          "Current time is within ten minutes of localStorage data. Returning local data..."
+        );
+        return (this.data = parsedLocalWeatherData);
+      }
+      // If no data is present in the store or the function is called with forceUpdate=true
+      if (!this.data || options?.forceUpdate) {
+        console.log(
+          "No Pinia store data found. Fetching and returning new data..."
         );
         const response = await fetchFromEndpoint(location);
         if (!response) return;
+        localStorage.setItem("weatherData", JSON.stringify(response));
         this.data = response;
         return this.data;
       }
