@@ -143,7 +143,7 @@ export const useWeatherStore = defineStore("weather", {
       options?: WeatherStoreGetTemperatureOptions
     ): number | void {
       if (!this.data) return;
-      let temperature;
+      let temperature = this.data.main.temp;
       if (options) {
         switch (options.type) {
           case "average": {
