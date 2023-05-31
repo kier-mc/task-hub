@@ -37,28 +37,47 @@ async function fetchFromEndpoint(
 /**
  * An internal function that converts a temperature value in Kelvin to either Celsius or Fahrenheit.
  * Contains a nested function that rounds the given value to a single decimal place.
+ * This function maintains this decimal place even if the number is an integer for formatting reasons, thus 20 is returned as "20.0".
+ *
  * @param temperature {number} - The temperature (in Kelvin) to be converted.
- * @param unit {"celsius"|"fahrenheit"} - The unit to which the temperature should be converted.
- * @returns {number} The converted number in the specified unit, rounded to a single decimal place.
+ * @param {ConvertTemperatureFromKelvinOptions} [options]  - Optional options object for modifying the function's behaviour.
+ * @param options.unit {"celsius"|"fahrenheit"|undefined} - Specifies the unit that the temperature will be returned in.
+ * If no value is specified, will default to Kelvin.
+ * @param options.locale {string} - Specifies the locale, which alters the formatting of the returned string to the specified
+ * regional standard. Passed to [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat)
+ * internally. If no value is specified, will default to "GB".
+ * @example
+ * // Assuming an input temperature of 283.15K, returns "10.0"
+ * getTemperature({locale: "GB"})
+ * // Assuming an input temperature of 283.15K, returns "10,0"
+ * getTemperature({locale: "SE"})
+ * @returns {string} The converted value as a string in the specified unit, rounded to a single decimal place.
  */
 function convertTemperatureFromKelvin(
   temperature: number,
-  unit?: "celsius" | "fahrenheit"
-): number {
-  function toTwoDecimalPlaces(input: number): number {
-    return Math.round(input * 10) / 10;
+  options?: {
+    unit?: "celsius" | "fahrenheit" | undefined;
+    locale?: string | undefined;
+  }
+): string {
+  const { unit, locale = "GB" } = options || {};
+  function toOneDecimalPlace(input: number): string {
+    return new Intl.NumberFormat(locale, {
+      maximumFractionDigits: 1,
+      minimumFractionDigits: 1,
+    }).format(input);
   }
   switch (unit) {
     case "celsius": {
       const baselineConversion = temperature - 273.15;
-      return toTwoDecimalPlaces(baselineConversion);
+      return toOneDecimalPlace(baselineConversion);
     }
     case "fahrenheit": {
       const baselineConversion = 1.8 * (temperature - 273) + 32;
-      return toTwoDecimalPlaces(baselineConversion);
+      return toOneDecimalPlace(baselineConversion);
     }
     default:
-      return toTwoDecimalPlaces(temperature);
+      return toOneDecimalPlace(temperature);
   }
 }
 /**
@@ -92,14 +111,11 @@ export const useWeatherStore = defineStore("weather", {
     /* 
     TODO:
     1) Remove stdout statements when satisfied
-    2) Pinia states are not stored between page refreshes.
-       This could be problematic, as users may perform this function innately, which will make
-       continual requests to the endpoint. Implementing a localStorage caching system should
-       help to reduce this, but it will need to reference dates and intelligently update itself
-       when needed. OpenWeatherMap recommend no more than one call per ten minutes per location, 
-       as this is the update frequency limit and additional calls will serve no purpose.
-       It could be worth leveraging this as part of the function itself, or as part of an
-       intelligent caching system.
+    2) Changing location will not trigger an immediate update if it is within ten minutes
+       of the last localStorage write. Needs a clause for this in the conditional, but it
+       has to be considerate of how the user specifies the location. Consequently, it will
+       probably be best to implement this after a system and interface has been built that
+       allows the user to change their location, as checks can be enforced more accurately.
     */
     async getWeather(
       location: string,
@@ -147,50 +163,55 @@ export const useWeatherStore = defineStore("weather", {
       return this.data as OpenWeatherMapResponse;
     },
     /**
-     * Retrieves the temperature from the data object and returns it as a number.
+     * Retrieves the temperature from the data object and returns it as a string.
      * Leverages {@link convertTemperatureFromKelvin()} internally to perform conversions.
-     * Accepts optional parameters that modify which specific value is returned.
-     * @param {"celsius"|"fahrenheit"} [unit] - Optional parameter which is supplied to
-     * {@link convertTemperatureFromKelvin()} to specify which unit the return value is in.
-     * @param {WeatherStoreGetTemperatureOptions} [options]  - Optional options object for controlling the behaviour.
-     * @param options.type {"average"|"feels_like"|"max"|"min"} - Specifies the exact temperature type
+     * Accepts optional options object that modify the specifics as to precisely what is returned.
+     * @param {WeatherStoreGetTemperatureOptions} [options]  - Optional options object for modifying the function's behaviour.
+     * @param options.type {"average"|"feels_like"|"max"|"min"|undefined} - Specifies the exact temperature type
      * to be returned. If no value is specified, will default to the average temperature.
-     * @returns {(number|void)} A number representing the temperature as specified via the parameters.
+     * @param options.unit {"celsius"|"fahrenheit"|undefined} - Specifies the unit that the temperature will be returned in.
+     * Passed to {@link convertTemperatureFromKelvin()} internally. If no value is specified, will default to Kelvin.
+     * @param options.locale {string} - Specifies the locale, which alters the formatting of the returned string to the specified
+     * regional standard. Passed to [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat)
+     * internally, via {@link convertTemperatureFromKelvin()}. If no value is specified, will default to "GB".
+     * @example
+     * // Assuming an input temperature of 283.15K, returns "10.0"
+     * getTemperature({locale: "GB"})
+     * // Assuming an input temperature of 283.15K, returns "10,0"
+     * getTemperature({locale: "SE"})
+     * @returns {(string|void)} A string representing the temperature as specified via the parameters.
      * Will return void if no data is present in the store.
      */
-    getTemperature(
-      unit?: "celsius" | "fahrenheit",
-      options?: WeatherStoreGetTemperatureOptions
-    ): number | void {
+    getTemperature(options?: WeatherStoreGetTemperatureOptions): string | void {
       if (!this.data) return;
       let temperature = this.data.main.temp;
-      if (options) {
-        switch (options.type) {
-          case "average": {
-            temperature = this.data.main.temp;
-            break;
-          }
-          case "feels_like": {
-            temperature = this.data.main.feels_like;
-            break;
-          }
-          case "max": {
-            temperature = this.data.main.temp_max;
-            break;
-          }
-          case "min": {
-            temperature = this.data.main.temp_min;
-            break;
-          }
-          default: {
-            temperature = this.data.main.temp;
-            break;
-          }
+      const { type, unit, locale } = options || {};
+      switch (type) {
+        case "average": {
+          temperature = this.data.main.temp;
+          break;
+        }
+        case "feels_like": {
+          temperature = this.data.main.feels_like;
+          break;
+        }
+        case "max": {
+          temperature = this.data.main.temp_max;
+          break;
+        }
+        case "min": {
+          temperature = this.data.main.temp_min;
+          break;
+        }
+        default: {
+          temperature = this.data.main.temp;
+          break;
         }
       }
-      if (unit)
-        return convertTemperatureFromKelvin(temperature as number, unit);
-      return convertTemperatureFromKelvin(temperature as number);
+      return convertTemperatureFromKelvin(
+        temperature,
+        (options = { unit: unit, locale: locale })
+      );
     },
   },
 });

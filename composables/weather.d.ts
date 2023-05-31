@@ -184,6 +184,11 @@ interface OpenWeatherMapWeatherObject {
 interface WeatherStoreGetWeatherOptions {
   forceUpdate?: boolean;
 }
-interface WeatherStoreGetTemperatureOptions {
+interface ConvertTemperatureFromKelvinOptions {
+  unit?: "celsius" | "fahrenheit" | undefined;
+  locale?: string;
+}
+interface WeatherStoreGetTemperatureOptions
+  extends ConvertTemperatureFromKelvinOptions {
   type?: "average" | "feels_like" | "max" | "min";
 }
