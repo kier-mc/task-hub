@@ -1,6 +1,6 @@
 <template>
   <div class="temp">
-    <form class="login">
+    <form class="login" @keyup.enter="loginUser(ref(credentials))">
       <template v-for="formData in propData" :key="formData.id">
         <FormHandler
           :formData="formData"
