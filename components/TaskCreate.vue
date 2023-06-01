@@ -107,7 +107,9 @@ async function createNewTask(taskData: TaskDataObject): Promise<void> {
         author_id: user.data.user.id,
         task: taskData.task,
         description: taskData.description,
-        frequency_id: convertFrequency(taskData.frequency),
+        frequency_id: convertFrequency(
+          taskData.frequency as Database["frequency"]["repeats_every"]
+        ),
       },
     ]);
   if (error) {

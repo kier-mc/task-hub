@@ -59,7 +59,12 @@
       </div>
       <div class="task__frequency">
         <template v-if="!isEditable">
-          {{ convertFrequency((data as Database["tasks"]).frequency_id) }}
+          {{
+            convertFrequency(
+              (data as Database["tasks"])
+                .frequency_id as Database["frequency"]["frequency_id"]
+            )
+          }}
         </template>
         <template v-else>
           <FormHandler
@@ -304,7 +309,10 @@ function detectChanges(): void {
   if (
     localTask.task !== props.data.task ||
     localTask.description !== props.data.description ||
-    localTask.frequency !== convertFrequency(props.data.frequency_id)
+    localTask.frequency !==
+      convertFrequency(
+        props.data.frequency_id as Database["frequency"]["frequency_id"]
+      )
   ) {
     hasBeenEdited.value = true;
   } else {
@@ -333,7 +341,9 @@ async function updateTask(): Promise<void> {
     .update({
       task: localTask.task,
       description: localTask.description,
-      frequency_id: convertFrequency(localTask.frequency),
+      frequency_id: convertFrequency(
+        localTask.frequency as Database["frequency"]["repeats_every"]
+      ),
     })
     .eq("task_id", props.data.task_id);
   if (error) {
@@ -344,7 +354,9 @@ async function updateTask(): Promise<void> {
   hasBeenEdited.value = false;
   props.data.task = localTask.task;
   props.data.description = localTask.description;
-  props.data.frequency_id = convertFrequency(localTask.frequency) as number;
+  props.data.frequency_id = convertFrequency(
+    localTask.frequency as Database["frequency"]["repeats_every"]
+  ) as number;
 }
 /**
  * Connects to database, deletes data and pushes a notification to the user.
@@ -369,7 +381,9 @@ Read the timestamp from the props and attempt to populate date/time refs
 onMounted(() => {
   localTask.task = props.data.task;
   localTask.description = props.data.description;
-  localTask.frequency = convertFrequency(props.data.frequency_id) as string;
+  localTask.frequency = convertFrequency(
+    props.data.frequency_id as Database["frequency"]["frequency_id"]
+  ) as string;
   convertedDate.value = convertDate(props.data.created_at, "en-GB") as string;
   convertedTime.value = convertTime(props.data.created_at, "en-GB", {
     timeStyle: "short",
