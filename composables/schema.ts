@@ -16,7 +16,7 @@ interface Database {
     frequency_id: number;
   };
   frequency: {
-    frequency_id: number;
+    frequency_id: 1 | 2 | 3 | 4 | 5 | 6 | 7;
     repeats_every:
       | "daily"
       | "weekly"
