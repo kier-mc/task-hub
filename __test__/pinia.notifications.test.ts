@@ -1,5 +1,5 @@
 /* Vitest imports */
-import { vi, describe, test, expect, beforeAll, beforeEach } from "vitest";
+import { describe, test, expect, beforeAll, beforeEach } from "vitest";
 /* Pinia imports */
 import { setActivePinia, createPinia } from "pinia";
 /* Functions to be tested */
