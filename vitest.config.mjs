@@ -5,6 +5,5 @@ export default defineVitestConfig({
       provider: "c8",
       reportsDirectory: "./__test__/coverage",
     },
-    // dangerouslyIgnoreUnhandledErrors: true,
   },
 });
