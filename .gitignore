@@ -10,3 +10,5 @@ dist
 .vscode
 .dev
 __test__/coverage
+scripts/input
+scripts/output
