@@ -29,6 +29,15 @@ import { loginUser, createUser, logoutUser } from "~/composables/auth";
 
 /* Module/function mocking */
 vi.mock("@nuxtjs/supabase");
+vi.mock("nuxt/app", async (importOriginal) => {
+  const mod = await importOriginal();
+  return {
+    ...(mod as any),
+    // TODO: figure out how to test the route
+    navigateTo: vi.fn(),
+  };
+});
+
 /* Instantiate Pinia and the notification store */
 setActivePinia(createPinia());
 const notificationsStore = useNotificationsStore();
@@ -53,6 +62,23 @@ describe("Tests related to logging in", () => {
     );
     expect(notificationsStore.type).toBe("error");
   });
+  test("Invalid credentials fail and push an error notification", async () => {
+    // Data
+    loginCredentials.email = "invalidemail@domain.com";
+    loginCredentials.password = "invalidpassword";
+    // Mocks
+    const mockData = {
+      message: "Invalid login credentials",
+    };
+    const mock = vi.fn().mockResolvedValueOnce({ error: mockData });
+    useSupabaseAuthClient().auth.signInWithPassword = mock;
+    // Calls
+    await loginUser(ref(loginCredentials));
+    // Assertions
+    expect(mock).toHaveBeenCalledOnce();
+    expect(notificationsStore.message).toBe("Invalid login credentials");
+    expect(notificationsStore.type).toBe("error");
+  });
   test("Valid credentials succeed and push a success notification referencing the user's email", async () => {
     // Data
     loginCredentials.email = "validemail@domain.com";
@@ -66,16 +92,17 @@ describe("Tests related to logging in", () => {
     };
     const mock = vi.fn().mockResolvedValueOnce({ data: mockData });
     useSupabaseAuthClient().auth.signInWithPassword = mock;
+    useUserStore().fetchData = mock;
     // Calls
     await loginUser(ref(loginCredentials));
     // Assertions
-    expect(mock).toHaveBeenCalledOnce();
+    expect(mock).toHaveBeenCalledTimes(2);
     expect(notificationsStore.message).toBe(
       "Logged in as validemail@domain.com!"
     );
     expect(notificationsStore.type).toBe("success");
   });
-  test("Valid credentials succeed and push a success notification which prefers the user's preferred name over their email when it is present", async () => {
+  test("Valid credentials succeed and push a success notification which favours the user's preferred name over their email when it is present", async () => {
     // Data
     loginCredentials.email = "validemail@domain.com";
     loginCredentials.password = "validpassword";
@@ -88,11 +115,11 @@ describe("Tests related to logging in", () => {
     };
     const mock = vi.fn().mockResolvedValueOnce({ data: mockData });
     useSupabaseAuthClient().auth.signInWithPassword = mock;
-    console.log(loginCredentials);
+    useUserStore().fetchData = mock;
     // Calls
     await loginUser(ref(loginCredentials));
     // Assertions
-    expect(mock).toHaveBeenCalledOnce();
+    expect(mock).toHaveBeenCalledTimes(2);
     expect(notificationsStore.message).toBe("Logged in as User!");
     expect(notificationsStore.type).toBe("success");
   });
@@ -123,6 +150,50 @@ describe("Tests related to creating an account", () => {
     // Assertions
     expect(notificationsStore.message).toBe(
       "Account creation failed. Please ensure all fields are filled in."
+    );
+    expect(notificationsStore.type).toBe("error");
+  });
+  test("An invalid email fails and pushes an error notification", async () => {
+    // Data
+    newAccountCredentials.email = "invalidemail";
+    newAccountCredentials.password = "validpassword";
+    newAccountCredentials.preferred_name = "User";
+    newAccountCredentials.country = "United Kingdom";
+    newAccountCredentials.locale = "Halton";
+    // Mocks
+    const mockData = {
+      message: "Unable to validate email address: invalid format",
+    };
+    const mock = vi.fn().mockResolvedValueOnce({ error: mockData });
+    useSupabaseAuthClient().auth.signUp = mock;
+    // Calls
+    await createUser(ref(newAccountCredentials));
+    // Assertions
+    expect(mock).toHaveBeenCalledOnce();
+    expect(notificationsStore.message).toBe(
+      "Unable to validate email address: invalid format"
+    );
+    expect(notificationsStore.type).toBe("error");
+  });
+  test("A password of less than 12 characters fails and pushes an error notification", async () => {
+    // Data
+    newAccountCredentials.email = "validemail@domain.com";
+    newAccountCredentials.password = "tooshort";
+    newAccountCredentials.preferred_name = "User";
+    newAccountCredentials.country = "United Kingdom";
+    newAccountCredentials.locale = "Halton";
+    // Mocks
+    const mockData = {
+      message: "Password should be at least 12 characters",
+    };
+    const mock = vi.fn().mockResolvedValueOnce({ error: mockData });
+    useSupabaseAuthClient().auth.signUp = mock;
+    // Calls
+    await createUser(ref(newAccountCredentials));
+    // Assertions
+    expect(mock).toHaveBeenCalledOnce();
+    expect(notificationsStore.message).toBe(
+      "Password should be at least 12 characters"
     );
     expect(notificationsStore.type).toBe("error");
   });
