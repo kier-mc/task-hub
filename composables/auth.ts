@@ -6,13 +6,21 @@
  * Declared at start of each function instead, which can only be called after init
  */
 
+import { allCredentialFieldsArePopulated } from "./auth.helper";
+
 /**
  * Helper function to wipe credentials object once login/account creation submissions occur.
+ * Iterates over all key/value pairs in the supplied parameter and sets the values to undefined.
  * @param credentials {Ref<LoginCredentialsDataObject>} object containing data to erase; inherited from parent function
  */
-function clearCredentials(credentials: Ref<LoginCredentialsDataObject>): void {
-  credentials.value.email = "";
-  credentials.value.password = "";
+function clearCredentials(
+  credentials: Ref<NewAccountDataObject> | Ref<LoginCredentialsDataObject>
+): void {
+  for (let [key, value] of Object.entries(credentials.value)) {
+    if (key) {
+      value = undefined;
+    }
+  }
 }
 /**
  * Attempts login via SupabaseAuthClient (@nuxtjs/supabase).
@@ -23,10 +31,18 @@ export async function loginUser(
   credentials: Ref<LoginCredentialsDataObject>
 ): Promise<void> {
   const notificationsStore = useNotificationsStore();
+  if (!allCredentialFieldsArePopulated(credentials)) {
+    notificationsStore.setMessage(
+      "Login failed. Please ensure all fields are filled in.",
+      "error"
+    );
+    return;
+  }
+  const userStore = useUserStore();
   const { data, error } = await useSupabaseAuthClient().auth.signInWithPassword(
     {
-      email: credentials.value.email,
-      password: credentials.value.password,
+      email: credentials.value.email as string,
+      password: credentials.value.password as string,
     }
   );
   if (error) {
@@ -36,14 +52,15 @@ export async function loginUser(
   if (data.user) {
     notificationsStore.setMessage(
       `Logged in as ${
-        data.user.user_metadata.name
-          ? data.user.user_metadata.name
+        data.user.user_metadata.preferred_name
+          ? data.user.user_metadata.preferred_name
           : data.user.email
-      }`,
+      }!`,
       "success"
     );
+    await userStore.fetchData();
     clearCredentials(credentials);
-    navigateTo("/hub");
+    await navigateTo("/hub");
   }
 }
 /**
@@ -53,12 +70,24 @@ export async function loginUser(
  */
 export async function createUser(credentials: Ref<NewAccountDataObject>) {
   const notificationsStore = useNotificationsStore();
+  if (!allCredentialFieldsArePopulated(credentials)) {
+    notificationsStore.setMessage(
+      "Account creation failed. Please ensure all fields are filled in.",
+      "error"
+    );
+    return;
+  }
+  const countryID = convertCountry(
+    credentials.value.country as CountryName
+  ) as CountryID;
   const { data, error } = await useSupabaseAuthClient().auth.signUp({
-    email: credentials.value.email,
-    password: credentials.value.password,
+    email: credentials.value.email as string,
+    password: credentials.value.password as string,
     options: {
       data: {
-        name: credentials.value.name,
+        preferred_name: credentials.value.preferred_name as string,
+        country_id: countryID,
+        locale: credentials.value.locale as string,
       },
     },
   });
@@ -70,14 +99,14 @@ export async function createUser(credentials: Ref<NewAccountDataObject>) {
   // https://github.com/supabase/supabase-js/issues/296#issuecomment-1372552875
   if (data.user?.identities?.length === 0) {
     notificationsStore.setMessage(
-      "Email address is already registered",
+      "Email address is already registered.",
       "error"
     );
     return;
   }
-  notificationsStore.setMessage("Account created successfully", "success");
+  notificationsStore.setMessage("Account created successfully!", "success");
   clearCredentials(credentials);
-  navigateTo("/login");
+  await navigateTo("/login");
 }
 /**
  * Attemps logout via SupabaseAuthClient (@nuxtjs/supabase).
@@ -85,9 +114,10 @@ export async function createUser(credentials: Ref<NewAccountDataObject>) {
  */
 export async function logoutUser(): Promise<void> {
   const notificationsStore = useNotificationsStore();
+  const userStore = useUserStore();
   const request = await useSupabaseAuthClient().auth.getUser();
   if (!request.data.user) {
-    notificationsStore.setMessage("No user currently logged in", "error");
+    notificationsStore.setMessage("No user currently logged in.", "error");
     return;
   }
   const { error } = await useSupabaseAuthClient().auth.signOut();
@@ -95,6 +125,7 @@ export async function logoutUser(): Promise<void> {
     notificationsStore.setMessage(error.message, "error");
     return;
   }
-  notificationsStore.setMessage("Logged out successfully", "success");
-  navigateTo("/");
+  userStore.clearData();
+  notificationsStore.setMessage("Logged out successfully!", "success");
+  await navigateTo("/");
 }
