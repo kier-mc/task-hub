@@ -73,15 +73,15 @@ interface CompStepperPropData {
   formData: Array<CompFormObject>;
 }
 interface LoginCredentialsDataObject {
-  [key: string]: string;
-  email: string;
-  password: string;
+  [key: string]: string | undefined;
+  email: string | undefined;
+  password: string | undefined;
 }
-interface NewAccountDataObject {
-  [key: string]: string;
-  email: string;
-  password: string;
-  name: string;
+interface NewAccountDataObject extends LoginCredentialsDataObject {
+  [key: string]: string | undefined;
+  preferred_name: string | undefined;
+  country: Database["countries"]["name"] | undefined;
+  locale: string | undefined;
 }
 interface TaskDataObject {
   [key: string]: string;

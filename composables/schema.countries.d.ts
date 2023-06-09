@@ -1,4 +1,4 @@
-type CountryIDs =
+type CountryID =
   | 1
   | 2
   | 3
@@ -249,7 +249,7 @@ type CountryIDs =
   | 248
   | 249;
 
-type CountryNames =
+type CountryName =
   | "Afghanistan"
   | "Åland Islands"
   | "Albania"
@@ -500,7 +500,7 @@ type CountryNames =
   | "Zambia"
   | "Zimbabwe";
 
-type CountryISOCodes =
+type CountryISOCode =
   | "AF"
   | "AX"
   | "AL"
