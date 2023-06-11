@@ -19,18 +19,30 @@
         <div class="temperature__average">
           <span class="temperature__average--value fixed-width">
             {{
-              weatherStore.getTemperature({ type: "average", unit: "celsius" })
+              weatherStore.getTemperature({
+                type: "average",
+                unit: preferredUnit?.unit,
+              })
             }}
           </span>
-          <span class="temperature__average--symbol">&nbsp;°C</span>
+          <span class="temperature__average--symbol"
+            >&nbsp;{{ preferredUnit?.symbol }}</span
+          >
         </div>
 
         <div class="temperature__min">
           <div class="temperature__min--text">Min</div>
           <div class="temperature__min--value fixed-width">
-            {{ weatherStore.getTemperature({ type: "min", unit: "celsius" }) }}
+            {{
+              weatherStore.getTemperature({
+                type: "min",
+                unit: preferredUnit?.unit,
+              })
+            }}
           </div>
-          <div class="temperature__min--symbol">&nbsp;°C</div>
+          <div class="temperature__min--symbol">
+            &nbsp;{{ preferredUnit?.symbol }}
+          </div>
         </div>
 
         <div class="temperature__max">
@@ -39,8 +51,8 @@
             {{
               weatherStore.getTemperature({
                 type: "max",
-                unit: "celsius",
-                locale: "gb",
+                unit: preferredUnit?.unit ?? undefined,
+                locale: currentCountryISOCode ?? undefined,
               })
             }}
           </div>
@@ -118,19 +130,37 @@
 </style>
 
 <script setup lang="ts">
+/* Pinia stores */
 const weatherStore = useWeatherStore();
-// Default value, to be associated with individual users via metadata in the future
-const defaultLocation = "Halton, GB";
-const currentDateTime = new Date();
-const currentDay = ref("");
-const currentDate = ref("");
+const userStore = useUserStore();
+/* Reactive variables */
+const currentDateTime: Ref<Date> = ref(new Date());
+const currentLocation: Ref<string | null> = ref(null);
+const currentCountryISOCode: Ref<CountryISOCode | null> = ref(null);
+const currentDay: Ref<string | null> = ref(null);
+const currentDate: Ref<string | null> = ref(null);
+const preferredUnit: Ref<UnitPreferenceObject | null> = ref(null);
+
+function setAllRefs(): void {
+  // Options object for date conversion
+  const options: Intl.DateTimeFormatOptions = { weekday: "long" };
+  // Variables
+  const location: string = `${userStore.getLocale()}, ${userStore.getCountryName()}`;
+  const code: CountryISOCode = userStore.getCountryISOCode() as CountryISOCode;
+  const day = convertDate(currentDateTime.value, code, options) ?? "";
+  const date = convertDate(currentDateTime.value, code) ?? "";
+  const unit: UnitPreferenceObject = userStore.getPreferredUnit();
+  // Set refs
+  currentLocation.value = location;
+  currentCountryISOCode.value = code;
+  currentDay.value = day;
+  currentDate.value = date;
+  preferredUnit.value = unit;
+}
+
 onMounted(async () => {
-  await weatherStore.getWeather(defaultLocation);
-  // { forceUpdate: true }
-  currentDay.value =
-    convertDate(currentDateTime, "en-GB", {
-      weekday: "long",
-    }) ?? "";
-  currentDate.value = convertDate(currentDateTime, "en-GB") ?? "";
+  await userStore.fetchData();
+  setAllRefs();
+  await weatherStore.getWeather(currentLocation.value ?? "");
 });
 </script>
