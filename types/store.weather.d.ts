@@ -185,7 +185,7 @@ interface WeatherStoreGetWeatherOptions {
   forceUpdate?: boolean;
 }
 interface ConvertTemperatureFromKelvinOptions {
-  unit?: "celsius" | "fahrenheit" | undefined;
+  unit?: "celsius" | "kelvin" | "fahrenheit" | undefined;
   locale?: string;
 }
 interface WeatherStoreGetTemperatureOptions
