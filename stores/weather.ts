@@ -3,6 +3,7 @@ import { setActivePinia, createPinia } from "pinia";
 
 setActivePinia(createPinia());
 const notificationsStore = useNotificationsStore();
+const userStore = useUserStore();
 
 /**
  * An internal function used to call the OpenWeatherMap endpoint.
@@ -41,7 +42,7 @@ async function fetchFromEndpoint(
  *
  * @param temperature {number} - The temperature (in Kelvin) to be converted.
  * @param {ConvertTemperatureFromKelvinOptions} [options]  - Optional options object for modifying the function's behaviour.
- * @param options.unit {"celsius"|"fahrenheit"|undefined} - Specifies the unit that the temperature will be returned in.
+ * @param options.unit {"celsius"|"kelvin"|"fahrenheit"|undefined} - Specifies the unit that the temperature will be returned in.
  * If no value is specified, will default to Kelvin.
  * @param options.locale {string} - Specifies the locale, which alters the formatting of the returned string to the specified
  * regional standard. Passed to [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat)
@@ -56,7 +57,7 @@ async function fetchFromEndpoint(
 function convertTemperatureFromKelvin(
   temperature: number,
   options?: {
-    unit?: "celsius" | "fahrenheit" | undefined;
+    unit?: "celsius" | "kelvin" | "fahrenheit" | undefined;
     locale?: string | undefined;
   }
 ): string {
@@ -71,6 +72,9 @@ function convertTemperatureFromKelvin(
     case "celsius": {
       const baselineConversion = temperature - 273.15;
       return toOneDecimalPlace(baselineConversion);
+    }
+    case "kelvin": {
+      return toOneDecimalPlace(temperature);
     }
     case "fahrenheit": {
       const baselineConversion = 1.8 * (temperature - 273) + 32;
@@ -124,11 +128,22 @@ export const useWeatherStore = defineStore("weather", {
       // If data is found in localStorage
       if (localStorage.getItem("weatherData")) {
         console.log("Data found in localStorage. Comparing to stored data...");
+        await userStore.fetchData();
         const parsedLocalWeatherData: OpenWeatherMapResponse = JSON.parse(
           localStorage.getItem("weatherData") as string
         );
         const currentDateTime = Math.floor(new Date().getTime() / 1000);
         const lastCallDateTime = parsedLocalWeatherData.dt;
+        if (userStore.getLocale() !== parsedLocalWeatherData.name) {
+          console.log(
+            "New location detected. Fetching and returning new data..."
+          );
+          const response = await fetchFromEndpoint(location);
+          if (!response) return;
+          localStorage.setItem("weatherData", JSON.stringify(response));
+          this.data = response;
+          return this.data;
+        }
         if (currentDateTime - lastCallDateTime > 600 || options?.forceUpdate) {
           console.log(
             `Data in localStorage is out of date by ${
