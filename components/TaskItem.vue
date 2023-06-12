@@ -1,5 +1,5 @@
 <template>
-  <div class="task" :class="{ 'task--edited': hasBeenEdited }">
+  <div class="task" :class="{ 'task--edited': hasBeenEditedLocally }">
     <div class="modal" :class="{ 'modal--visible': modalVisible }">
       <div class="modal__message">
         Are you sure you want to delete this task?
@@ -10,7 +10,7 @@
         </button>
         <button
           class="button modal__button modal__button--delete"
-          @click="deleteTask"
+          @click="deleteTask()"
         >
           Delete
         </button>
@@ -22,10 +22,11 @@
         :contenteditable="isEditable ? 'true' : 'false'"
         @input="handleTaskInput('task', $event)"
       >
-        {{ data.task }}
+        {{ taskData.task }}
       </h3>
       <div class="task__options">
         <button
+          v-if="taskData.description"
           type="button"
           class="header-button"
           :class="isExpanded ? 'task__expand--expanded' : 'task__expand'"
@@ -35,7 +36,7 @@
           type="button"
           class="header-button"
           :class="isEditable ? 'task__edit--editable' : 'task__edit'"
-          @click="toggleEditMode"
+          @click="toggleEditMode()"
         ></button>
         <button
           type="button"
@@ -49,19 +50,34 @@
       :contenteditable="isEditable ? 'true' : 'false'"
       @input="handleTaskInput('description', $event)"
     >
-      {{ data.description }}
+      {{ taskData.description }}
     </div>
     <div class="task__footer">
       <div class="task__timestamp">
         Created on
-        <span class="task__timestamp--highlighted">{{ convertedDate }}</span> at
-        <span class="task__timestamp--highlighted">{{ convertedTime }}</span>
+        <span class="task__timestamp--highlighted">{{
+          formattedCreationDate
+        }}</span>
+        at
+        <span class="task__timestamp--highlighted">{{
+          formattedCreationTime
+        }}</span>
+        <template v-if="hasBeenEditedPreviously">
+          <span class="task__timestamp--delimiter">|</span>Edited on
+          <span class="task__timestamp--highlighted">{{
+            convertedEditDate
+          }}</span>
+          at
+          <span class="task__timestamp--highlighted">{{
+            convertedEditTime
+          }}</span>
+        </template>
       </div>
       <div class="task__frequency">
         <template v-if="!isEditable">
           {{
             convertFrequency(
-              (data as Database["tasks"])
+              (taskData as Database["tasks"])
                 .frequency_id as Database["frequency"]["frequency_id"]
             )
           }}
@@ -188,6 +204,10 @@
     &--highlighted {
       border-bottom: 1px dotted hsl(0, 0%, 75%);
     }
+    &--delimiter {
+      margin-inline: 0.5rem;
+      color: hsl(0, 0%, 40%);
+    }
   }
   &--edited {
     border: 1px solid hsl(10, 50%, 50%);
@@ -250,9 +270,10 @@
 /* Pinia stores */
 const notificationsStore = useNotificationsStore();
 const taskStore = useTaskStore();
+const userStore = useUserStore();
 /* Prop/v-model-related data */
 const props = defineProps({
-  data: { type: Object as PropType<Database["tasks"]>, required: true },
+  taskData: { type: Object as PropType<Database["tasks"]>, required: true },
 });
 const propData: CompFormObject = {
   index: 0,
@@ -272,15 +293,18 @@ const propData: CompFormObject = {
 /* Reactive variables */
 const isEditable: Ref<boolean> = ref(false);
 const isExpanded: Ref<boolean> = ref(false);
-const hasBeenEdited: Ref<boolean> = ref(false);
+const hasBeenEditedPreviously: Ref<boolean> = ref(false);
+const hasBeenEditedLocally: Ref<boolean> = ref(false);
 const modalVisible: Ref<boolean> = ref(false);
 const localTask = reactive({
   task: "",
   description: "",
   frequency: "",
 });
-const convertedDate: Ref<string> = ref("");
-const convertedTime: Ref<string> = ref("");
+const formattedCreationDate: Ref<string> = ref("");
+const formattedCreationTime: Ref<string> = ref("");
+const convertedEditDate: Ref<string> = ref("");
+const convertedEditTime: Ref<string> = ref("");
 /**
  * Called on a task when edit mode is induced.
  * Updates localTask reactive variable to sync with changes made.
@@ -303,30 +327,30 @@ function handleTaskInput(
 }
 /**
  * Determines differences between prop data/local copy.
- * Updates hasBeenEdited value to be utilised in other logic.
+ * Updates hasBeenEditedLocally value to be utilised in other logic.
  */
 function detectChanges(): void {
   if (
-    localTask.task !== props.data.task ||
-    localTask.description !== props.data.description ||
+    localTask.task !== props.taskData.task ||
+    localTask.description !== props.taskData.description ||
     localTask.frequency !==
       convertFrequency(
-        props.data.frequency_id as Database["frequency"]["frequency_id"]
+        props.taskData.frequency_id as Database["frequency"]["frequency_id"]
       )
   ) {
-    hasBeenEdited.value = true;
+    hasBeenEditedLocally.value = true;
   } else {
-    hasBeenEdited.value = false;
+    hasBeenEditedLocally.value = false;
   }
 }
 /**
  * Determines whether a task is in an editable state or not.
- * If hasBeenEdited is true when it is called, call updateTask to commit the changes.
+ * If hasBeenEditedLocally is true when it is called, call updateTask to commit the changes.
  */
 function toggleEditMode(): void {
   isEditable.value = !isEditable.value;
   isEditable.value ? (isExpanded.value = true) : (isExpanded.value = false);
-  if (hasBeenEdited.value) {
+  if (hasBeenEditedLocally.value) {
     updateTask();
   }
 }
@@ -336,6 +360,7 @@ function toggleEditMode(): void {
  * and local copy and the user opts to commit the alteration.
  */
 async function updateTask(): Promise<void> {
+  const timestamp = new Date().toISOString();
   const { error } = await useSupabaseClient<Database>()
     .from("tasks")
     .update({
@@ -344,19 +369,21 @@ async function updateTask(): Promise<void> {
       frequency_id: convertFrequency(
         localTask.frequency as Database["frequency"]["repeats_every"]
       ),
+      edited_at: timestamp,
     })
-    .eq("task_id", props.data.task_id);
+    .eq("task_id", props.taskData.task_id);
   if (error) {
     notificationsStore.setMessage(error.message, "error");
     return;
   }
   notificationsStore.setMessage(`Task updated successfully`, "success");
-  hasBeenEdited.value = false;
-  props.data.task = localTask.task;
-  props.data.description = localTask.description;
-  props.data.frequency_id = convertFrequency(
+  hasBeenEditedLocally.value = false;
+  props.taskData.task = localTask.task;
+  props.taskData.description = localTask.description;
+  props.taskData.frequency_id = convertFrequency(
     localTask.frequency as Database["frequency"]["repeats_every"]
   ) as number;
+  updateEditDateAndTime(timestamp);
 }
 /**
  * Connects to database, deletes data and pushes a notification to the user.
@@ -365,7 +392,7 @@ async function deleteTask(): Promise<void> {
   const { error } = await useSupabaseClient<Database>()
     .from("tasks")
     .delete()
-    .eq("task_id", props.data.task_id);
+    .eq("task_id", props.taskData.task_id);
   if (error) {
     notificationsStore.setMessage(error.message, "error");
     return;
@@ -374,19 +401,51 @@ async function deleteTask(): Promise<void> {
   modalVisible.value = false;
   taskStore.getTasks();
 }
+function checkForPreviousEdit(): void {
+  for (const task of taskStore.tasks) {
+    if (task.task_id === props.taskData.task_id) {
+      if (task.edited_at) {
+        hasBeenEditedPreviously.value = true;
+        updateEditDateAndTime(task.edited_at);
+        return;
+      }
+    }
+  }
+}
+function updateEditDateAndTime(timestamp: string): void {
+  const timeOptions = { timeStyle: "short" };
+  convertedEditDate.value = convertDate(
+    timestamp,
+    userStore.getCountryISOCode() as string
+  ) as string;
+  convertedEditTime.value = convertTime(
+    timestamp,
+    userStore.getCountryISOCode() as string,
+    timeOptions as Intl.LocaleOptions
+  ) as string;
+}
 /*
 Create a reactive copy of the prop data for potential edits
 Read the timestamp from the props and attempt to populate date/time refs
 */
-onMounted(() => {
-  localTask.task = props.data.task;
-  localTask.description = props.data.description;
+onMounted(async () => {
+  if (!userStore.data) await userStore.fetchData();
+  localTask.task = props.taskData.task;
+  localTask.description = props.taskData.description;
   localTask.frequency = convertFrequency(
-    props.data.frequency_id as Database["frequency"]["frequency_id"]
+    props.taskData.frequency_id as Database["frequency"]["frequency_id"]
   ) as string;
-  convertedDate.value = convertDate(props.data.created_at, "en-GB") as string;
-  convertedTime.value = convertTime(props.data.created_at, "en-GB", {
-    timeStyle: "short",
-  }) as string;
+  formattedCreationDate.value = convertDate(
+    props.taskData.created_at,
+    userStore.getCountryISOCode() as string
+  ) as string;
+  formattedCreationTime.value = convertTime(
+    props.taskData.created_at,
+    userStore.getCountryISOCode() as string,
+    {
+      timeStyle: "short",
+    }
+  ) as string;
+  checkForPreviousEdit();
 });
 </script>

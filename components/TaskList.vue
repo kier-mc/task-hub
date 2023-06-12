@@ -1,22 +1,9 @@
 <template>
   <div class="view-task">
-    <!-- BUTTONS FOR DEVELOPMENT/DEBUGGING ONLY -->
-    <!-- <button
-      type="button"
-      class="button"
-      @click="taskStore.getTasks()"
-      style="margin-right: 1rem"
-    >
-      Fetch Tasks
-    </button>
-    <button type="button" class="button" @click="taskStore.clearTasks()">
-      Clear Tasks
-    </button> -->
-    <!-- TASKS -->
     <template v-if="!taskStore.taskCount()"> No tasks found </template>
     <template v-else>
       <div class="tasks" v-for="(task, index) in taskStore.tasks" :key="index">
-        <TaskItem :data="task" />
+        <TaskItem :taskData="task" />
       </div>
     </template>
   </div>
@@ -33,6 +20,6 @@
 <script setup lang="ts">
 const taskStore = useTaskStore();
 onMounted(async () => {
-  taskStore.getTasks();
+  if (!taskStore.tasks) await taskStore.getTasks();
 });
 </script>
