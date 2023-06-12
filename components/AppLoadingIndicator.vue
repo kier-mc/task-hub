@@ -1,3 +1,7 @@
+<!-- 
+  Credit for SVG loading indicators
+  https://github.com/n3r4zzurr0/svg-spinners
+ -->
 <template>
   <template v-if="options.type === 'circle'">
     <svg
