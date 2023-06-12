@@ -89,3 +89,11 @@ interface TaskDataObject {
   description: string;
   frequency: string;
 }
+interface LoadingIndicatorDataObject {
+  type: "circle" | "dots";
+  width: number;
+  height: number;
+  hue: number;
+  saturation: number;
+  lightness: number;
+}
