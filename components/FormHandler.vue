@@ -1,10 +1,10 @@
 <template>
   <div class="form-group">
-    <label class="form-group__label" :for="props.formData.formID">{{
-      props.formData.labelText
-    }}</label>
     <!-- If element is input -->
     <template v-if="props.formData.elementType === 'input'">
+      <label class="form-group__label" :for="props.formData.formID">{{
+        props.formData.labelText
+      }}</label>
       <input
         class="form-group__input"
         :type="props.formData.attrType"
@@ -22,10 +22,13 @@
     </template>
     <!-- If element is select -->
     <template v-else-if="props.formData.elementType === 'select'">
+      <label class="form-group__label" :for="props.formData.formID">{{
+        props.formData.labelText
+      }}</label>
       <select
         class="form-group__select"
-        @input="emitEvent($event)"
         :value="modelValue"
+        @input="emitEvent($event)"
       >
         <option
           v-for="option in props.formData.options"
@@ -37,6 +40,65 @@
           {{ option.text }}
         </option>
       </select>
+    </template>
+    <!-- If element is autocomplete -->
+    <template v-else-if="props.formData.elementType === 'autocomplete'">
+      <div class="autocomplete">
+        <div class="autocomplete__controls">
+          <div
+            class="autocomplete__focusable"
+            @click="(event) => autocompleteHandleClick(event)"
+          >
+            <label
+              :class="
+                autocompleteIsFocused ||
+                autocompleteIsExpanded ||
+                autocompleteInput?.value
+                  ? 'autocomplete__label autocomplete__label--focused'
+                  : 'autocomplete__label'
+              "
+              :for="props.formData.formID"
+            >
+              {{ props.formData.labelText }}
+            </label>
+            <input
+              ref="autocompleteInput"
+              :id="props.formData.formID"
+              class="autocomplete__input"
+              tabindex="0"
+              @focus="autocompleteIsFocused = true"
+              @blur="autocompleteIsFocused = false"
+              :value="modelValue"
+              @input="emitEvent($event)"
+              @keyup="searchData($event)"
+            />
+          </div>
+          <button
+            class="autocomplete__button"
+            tabindex="0"
+            @click="(event) => autocompleteHandleClick(event)"
+          >
+            <SVGExpandMore class="autocomplete__icon" />
+          </button>
+        </div>
+        <ul
+          class="autocomplete__ul"
+          :aria-expanded="autocompleteIsExpanded ? true : false"
+          ref="autocompleteMenu"
+        >
+          <li
+            class="autocomplete__li"
+            v-for="(data, index) in autocompleteOptions"
+            :key="index"
+            :data-value="data"
+            @click="(event) => autocompleteAddOption(event)"
+          >
+            {{ data }}
+          </li>
+        </ul>
+      </div>
+      <!-- DEBUG - REMOVE WHEN SATISFIED -->
+      {{ props.modelValue }}
     </template>
   </div>
 </template>
@@ -77,6 +139,96 @@ $input-padding: 0.5rem;
     font-size: 1rem;
   }
 }
+.autocomplete {
+  position: relative;
+  background-color: hsl(0, 0%, 15%);
+  &__label {
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    right: 0rem;
+    left: 0.55rem;
+    transform: translateY(-50%);
+    transition: top 125ms, transform 125ms;
+    transform-origin: top left;
+    &--focused {
+      top: 0.5rem;
+      transform: scale(0.75);
+    }
+  }
+  &__controls {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    border: 1px solid hsl(0, 0%, 30%);
+    cursor: text;
+  }
+  &__focusable {
+    display: flex;
+    height: 48px;
+    border-right: 1px solid hsl(0, 0%, 30%);
+  }
+  &__input {
+    all: unset;
+    min-width: 256px;
+    padding-inline: 0.5rem;
+    margin-top: 1rem;
+  }
+  &__button {
+    all: unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1/1;
+    min-width: 48px;
+    z-index: 10;
+    background-color: hsl(0, 0%, 10%);
+    cursor: pointer;
+    transition: background-color 125ms;
+    &:hover {
+      background-color: hsl(0, 0%, 15%);
+    }
+  }
+  &__icon {
+    max-width: 32px;
+    fill: hsl(0, 0%, 80%);
+    transition: fill 125ms;
+    &:hover {
+      fill: hsl(0, 0%, 90%);
+    }
+  }
+  &__ul {
+    all: unset;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    border-inline: 1px solid hsl(0, 0%, 30%);
+    border-bottom: 1px solid hsl(0, 0%, 30%);
+    background-color: hsl(0, 0%, 15%);
+    transition: opacity 150ms;
+    &[aria-expanded="false"] {
+      visibility: hidden;
+      opacity: 0;
+    }
+    &[aria-expanded="true"] {
+      visibility: visible;
+      opacity: 1;
+      z-index: 100;
+    }
+  }
+  &__li {
+    all: unset;
+    display: block;
+    padding-inline: 1rem;
+    padding-block: 0.5rem;
+    transition: background-color 100ms;
+    &:hover {
+      background-color: hsl(0, 0%, 10%);
+      cursor: pointer;
+    }
+  }
+}
 </style>
 
 <script setup lang="ts">
@@ -96,4 +248,90 @@ function emitEvent(event: Event) {
   emit("update:model-value", value);
   emit("input", value);
 }
+// Reactive variables
+const autocompleteIsFocused: Ref<boolean> = ref(false);
+const autocompleteIsExpanded: Ref<boolean> = ref(false);
+const autocompleteOptions: Ref<Array<string>> = ref([]);
+// Template refs
+const autocompleteInput: Ref<HTMLInputElement | null> = ref(null);
+const autocompleteMenu: Ref<HTMLUListElement | null> = ref(null);
+// New functions
+function autocompleteHandleClick(event: Event): void {
+  if (!autocompleteMenu.value || !event) return;
+  const target = event.target as HTMLElement;
+  if (target.closest(".autocomplete__focusable")) {
+    autocompleteIsExpanded.value = true;
+  } else if (target.closest(".autocomplete__button")) {
+    if (autocompleteIsExpanded.value) {
+      autocompleteIsExpanded.value = false;
+    } else {
+      autocompleteIsExpanded.value = true;
+    }
+  }
+}
+
+function autocompleteAddOption(event: Event) {
+  if (!autocompleteInput.value || !event) return;
+  const target = event.target as HTMLLIElement;
+  emit("update:model-value", target.textContent ?? "");
+  autocompleteIsExpanded.value = false;
+  autocompleteInput.value.blur();
+}
+
+function closeMenuWithClickOutside(event: Event) {
+  if (!autocompleteInput.value || !autocompleteMenu.value || !event) return;
+  const target = event.target as Element;
+  const isClickInside = target.closest(".autocomplete");
+  if (!isClickInside) {
+    autocompleteIsExpanded.value = false;
+    autocompleteInput.value.blur();
+  }
+}
+/*
+ * TODO:
+ * Need to allow only options that appear in the menu to be selectable
+ */
+function searchData(event: Event) {
+  if (!props.formData.options || !event) return;
+  autocompleteOptions.value = [];
+  const target = event.target as HTMLInputElement;
+  const input = target.value;
+  if (input) {
+    for (let i = 0; i < props.formData.options.length; i++) {
+      const propValue = props.formData.options[i].text;
+      if (propValue.toLowerCase().includes(input.toLowerCase())) {
+        console.log("Substring detected");
+        if (propValue.toLowerCase().startsWith(input.toLowerCase())) {
+          autocompleteOptions.value.unshift(propValue);
+        } else {
+          autocompleteOptions.value.push(propValue);
+        }
+      }
+    }
+  } else {
+    populateDefaultOptions();
+  }
+  autocompleteIsExpanded.value = true;
+}
+
+function populateDefaultOptions() {
+  if (!props.formData.options) return;
+  for (let i = 0; i < props.formData.options.length; i++) {
+    const propValue = props.formData.options[i].text;
+    autocompleteOptions.value.push(propValue);
+  }
+}
+
+onMounted(() => {
+  document.addEventListener("click", (event: Event) => {
+    closeMenuWithClickOutside(event);
+  });
+  populateDefaultOptions();
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", (event: Event) => {
+    closeMenuWithClickOutside(event);
+  });
+});
 </script>

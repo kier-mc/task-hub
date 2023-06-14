@@ -1,7 +1,7 @@
 interface CompFormObject {
   index: number;
   formID: string;
-  elementType: "input" | "select";
+  elementType: "input" | "select" | "autocomplete";
   attrType?: string;
   autocomplete?:
     | "on"
