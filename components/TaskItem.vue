@@ -281,13 +281,13 @@ const propData: CompFormObject = {
   elementType: "select",
   labelText: "Frequency",
   options: [
-    { value: "daily", text: "Daily" },
-    { value: "weekly", text: "Weekly" },
-    { value: "fortnightly", text: "Fortnightly" },
-    { value: "monthly", text: "Monthly" },
-    { value: "triannually", text: "Tri-annually (3 months)" },
-    { value: "biannually", text: "Bi-annually (6 months)" },
-    { value: "annually", text: "Annually" },
+    { value: "daily", label: "Daily" },
+    { value: "weekly", label: "Weekly" },
+    { value: "fortnightly", label: "Fortnightly" },
+    { value: "monthly", label: "Monthly" },
+    { value: "triannually", label: "Tri-annually (3 months)" },
+    { value: "biannually", label: "Bi-annually (6 months)" },
+    { value: "annually", label: "Annually" },
   ],
 };
 /* Reactive variables */

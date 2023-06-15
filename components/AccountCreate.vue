@@ -166,7 +166,7 @@ const propData: Array<CompStepperPropData> = [
     formData: [
       {
         index: 0,
-        formID: "name",
+        formID: "preferred_name",
         elementType: "input",
         attrType: "text",
         autocomplete: "given-name",
@@ -175,12 +175,21 @@ const propData: Array<CompStepperPropData> = [
       },
       {
         index: 1,
-        formID: "location",
+        formID: "country",
         elementType: "input",
         attrType: "text",
         autocomplete: "country",
-        labelText: "Location",
-        hintText: "Used for providing weather information",
+        labelText: "Country",
+        hintText: "Used for localisation of date and time",
+      },
+      {
+        index: 2,
+        formID: "locale",
+        elementType: "input",
+        attrType: "text",
+        autocomplete: "address-level2",
+        labelText: "City/Town",
+        hintText: "Used for providing precise weather information",
       },
     ],
   },
@@ -190,10 +199,11 @@ const activeSlide: Ref<number> = ref(0);
 const step: Ref<number> = ref(0);
 const current: Ref<number> = ref(0);
 const credentials: NewAccountDataObject = reactive({
-  email: "",
-  password: "",
-  name: "",
-  location: "",
+  email: undefined,
+  password: undefined,
+  preferred_name: undefined,
+  country: undefined,
+  locale: undefined,
 });
 /* Template refs */
 const container: Ref<HTMLElement | null> = ref(null);

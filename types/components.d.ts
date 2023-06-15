@@ -62,7 +62,7 @@ interface CompFormObject {
   hintText?: string;
   options?: {
     value: string;
-    text: string;
+    label: string;
     isDisabled?: boolean;
   }[];
   default?: string;
