@@ -43,32 +43,27 @@
     </template>
     <!-- If element is autocomplete -->
     <template v-else-if="props.formData.elementType === 'autocomplete'">
-      <div class="autocomplete">
+      <div class="autocomplete" @keyup.escape="autocompleteIsExpanded = false">
         <div class="autocomplete__controls">
           <div
             class="autocomplete__focusable"
-            @click="(event) => autocompleteHandleClick(event)"
+            @click="autocompleteHandleClick($event)"
           >
             <label
-              :class="
-                autocompleteIsFocused ||
-                autocompleteIsExpanded ||
-                autocompleteInput?.value
-                  ? 'autocomplete__label autocomplete__label--focused'
-                  : 'autocomplete__label'
-              "
+              class="autocomplete__label"
+              :class="determineLabelClass"
               :for="props.formData.formID"
             >
               {{ props.formData.labelText }}
             </label>
             <input
               ref="autocompleteInput"
-              :id="props.formData.formID"
               class="autocomplete__input"
               tabindex="0"
-              @focus="autocompleteIsFocused = true"
-              @blur="autocompleteIsFocused = false"
+              :id="props.formData.formID"
               :value="modelValue"
+              @focus="searchData($event)"
+              @blur="handleBlur($event)"
               @input="emitEvent($event)"
               @keyup="searchData($event)"
             />
@@ -76,7 +71,7 @@
           <button
             class="autocomplete__button"
             tabindex="0"
-            @click="(event) => autocompleteHandleClick(event)"
+            @click="autocompleteHandleClick($event)"
           >
             <SVGExpandMore class="autocomplete__icon" />
           </button>
@@ -91,7 +86,10 @@
             v-for="(data, index) in autocompleteOptions"
             :key="index"
             :data-value="data"
-            @click="(event) => autocompleteAddOption(event)"
+            :tabindex="autocompleteIsExpanded ? 0 : -1"
+            @click="autocompleteAddOption($event)"
+            @keyup.enter="autocompleteAddOption($event)"
+            @keyup.space="autocompleteAddOption($event)"
           >
             {{ data }}
           </li>
@@ -255,9 +253,10 @@ const autocompleteOptions: Ref<Array<string>> = ref([]);
 // Template refs
 const autocompleteInput: Ref<HTMLInputElement | null> = ref(null);
 const autocompleteMenu: Ref<HTMLUListElement | null> = ref(null);
+const autocompleteItems: Ref<HTMLLIElement[] | null[]> = ref([]);
 // New functions
 function autocompleteHandleClick(event: Event): void {
-  if (!autocompleteMenu.value || !event) return;
+  if (!autocompleteMenu.value) return;
   const target = event.target as HTMLElement;
   if (target.closest(".autocomplete__focusable")) {
     autocompleteIsExpanded.value = true;
@@ -270,16 +269,16 @@ function autocompleteHandleClick(event: Event): void {
   }
 }
 
-function autocompleteAddOption(event: Event) {
-  if (!autocompleteInput.value || !event) return;
+async function autocompleteAddOption(event: Event) {
+  if (!autocompleteInput.value) return;
   const target = event.target as HTMLLIElement;
   emit("update:model-value", target.textContent ?? "");
+  await nextTick();
   autocompleteIsExpanded.value = false;
-  autocompleteInput.value.blur();
 }
 
 function closeMenuWithClickOutside(event: Event) {
-  if (!autocompleteInput.value || !autocompleteMenu.value || !event) return;
+  if (!autocompleteInput.value || !autocompleteMenu.value) return;
   const target = event.target as Element;
   const isClickInside = target.closest(".autocomplete");
   if (!isClickInside) {
@@ -287,21 +286,17 @@ function closeMenuWithClickOutside(event: Event) {
     autocompleteInput.value.blur();
   }
 }
-/*
- * TODO:
- * Need to allow only options that appear in the menu to be selectable
- */
+
 function searchData(event: Event) {
-  if (!props.formData.options || !event) return;
+  if (!props.formData.options) return;
   autocompleteOptions.value = [];
   const target = event.target as HTMLInputElement;
-  const input = target.value;
+  const input = target.value.toLowerCase();
   if (input) {
     for (let i = 0; i < props.formData.options.length; i++) {
       const propValue = props.formData.options[i].text;
-      if (propValue.toLowerCase().includes(input.toLowerCase())) {
-        console.log("Substring detected");
-        if (propValue.toLowerCase().startsWith(input.toLowerCase())) {
+      if (propValue.toLowerCase().includes(input)) {
+        if (propValue.toLowerCase().startsWith(input)) {
           autocompleteOptions.value.unshift(propValue);
         } else {
           autocompleteOptions.value.push(propValue);
@@ -321,6 +316,34 @@ function populateDefaultOptions() {
     autocompleteOptions.value.push(propValue);
   }
 }
+
+function handleBlur(event: Event) {
+  autocompleteIsFocused.value = false;
+  const target = event.target as HTMLInputElement;
+  const input = target.value.toLowerCase();
+  const matches = autocompleteOptions.value.filter((option) =>
+    option.toLowerCase().includes(input)
+  );
+  if (matches.length > 0 && input.length > 0) {
+    emit("update:model-value", matches[0]);
+  }
+}
+
+const determineLabelClass = computed(() => {
+  if (!autocompleteInput.value) return;
+  let result = false;
+  const input = autocompleteInput.value.value as string;
+  if (
+    autocompleteIsFocused.value ||
+    autocompleteIsExpanded.value ||
+    input.length > 0
+  ) {
+    result = true;
+  }
+  return result
+    ? "autocomplete__label autocomplete__label--focused"
+    : undefined;
+});
 
 onMounted(() => {
   document.addEventListener("click", (event: Event) => {
