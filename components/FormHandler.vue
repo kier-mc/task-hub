@@ -37,7 +37,7 @@
           :disabled="option.isDisabled ? true : false"
           :selected="option.value === 'unset'"
         >
-          {{ option.text }}
+          {{ option.label }}
         </option>
       </select>
     </template>
@@ -92,8 +92,6 @@
           </li>
         </ul>
       </div>
-      <!-- DEBUG - REMOVE WHEN SATISFIED -->
-      {{ props.modelValue }}
     </template>
   </div>
 </template>
@@ -194,10 +192,12 @@ $input-padding: 0.5rem;
   }
   &__ul {
     all: unset;
+    overflow: scroll;
     position: absolute;
     top: 100%;
     right: 0;
     left: 0;
+    max-height: 25ch;
     border-inline: 1px solid hsl(0, 0%, 30%);
     border-bottom: 1px solid hsl(0, 0%, 30%);
     background-color: hsl(0, 0%, 15%);
@@ -216,7 +216,7 @@ $input-padding: 0.5rem;
     all: unset;
     display: block;
     padding-inline: 1rem;
-    padding-block: 0.5rem;
+    padding-block: 0.75rem;
     cursor: pointer;
     transition: background-color 100ms;
     &:hover,
@@ -256,7 +256,6 @@ const autocompleteOptions: Ref<Array<string>> = ref([]);
 // Template refs
 const autocompleteInput: Ref<HTMLInputElement | null> = ref(null);
 const autocompleteMenu: Ref<HTMLUListElement | null> = ref(null);
-const autocompleteItems: Ref<HTMLLIElement[] | null[]> = ref([]);
 // New functions
 function autocompleteHandleClick(event: Event): void {
   if (!autocompleteMenu.value) return;
@@ -297,7 +296,7 @@ function searchData(event: Event) {
   const input = target.value.toLowerCase();
   if (input) {
     for (let i = 0; i < props.formData.options.length; i++) {
-      const propValue = props.formData.options[i].text;
+      const propValue = props.formData.options[i].label;
       if (propValue.toLowerCase().includes(input)) {
         if (propValue.toLowerCase().startsWith(input)) {
           autocompleteOptions.value.unshift(propValue);
@@ -315,7 +314,7 @@ function searchData(event: Event) {
 function populateDefaultOptions() {
   if (!props.formData.options) return;
   for (let i = 0; i < props.formData.options.length; i++) {
-    const propValue = props.formData.options[i].text;
+    const propValue = props.formData.options[i].label;
     autocompleteOptions.value.push(propValue);
   }
 }
