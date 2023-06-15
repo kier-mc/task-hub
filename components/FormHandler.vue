@@ -45,29 +45,26 @@
     <template v-else-if="props.formData.elementType === 'autocomplete'">
       <div class="autocomplete" @keyup.escape="autocompleteIsExpanded = false">
         <div class="autocomplete__controls">
-          <div
-            class="autocomplete__focusable"
-            @click="autocompleteHandleClick($event)"
+          <label
+            class="autocomplete__label"
+            :class="determineLabelClass"
+            :for="props.formData.formID"
           >
-            <label
-              class="autocomplete__label"
-              :class="determineLabelClass"
-              :for="props.formData.formID"
-            >
-              {{ props.formData.labelText }}
-            </label>
-            <input
-              ref="autocompleteInput"
-              class="autocomplete__input"
-              tabindex="0"
-              :id="props.formData.formID"
-              :value="modelValue"
-              @focus="searchData($event)"
-              @blur="handleBlur($event)"
-              @input="emitEvent($event)"
-              @keyup="searchData($event)"
-            />
-          </div>
+            {{ props.formData.labelText }}
+          </label>
+          <input
+            ref="autocompleteInput"
+            class="autocomplete__input"
+            tabindex="0"
+            :id="props.formData.formID"
+            :value="modelValue"
+            @click="autocompleteHandleClick($event)"
+            @focus="searchData($event)"
+            @blur="handleBlur($event)"
+            @input="emitEvent($event)"
+            @keyup="searchData($event)"
+          />
+
           <button
             class="autocomplete__button"
             tabindex="0"
@@ -161,16 +158,16 @@ $input-padding: 0.5rem;
     border: 1px solid hsl(0, 0%, 30%);
     cursor: text;
   }
-  &__focusable {
-    display: flex;
-    height: 48px;
-    border-right: 1px solid hsl(0, 0%, 30%);
-  }
   &__input {
     all: unset;
+    position: relative;
     min-width: 256px;
+    // Height of the button minus the top padding value
+    height: calc(48px - 1rem);
     padding-inline: 0.5rem;
-    margin-top: 1rem;
+    padding-top: 1rem;
+    border-right: 1px solid hsl(0, 0%, 30%);
+    margin-right: 1px;
   }
   &__button {
     all: unset;
@@ -220,11 +217,17 @@ $input-padding: 0.5rem;
     display: block;
     padding-inline: 1rem;
     padding-block: 0.5rem;
+    cursor: pointer;
     transition: background-color 100ms;
-    &:hover {
+    &:hover,
+    &:focus {
       background-color: hsl(0, 0%, 10%);
-      cursor: pointer;
     }
+  }
+  &__input:focus,
+  &__button:focus,
+  &__li:focus {
+    outline: 1px solid hsl(0, 0%, 50%);
   }
 }
 </style>
@@ -258,7 +261,7 @@ const autocompleteItems: Ref<HTMLLIElement[] | null[]> = ref([]);
 function autocompleteHandleClick(event: Event): void {
   if (!autocompleteMenu.value) return;
   const target = event.target as HTMLElement;
-  if (target.closest(".autocomplete__focusable")) {
+  if (target.closest(".autocomplete__input")) {
     autocompleteIsExpanded.value = true;
   } else if (target.closest(".autocomplete__button")) {
     if (autocompleteIsExpanded.value) {
@@ -326,7 +329,9 @@ function handleBlur(event: Event) {
   );
   if (matches.length > 0 && input.length > 0) {
     emit("update:model-value", matches[0]);
+    return;
   }
+  emit("update:model-value", "");
 }
 
 const determineLabelClass = computed(() => {
