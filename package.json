@@ -15,7 +15,7 @@
     "@nuxt/types": "^2.17.0",
     "@nuxt/typescript-build": "^3.0.1",
     "@nuxtjs/supabase": "^0.3.7",
-    "@types/node": "^18.16.17",
+    "@types/node": "^18.16.18",
     "@vitest/coverage-c8": "^0.32.0",
     "@vue/test-utils": "^2.3.2",
     "nuxt": "^3.5.3",
@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.4.11",
-    "pinia": "^2.1.3",
+    "pinia": "^2.1.4",
     "vue": "^3.3.4"
   }
 }
