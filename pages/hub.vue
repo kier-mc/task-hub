@@ -1,12 +1,12 @@
 <template>
   <div class="hub-container">
     <div class="welcome">
-      <span v-if="user.data.user" class="welcome__username"
+      <span v-if="userStore.data" class="welcome__username"
         >Welcome
         {{
-          user.data.user.user_metadata.name.length > 0
-            ? user.data.user.user_metadata.name
-            : user.data.user.email
+          userStore.data.user_metadata.preferred_name.length > 0
+            ? userStore.data.user_metadata.preferred_name
+            : userStore.data.email
         }}
       </span>
     </div>
@@ -65,5 +65,16 @@
 
 <script setup lang="ts">
 definePageMeta({ middleware: "auth-mw" });
-const user = await useSupabaseAuthClient().auth.getUser();
+const userStore = useUserStore();
+onMounted(async () => {
+  if (!userStore.data) await userStore.fetchData();
+  const userMetaData = {
+    preferred_name: "Kieran",
+    country_id: convertCountry("United Kingdom"),
+    locale: "Runcorn",
+  };
+  // const { data, error } = await useSupabaseAuthClient().auth.updateUser({
+  //   data: userMetaData,
+  // });
+});
 </script>
