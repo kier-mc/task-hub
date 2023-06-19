@@ -47,7 +47,7 @@
         <div class="autocomplete__controls">
           <label
             class="autocomplete__label"
-            :class="determineLabelClass"
+            :class="autocompleteDetermineLabelClass"
             :for="props.formData.formID"
           >
             {{ props.formData.labelText }}
@@ -59,12 +59,11 @@
             :id="props.formData.formID"
             :value="modelValue"
             @click="autocompleteHandleClick($event)"
-            @focus="searchData($event)"
-            @blur="handleBlur($event)"
+            @focus="autocompleteFilterData($event)"
+            @blur="autocompleteHandleBlur($event)"
             @input="emitEvent($event)"
-            @keyup="searchData($event)"
+            @keyup="autocompleteFilterData($event)"
           />
-
           <button
             class="autocomplete__button"
             tabindex="0"
@@ -84,9 +83,9 @@
             :key="index"
             :data-value="data"
             :tabindex="autocompleteIsExpanded ? 0 : -1"
-            @click="autocompleteAddOption($event)"
-            @keyup.enter="autocompleteAddOption($event)"
-            @keyup.space="autocompleteAddOption($event)"
+            @click="autocompleteSelectOption($event)"
+            @keyup.enter="autocompleteSelectOption($event)"
+            @keyup.space="autocompleteSelectOption($event)"
           >
             {{ data }}
           </li>
@@ -160,7 +159,7 @@ $input-padding: 0.5rem;
     all: unset;
     position: relative;
     min-width: 256px;
-    // Height of the button minus the top padding value
+    // Height of the button minus the padding-top value
     height: calc(48px - 1rem);
     padding-inline: 0.5rem;
     padding-top: 1rem;
@@ -257,6 +256,18 @@ const autocompleteOptions: Ref<Array<string>> = ref([]);
 const autocompleteInput: Ref<HTMLInputElement | null> = ref(null);
 const autocompleteMenu: Ref<HTMLUListElement | null> = ref(null);
 // New functions
+/**
+ * Handles click events for the autocomplete custom form element.
+ * Called on the input element and the button for the dropdown, with slightly
+ * different results that depend on the element itself and the "expected"
+ * behaviour from a user experience perspective. If the event parameter
+ * comes from the input, the menu is opened and subsequent clicks do not
+ * toggle it. If the event parameter comes from the button, subsequent
+ * clicks will toggle the state, depending on whether the menu was opened
+ * or closed when the click was handled. Determines both outcomes via
+ * a reactive variable defined elsewhere in the scope.
+ * @param event {Event} The DOM event created by the click.
+ */
 function autocompleteHandleClick(event: Event): void {
   if (!autocompleteMenu.value) return;
   const target = event.target as HTMLElement;
@@ -270,17 +281,31 @@ function autocompleteHandleClick(event: Event): void {
     }
   }
 }
-
-async function autocompleteAddOption(event: Event) {
+/**
+ * Handles option selection for the custom autocomplete form element.
+ * Calls {@link emit()} to pass the selected value to the parent component,
+ * and closes the menu to create an experience that matches end user expectations,
+ * determined by the behaviour of a select element. Must await the next tick before
+ * closing the menu, otherwise behaviour is erroneous.
+ * @param event {Event} The DOM event created by the click.
+ */
+async function autocompleteSelectOption(event: Event): Promise<void> {
   if (!autocompleteInput.value) return;
   const target = event.target as HTMLLIElement;
   emit("update:model-value", target.textContent ?? "");
   await nextTick();
   autocompleteIsExpanded.value = false;
 }
-
-function closeMenuWithClickOutside(event: Event) {
-  if (!autocompleteInput.value || !autocompleteMenu.value) return;
+/**
+ * Closes the menu (if it is opened) with a click, as long as the click is outside 
+ * of the parent element with a class of "autocomplete". If the menu is open, 
+ * closes the menu and removes focus from the input element. Contains a guard clause
+ * to exit the function early if the autocomplete menu was closed when the function
+ * was called. Must be attached to a document event handler to execute correctly.
+ * @param event {Event} The DOM event created by the click.
+ */
+function closeMenuWithClickOutside(event: Event): void {
+  if (!autocompleteInput.value || !autocompleteMenu.value || !autocompleteIsExpanded.value) return;
   const target = event.target as Element;
   const isClickInside = target.closest(".autocomplete");
   if (!isClickInside) {
@@ -288,8 +313,22 @@ function closeMenuWithClickOutside(event: Event) {
     autocompleteInput.value.blur();
   }
 }
-
-function searchData(event: Event) {
+/**
+ * Filters through the prop data supplied to the autocomplete element and
+ * populates the available options based on the input string. On call, will
+ * reset the autocompleteOptions reactive variable array and iterate over the
+ * props.formData.label values supplied by the parent element. If the iterated value
+ * contains the substring from the input element, it is added to the autocompleteOptions
+ * array. Values are given a basic priority by determining whether the substring
+ * occurs early in the value and using Array.prototype.unshift to insert if this is 
+ * true. If the substring combination is not found in any values, the default prop
+ * data is returned by calling {@link autocompletePopulateDefaultOptions()} instead.
+ * Finally, it will open the menu so that the user can see the results without having
+ * to trigger this behaviour themselves.
+ * @param event {Event} The DOM event created by entering characters into the input
+ * element. The substring is determined by calling HTMLInputElement.prototype.value.
+ */
+function autocompleteFilterData(event: Event) {
   if (!props.formData.options) return;
   autocompleteOptions.value = [];
   const target = event.target as HTMLInputElement;
@@ -306,20 +345,32 @@ function searchData(event: Event) {
       }
     }
   } else {
-    populateDefaultOptions();
+    autocompletePopulateDefaultOptions();
   }
   autocompleteIsExpanded.value = true;
 }
-
-function populateDefaultOptions() {
+/**
+ * Copies the prop data supplied by the parent element into a reactive variable,
+ * autocompleteOptions, which can then be read and written to. Called when the
+ * component is mounted, and called again in {@link autocompleteFilterData()} if
+ * no valid matches are returned by the user-entered substring.
+ */
+function autocompletePopulateDefaultOptions(): void {
   if (!props.formData.options) return;
   for (let i = 0; i < props.formData.options.length; i++) {
     const propValue = props.formData.options[i].label;
     autocompleteOptions.value.push(propValue);
   }
 }
-
-function handleBlur(event: Event) {
+/**
+ * Handles blur events for the  custom autocomplete element. Creates a list of matches
+ * by calling Array.prototype.filter on the autocompleteOptions reactive array and, if
+ * the array length and input value length is greater than zero, emits the first result
+ * at the zero index position and returns. If these conditions are not met, emits an empty
+ * string as a value instead.
+ * @param event {Event} The DOM event created by the click.
+ */
+function autocompleteHandleBlur(event: Event) {
   autocompleteIsFocused.value = false;
   const target = event.target as HTMLInputElement;
   const input = target.value.toLowerCase();
@@ -332,8 +383,17 @@ function handleBlur(event: Event) {
   }
   emit("update:model-value", "");
 }
-
-const determineLabelClass = computed(() => {
+/**
+ * Computed function that checks to see if the autocomplete menu is open, if
+ * the input element is focused or if the input element value is greater than
+ * zero. If any of these conditions are met, returns a string value which is used
+ * in the template to set an appropriate class which determines the position of 
+ * the form floating label. Uses Vue's computed function to manage this. Primarily
+ * for brevity in the template.
+ * @returns {(string|void)} The class to apply to the label element, or void/undefined
+ * if a guard clause is met or none of the prerequisite conditions are met.
+ */
+const autocompleteDetermineLabelClass = computed((): string | void => {
   if (!autocompleteInput.value) return;
   let result = false;
   const input = autocompleteInput.value.value as string;
@@ -348,15 +408,25 @@ const determineLabelClass = computed(() => {
     ? "autocomplete__label autocomplete__label--focused"
     : undefined;
 });
-
+/*
+ * If the component is called with "autocomplete" as the specified type, 
+ * attach an event handler to the window to manage click events outside of 
+ * the autocomplete element and populate the autocompleteOptions reactive
+ * variable with the supplied prop data.
+ */
 onMounted(() => {
+  if (props.formData.elementType !== "autocomplete") return
   document.addEventListener("click", (event: Event) => {
     closeMenuWithClickOutside(event);
   });
-  populateDefaultOptions();
+  autocompletePopulateDefaultOptions();
 });
-
+/*
+ * If the component is called with "autocomplete" as the specified type, 
+ * destroy all associated event handlers bound to the document.
+ */
 onUnmounted(() => {
+  if (props.formData.elementType !== "autocomplete") return
   document.removeEventListener("click", (event: Event) => {
     closeMenuWithClickOutside(event);
   });
