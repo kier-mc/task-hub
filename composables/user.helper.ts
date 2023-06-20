@@ -1,3 +1,23 @@
+/**
+ * Accepts either a country ID as a number or a country name as a string and
+ * converts it to the opposite of the input. Designed to act as a helper
+ * function that converts between a human-readable format or a
+ * database-readable format, as is required.
+ * @param input {Database["countries"]["country_id"]|Database["countries"]["name"]}
+ * The input value, union typed as a value between 1 and 249 or a country between
+ * Afghanistan and Zimbabwe. These types directly correspond with read-only values
+ * within the database table "countries", and correspond to the "country_id" and
+ * "name" columns, respectively. If an invalid value is entered, this function
+ * will throw an error, as it is critical to reading and writing from the database.
+ * @returns {Database["countries"]["name"]|Database["countries"]["country_id"]}
+ * The return type is the converted opposite of the input.
+ * @example
+ * // Returns "Afghanistan"
+ * convertCountry(1)
+ * @example
+ * // Returns 1
+ * convertCountry("Afghanistan")
+ */
 export function convertCountry(
   input: Database["countries"]["country_id"] | Database["countries"]["name"]
 ): Database["countries"]["name"] | Database["countries"]["country_id"] {
@@ -524,7 +544,21 @@ export function convertCountry(
     );
   }
 }
-
+/**
+ * Determines the country's ISO 3166 country code from a string input of a country's name.
+ * Used to determine a correct country code to be used with the OpenWeatherMap API endpoint and
+ * guarantee that the country part of the request is correct. The locale is still subject
+ * to the user entering correct information. If an invalid value is entered, this function
+ * will throw an error, as it is critical to retrieving data accurately.
+ * @param input {CountryName} The country name as a string that will be used to retrieve the
+ * correct ISO code.
+ * @returns {Database["countries"]["iso_code"]} The inputted country's ISO code, in string format.
+ * @example
+ * // Returns "AF"
+ * getISOCodeFromCountry("Afghanistan")
+ * // Returns "GB"
+ * getISOCodeFromCountry("United Kingdom")
+ */
 export function getISOCodeFromCountry(
   input: CountryName
 ): Database["countries"]["iso_code"] {
