@@ -1,5 +1,5 @@
 /* Vitest imports */
-import { describe, test, expect, beforeAll, beforeEach } from "vitest";
+import { describe, test, expect } from "vitest";
 /* Functions to be tested */
 import { convertDate, convertTime } from "composables/datetime";
 
