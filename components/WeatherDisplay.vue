@@ -27,6 +27,7 @@
                   weatherStore.getTemperature({
                     type: "average",
                     unit: preferredUnit?.unit,
+                    locale: currentCountryISOCode ?? undefined,
                   })
                 }}
               </span>
@@ -42,6 +43,7 @@
                   weatherStore.getTemperature({
                     type: "min",
                     unit: preferredUnit?.unit,
+                    locale: currentCountryISOCode ?? undefined,
                   })
                 }}
               </div>
