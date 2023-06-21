@@ -2,20 +2,28 @@
   <div class="form-group">
     <!-- If element is input -->
     <template v-if="props.formData.elementType === 'input'">
-      <label class="form-group__label" :for="props.formData.formID">{{
-        props.formData.labelText
-      }}</label>
-      <input
-        class="form-group__input"
-        :type="props.formData.attrType"
-        :id="props.formData.formID"
-        :name="props.formData.formID"
-        :autocomplete="
-          props.formData.autocomplete ? props.formData.autocomplete : 'on'
-        "
-        :value="modelValue"
-        @input="emitEvent($event)"
-      />
+      <div class="form-group__wrapper">
+        <label
+          class="form-group__label"
+          :class="inputDetermineLabelClass"
+          :for="props.formData.formID"
+          >{{ props.formData.labelText }}</label
+        >
+        <input
+          ref="input"
+          class="form-group__input"
+          :type="props.formData.attrType"
+          :id="props.formData.formID"
+          :name="props.formData.formID"
+          :autocomplete="
+            props.formData.autocomplete ? props.formData.autocomplete : 'on'
+          "
+          :value="modelValue"
+          @input="emitEvent($event)"
+          @focus="inputIsFocused = true"
+          @blur="inputIsFocused = false"
+        />
+      </div>
       <span v-if="props.formData.hintText" class="form-group__hint">{{
         props.formData.hintText
       }}</span>
@@ -98,32 +106,47 @@
 <style scoped lang="scss">
 $input-padding: 0.5rem;
 .form-group {
-  position: relative;
   display: flex;
   flex-direction: column;
   &:not(:last-child) {
     margin-bottom: 2rem;
   }
+  &__wrapper {
+    position: relative;
+  }
   &__label {
-    margin-bottom: 0.5rem;
-    letter-spacing: 0.05rem;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    right: 0rem;
+    left: 0.55rem;
+    transform: translateY(-50%);
+    transition: top 125ms, transform 125ms;
+    transform-origin: top left;
+    &--focused {
+      top: 0.5rem;
+      transform: scale(0.75);
+    }
   }
   &__input {
     all: unset;
-    padding: $input-padding;
-    border: 1px solid hsl(0, 0%, 25%);
-    border-radius: 0.25rem;
-    background-color: hsl(0, 0%, 10%);
+    min-width: 10ch;
+    max-width: 25ch;
+    min-height: calc(48px - 1rem);
+    padding-top: 1rem;
+    padding-inline: 0.5rem;
+    border: 1px solid hsl(0, 0%, 30%);
+    background-color: hsl(0, 0%, 15%);
     cursor: text;
+    &:focus {
+      outline: 1px solid hsl(0, 0%, 50%);
+    }
   }
   &__hint {
     margin-bottom: 0.25rem;
+    margin-left: 0.5rem;
     font-size: 0.75rem;
     opacity: 0.5;
-  }
-  &__label,
-  &__hint {
-    margin-left: calc($input-padding / 2);
   }
   &__select {
     padding: 0.5rem 0.5rem 0.5rem 0.35rem;
@@ -150,6 +173,7 @@ $input-padding: 0.5rem;
   }
   &__controls {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     min-height: 48px;
     border: 1px solid hsl(0, 0%, 30%);
@@ -158,7 +182,7 @@ $input-padding: 0.5rem;
   &__input {
     all: unset;
     position: relative;
-    min-width: 256px;
+    width: 100%;
     // Height of the button minus the padding-top value
     height: calc(48px - 1rem);
     padding-inline: 0.5rem;
@@ -191,12 +215,12 @@ $input-padding: 0.5rem;
   }
   &__ul {
     all: unset;
-    overflow: scroll;
+    overflow-y: scroll;
     position: absolute;
     top: 100%;
     right: 0;
     left: 0;
-    max-height: 25ch;
+    max-height: 17ch;
     border-inline: 1px solid hsl(0, 0%, 30%);
     border-bottom: 1px solid hsl(0, 0%, 30%);
     background-color: hsl(0, 0%, 15%);
@@ -249,13 +273,24 @@ function emitEvent(event: Event) {
   emit("input", value);
 }
 // Reactive variables
+const inputIsFocused: Ref<boolean> = ref(false);
 const autocompleteIsFocused: Ref<boolean> = ref(false);
 const autocompleteIsExpanded: Ref<boolean> = ref(false);
 const autocompleteOptions: Ref<Array<string>> = ref([]);
 // Template refs
+const input: Ref<HTMLInputElement | null> = ref(null);
 const autocompleteInput: Ref<HTMLInputElement | null> = ref(null);
 const autocompleteMenu: Ref<HTMLUListElement | null> = ref(null);
-// New functions
+
+const inputDetermineLabelClass = computed((): string | void => {
+  if (!input.value) return;
+  let result = false;
+  const value = input.value.value;
+  if (inputIsFocused.value || value.length > 0) {
+    result = true;
+  }
+  return result ? "form-group__label form-group__label--focused" : undefined;
+});
 /**
  * Handles click events for the autocomplete custom form element.
  * Called on the input element and the button for the dropdown, with slightly
@@ -297,15 +332,20 @@ async function autocompleteSelectOption(event: Event): Promise<void> {
   autocompleteIsExpanded.value = false;
 }
 /**
- * Closes the menu (if it is opened) with a click, as long as the click is outside 
- * of the parent element with a class of "autocomplete". If the menu is open, 
+ * Closes the menu (if it is opened) with a click, as long as the click is outside
+ * of the parent element with a class of "autocomplete". If the menu is open,
  * closes the menu and removes focus from the input element. Contains a guard clause
  * to exit the function early if the autocomplete menu was closed when the function
  * was called. Must be attached to a document event handler to execute correctly.
  * @param event {Event} The DOM event created by the click.
  */
 function closeMenuWithClickOutside(event: Event): void {
-  if (!autocompleteInput.value || !autocompleteMenu.value || !autocompleteIsExpanded.value) return;
+  if (
+    !autocompleteInput.value ||
+    !autocompleteMenu.value ||
+    !autocompleteIsExpanded.value
+  )
+    return;
   const target = event.target as Element;
   const isClickInside = target.closest(".autocomplete");
   if (!isClickInside) {
@@ -320,7 +360,7 @@ function closeMenuWithClickOutside(event: Event): void {
  * props.formData.label values supplied by the parent element. If the iterated value
  * contains the substring from the input element, it is added to the autocompleteOptions
  * array. Values are given a basic priority by determining whether the substring
- * occurs early in the value and using Array.prototype.unshift to insert if this is 
+ * occurs early in the value and using Array.prototype.unshift to insert if this is
  * true. If the substring combination is not found in any values, the default prop
  * data is returned by calling {@link autocompletePopulateDefaultOptions()} instead.
  * Finally, it will open the menu so that the user can see the results without having
@@ -387,7 +427,7 @@ function autocompleteHandleBlur(event: Event) {
  * Computed function that checks to see if the autocomplete menu is open, if
  * the input element is focused or if the input element value is greater than
  * zero. If any of these conditions are met, returns a string value which is used
- * in the template to set an appropriate class which determines the position of 
+ * in the template to set an appropriate class which determines the position of
  * the form floating label. Uses Vue's computed function to manage this. Primarily
  * for brevity in the template.
  * @returns {(string|void)} The class to apply to the label element, or void/undefined
@@ -409,24 +449,24 @@ const autocompleteDetermineLabelClass = computed((): string | void => {
     : undefined;
 });
 /*
- * If the component is called with "autocomplete" as the specified type, 
- * attach an event handler to the window to manage click events outside of 
+ * If the component is called with "autocomplete" as the specified type,
+ * attach an event handler to the window to manage click events outside of
  * the autocomplete element and populate the autocompleteOptions reactive
  * variable with the supplied prop data.
  */
 onMounted(() => {
-  if (props.formData.elementType !== "autocomplete") return
+  if (props.formData.elementType !== "autocomplete") return;
   document.addEventListener("click", (event: Event) => {
     closeMenuWithClickOutside(event);
   });
   autocompletePopulateDefaultOptions();
 });
 /*
- * If the component is called with "autocomplete" as the specified type, 
+ * If the component is called with "autocomplete" as the specified type,
  * destroy all associated event handlers bound to the document.
  */
 onUnmounted(() => {
-  if (props.formData.elementType !== "autocomplete") return
+  if (props.formData.elementType !== "autocomplete") return;
   document.removeEventListener("click", (event: Event) => {
     closeMenuWithClickOutside(event);
   });
