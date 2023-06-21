@@ -60,12 +60,13 @@ interface CompFormObject {
   labelText: string;
   value?: string;
   hintText?: string;
-  options?: {
-    value: string;
-    label: string;
-    isDisabled?: boolean;
-  }[];
+  options?: CompFormOptionsObject[];
   default?: string;
+}
+interface CompFormOptionsObject {
+  value: string;
+  label: string;
+  isDisabled?: boolean;
 }
 interface CompStepperPropData {
   index: number;
