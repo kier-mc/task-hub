@@ -10,7 +10,7 @@
           >{{ props.formData.labelText }}</label
         >
         <input
-          ref="input"
+          ref="inputElement"
           class="form-group__input"
           :type="props.formData.attrType"
           :id="props.formData.formID"
@@ -20,8 +20,8 @@
           "
           :value="modelValue"
           @input="emitEvent($event)"
-          @focus="inputIsFocused = true"
-          @blur="inputIsFocused = false"
+          @focus="inputElementIsFocused = true"
+          @blur="inputElementIsFocused = false"
         />
       </div>
       <span v-if="props.formData.hintText" class="form-group__hint">{{
@@ -74,6 +74,7 @@
           />
           <button
             class="autocomplete__button"
+            type="button"
             tabindex="0"
             @click="autocompleteHandleClick($event)"
           >
@@ -273,20 +274,20 @@ function emitEvent(event: Event) {
   emit("input", value);
 }
 // Reactive variables
-const inputIsFocused: Ref<boolean> = ref(false);
+const inputElementIsFocused: Ref<boolean> = ref(false);
 const autocompleteIsFocused: Ref<boolean> = ref(false);
 const autocompleteIsExpanded: Ref<boolean> = ref(false);
 const autocompleteOptions: Ref<Array<string>> = ref([]);
 // Template refs
-const input: Ref<HTMLInputElement | null> = ref(null);
+const inputElement: Ref<HTMLInputElement | null> = ref(null);
 const autocompleteInput: Ref<HTMLInputElement | null> = ref(null);
 const autocompleteMenu: Ref<HTMLUListElement | null> = ref(null);
 
 const inputDetermineLabelClass = computed((): string | void => {
-  if (!input.value) return;
+  if (!inputElement.value) return;
   let result = false;
-  const value = input.value.value;
-  if (inputIsFocused.value || value.length > 0) {
+  const value = inputElement.value.value;
+  if (inputElementIsFocused.value || value.length > 0) {
     result = true;
   }
   return result ? "form-group__label form-group__label--focused" : undefined;
