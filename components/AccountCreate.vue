@@ -134,6 +134,7 @@
 </style>
 
 <script setup lang="ts">
+const countryData: Ref<Array<any>> = ref(generateCountryData());
 /* Prop/v-model-related data */
 const propData: Array<CompStepperPropData> = [
   {
@@ -176,11 +177,9 @@ const propData: Array<CompStepperPropData> = [
       {
         index: 1,
         formID: "country",
-        elementType: "input",
-        attrType: "text",
-        autocomplete: "country",
+        elementType: "autocomplete",
         labelText: "Country",
-        hintText: "Used for localisation of date and time",
+        options: [...countryData.value],
       },
       {
         index: 2,
