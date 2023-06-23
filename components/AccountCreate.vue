@@ -1,9 +1,10 @@
 <template>
   <section class="stepper">
-    <div class="stepper__timeline">
-      <ol>
+    <div class="stepper__timeline" ref="timeline">
+      <ol class="timeline__list">
         <li
-          v-for="entry in propData"
+          class="timeline__step"
+          v-for="entry in propData.formHandler"
           :key="entry.index"
           :data-active="activeSlide === entry.index ? true : false"
         >
@@ -11,34 +12,41 @@
         </li>
       </ol>
     </div>
-    <div class="stepper__container" ref="container">
-      <section
-        class="entry"
-        v-for="entry in propData"
-        :key="entry.index"
-        :data-active="activeSlide === entry.index ? true : false"
-      >
-        <template v-for="formData in entry.formData">
-          <FormHandler
-            :formData="formData"
-            v-model="credentials[formData.formID]"
-          />
-        </template>
-      </section>
+    <div v-if="isLoading" class="stepper__loading">
+      <AppLoadingIndicator :options="propData.loadingIndicator" />
     </div>
-    <div class="stepper__controls">
-      <button
-        type="button"
-        class="button"
-        @click="prevStep()"
-        :disabled="activeSlide === 0 ? true : false"
-      >
-        Previous
-      </button>
-      <button type="button" class="button" @click="nextStep()">
-        {{ activeSlide === propData.length - 1 ? "Submit" : "Next" }}
-      </button>
-    </div>
+    <template v-else>
+      <div class="stepper__container" ref="container">
+        <section
+          class="entry"
+          v-for="entry in propData.formHandler"
+          :key="entry.index"
+          :data-active="activeSlide === entry.index ? true : false"
+        >
+          <template v-for="formData in entry.formData">
+            <FormHandler
+              :formData="formData"
+              v-model="credentials[formData.formID]"
+            />
+          </template>
+        </section>
+      </div>
+      <div class="stepper__controls">
+        <button
+          type="button"
+          class="button"
+          @click="prevStep()"
+          :disabled="activeSlide === 0 ? true : false"
+        >
+          Previous
+        </button>
+        <button type="button" class="button" @click="nextStep()">
+          {{
+            activeSlide === propData.formHandler.length - 1 ? "Submit" : "Next"
+          }}
+        </button>
+      </div>
+    </template>
   </section>
 </template>
 
@@ -65,47 +73,11 @@
     padding-right: 1rem;
     border-right: 1px dashed hsl(0, 0%, 40%);
     background-color: inherit;
-    & ol {
-      // Not fully implemented
-      // Adjusting height offset value via JS allows transform of after pseudoelement
-      --height-offset: 1.25rem;
-      position: relative;
-      // Generates vertical line
-      &::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        width: 1px;
-        height: 100%;
-        border-radius: 0.25rem;
-        margin-left: -0.5rem;
-        z-index: 20;
-        background-color: hsl(0, 0%, 40%);
-      }
-      // Not fully implemented
-      // Generates "section divider"
-      &::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        transform: translate3d(0, var(--height-offset), 0);
-        height: 2px;
-        background: #3ab09e;
-        transition: transform 150ms;
-      }
-    }
-    & li {
-      position: relative;
-      opacity: 0.5;
-      list-style-type: none;
-      transition: opacity 175ms;
-      &[data-active="true"] {
-        opacity: 1;
-      }
-      &:not(:last-child) {
-        margin-bottom: 1.5rem;
-      }
-    }
+  }
+  &__loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   &__container {
     display: flex;
@@ -116,8 +88,57 @@
     margin-top: 1rem;
   }
 }
+.timeline {
+  &__list {
+    position: relative;
+    // Generates vertical line
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 1px;
+      height: 100%;
+      z-index: 20;
+      border-radius: 0.25rem;
+      margin-left: -0.5rem;
+      background-color: hsl(0, 0%, 40%);
+    }
+  }
+  &__step {
+    position: relative;
+    opacity: 0.5;
+    width: max-content;
+    list-style-type: none;
+    &[data-active="true"] {
+      opacity: 1;
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        height: 2px;
+        background-color: #3ab09e;
+        transform-origin: left;
+        animation: stage-pseudoelement 175ms ease-in-out 1 forwards;
+      }
+    }
+    &:not(:last-child) {
+      margin-bottom: 1.5rem;
+    }
+  }
+}
+@keyframes stage-pseudoelement {
+  0% {
+    opacity: 0;
+    transform: scaleX(0) translate3d(0, 1.25rem, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1) translate3d(0, 1.25rem, 0);
+  }
+}
 .entry {
   opacity: 0;
+  min-width: v-bind(contentWidth);
   filter: blur(0.125rem);
   transition: opacity 200ms, filter 150ms;
   &[data-active="true"] {
@@ -136,63 +157,74 @@
 <script setup lang="ts">
 const countryData: Ref<Array<any>> = ref(generateCountryData());
 /* Prop/v-model-related data */
-const propData: Array<CompStepperPropData> = [
-  {
-    index: 0,
-    header: "Required Information",
-    formData: [
-      {
-        index: 0,
-        formID: "email",
-        elementType: "input",
-        attrType: "email",
-        autocomplete: "email",
-        labelText: "Email",
-        hintText: "Requires confirmation",
-      },
-      {
-        index: 1,
-        formID: "password",
-        elementType: "input",
-        attrType: "password",
-        autocomplete: "new-password",
-        labelText: "Password",
-        hintText: "Password must be at least 12 characters long",
-      },
-    ],
-  },
-  {
-    index: 1,
-    header: "Personalisation",
-    formData: [
-      {
-        index: 0,
-        formID: "preferred_name",
-        elementType: "input",
-        attrType: "text",
-        autocomplete: "given-name",
-        labelText: "Preferred name",
-        hintText: "Used when authoring tasks",
-      },
-      {
-        index: 1,
-        formID: "country",
-        elementType: "autocomplete",
-        labelText: "Country",
-        options: [...countryData.value],
-      },
-      {
-        index: 2,
-        formID: "locale",
-        elementType: "input",
-        attrType: "text",
-        autocomplete: "address-level2",
-        labelText: "City/Town",
-        hintText: "Used for providing precise weather information",
-      },
-    ],
-  },
-];
+const propData = {
+  formHandler: [
+    {
+      index: 0,
+      header: "Basic Information",
+      formData: [
+        {
+          index: 0,
+          formID: "email",
+          elementType: "input",
+          attrType: "email",
+          autocomplete: "email",
+          labelText: "Email",
+          hintText: "Requires confirmation",
+        },
+        {
+          index: 1,
+          formID: "password",
+          elementType: "input",
+          attrType: "password",
+          autocomplete: "new-password",
+          labelText: "Password",
+          hintText: "Password must be at least 12 characters long",
+        },
+      ],
+    } as CompStepperPropData,
+    {
+      index: 1,
+      header: "Personalisation",
+      formData: [
+        {
+          index: 0,
+          formID: "preferred_name",
+          elementType: "input",
+          attrType: "text",
+          autocomplete: "given-name",
+          labelText: "Preferred name",
+          hintText: "Used when authoring tasks",
+        },
+        {
+          index: 1,
+          formID: "country",
+          elementType: "autocomplete",
+          labelText: "Country",
+          hintText: "Used for providing precise weather information",
+          options: [...countryData.value],
+        },
+        {
+          index: 2,
+          formID: "locale",
+          elementType: "input",
+          attrType: "text",
+          autocomplete: "address-level2",
+          labelText: "City/Town",
+          hintText: "Used for providing precise weather information",
+        },
+      ],
+    } as CompStepperPropData,
+  ],
+  loadingIndicator: {
+    type: "dots",
+    width: 48,
+    height: 48,
+    hue: 0,
+    saturation: 0,
+    lightness: 100,
+  } as LoadingIndicatorDataObject,
+};
 /* Reactive variables */
 const activeSlide: Ref<number> = ref(0);
 const step: Ref<number> = ref(0);
@@ -204,15 +236,29 @@ const credentials: NewAccountDataObject = reactive({
   country: undefined,
   locale: undefined,
 });
+const contentWidth: Ref<string> = ref("");
+const isLoading: Ref<boolean> = ref(true);
+/* Variables */
+const STEPPER_WIDTH = 640 - 32;
 /* Template refs */
-const container: Ref<HTMLElement | null> = ref(null);
+const container: Ref<HTMLDivElement | null> = ref(null);
+const timeline: Ref<HTMLDivElement | null> = ref(null);
+/**
+ * Calculates the content portion of the stepper. The content portion
+ * is defined as the section of the stepper that displays form information,
+ * and does not include the timeline.
+ */
+function determineContentWidth(): void {
+  if (!timeline.value) return;
+  contentWidth.value = `${STEPPER_WIDTH - timeline.value.clientWidth}px`;
+}
 /**
  * Calculates the width of a single step section in pixels.
  * Used for to determine "step" for CSS translation.
  */
 function updateTransformStep(): void {
-  if (!container.value) return;
-  step.value = (container.value.clientWidth / propData.length) * -1;
+  if (!contentWidth.value) return;
+  step.value = parseInt(contentWidth.value) * -1;
 }
 /**
  * Controls behaviour for "next"/"submit" button by updating activeSlide ref and translating container element.
@@ -221,7 +267,7 @@ function updateTransformStep(): void {
  */
 function nextStep(): void {
   if (!container.value) return;
-  if (activeSlide.value < propData.length - 1) {
+  if (activeSlide.value < propData.formHandler.length - 1) {
     activeSlide.value += 1;
     current.value += step.value;
     container.value.style.transform = `translate3d(${current.value}px, 0, 0)`;
@@ -243,6 +289,8 @@ function prevStep(): void {
 }
 /* Calculate the transform step once all content is rendered to the DOM */
 onMounted(() => {
+  determineContentWidth();
   updateTransformStep();
+  isLoading.value = false;
 });
 </script>
