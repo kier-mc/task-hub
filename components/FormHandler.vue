@@ -24,7 +24,7 @@
           @blur="inputElementIsFocused = false"
         />
       </div>
-      <span v-if="props.formData.hintText" class="form-group__hint">{{
+      <span v-if="props.formData.hintText" class="hint">{{
         props.formData.hintText
       }}</span>
     </template>
@@ -100,6 +100,9 @@
           </li>
         </ul>
       </div>
+      <span v-if="props.formData.hintText" class="hint">{{
+        props.formData.hintText
+      }}</span>
     </template>
   </div>
 </template>
@@ -131,8 +134,10 @@ $input-padding: 0.5rem;
   }
   &__input {
     all: unset;
-    min-width: 10ch;
-    max-width: 25ch;
+    box-sizing: content-box;
+    width: calc(
+      calc(100% - 1rem) - 2px
+    ); // Minus inline-padding * 2 minus border
     min-height: calc(48px - 1rem);
     padding-top: 1rem;
     padding-inline: 0.5rem;
@@ -143,17 +148,17 @@ $input-padding: 0.5rem;
       outline: 1px solid hsl(0, 0%, 50%);
     }
   }
-  &__hint {
-    margin-bottom: 0.25rem;
-    margin-left: 0.5rem;
-    font-size: 0.75rem;
-    opacity: 0.5;
-  }
   &__select {
     padding: 0.5rem 0.5rem 0.5rem 0.35rem;
     border: 1px solid hsl(0, 0%, 30%);
     font-size: 1rem;
   }
+}
+.hint {
+  margin-bottom: 0.25rem;
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  opacity: 0.5;
 }
 .autocomplete {
   position: relative;
