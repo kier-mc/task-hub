@@ -10,7 +10,9 @@
       :aria-expanded="menuIsOpen ? 'true' : 'false'"
       @click="menuIsOpen = !menuIsOpen"
       ref="button"
-    ></button>
+    >
+      <SVGMenu class="header__menu-icon" />
+    </button>
   </header>
   <nav class="nav" role="navigation">
     <div
@@ -80,6 +82,7 @@
 <style scoped lang="scss">
 @import "../assets/scss/variables.scss";
 .header {
+  isolation: isolate;
   position: relative;
   display: flex;
   justify-content: space-between;
@@ -92,20 +95,26 @@
   background-color: inherit;
   &__menu-button {
     all: unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     aspect-ratio: 1/1;
     min-width: var(--nav-button-size);
     z-index: 20;
-    mask: url("/img/svg/menu.svg") no-repeat center center;
-    mask-size: cover;
-    -webkit-mask: url("/img/svg/menu.svg") no-repeat center center;
-    -webkit-mask-size: cover;
-    background-color: hsl(0, 0%, 80%);
-    background-repeat: no-repeat;
-    background-position: center;
     transition: background-color 200ms;
     cursor: pointer;
-    &[aria-expanded="true"] {
-      background-color: hsl(0, 0%, 90%);
+    &[aria-expanded="true"] .header__menu-icon {
+      fill: hsl(0, 0%, 90%);
+    }
+  }
+  &__menu-icon {
+    pointer-events: none;
+    z-index: 0;
+    max-width: 32px;
+    fill: hsl(0, 0%, 80%);
+    transition: fill 125ms;
+    &:hover {
+      fill: hsl(0, 0%, 90%);
     }
   }
   & a {
@@ -264,9 +273,12 @@ const navData: Array<NavDataObject> = [
   },
 ];
 
-function closeMenuWithClickOutside(event: Event) {
-  if (event.target === button.value) return;
-  menuIsOpen.value = false;
+function closeMenuWithClickOutside(event: Event): void {
+  const target = event.target as Element;
+  const isClickInside = target.closest(".header__menu-button");
+  if (!isClickInside) {
+    menuIsOpen.value = false;
+  }
 }
 
 onMounted(() => {
