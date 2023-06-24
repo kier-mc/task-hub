@@ -11,24 +11,32 @@ import { allCredentialFieldsArePopulated } from "./auth.helper";
 /**
  * Helper function to wipe credentials object once login/account creation submissions occur.
  * Iterates over all key/value pairs in the supplied parameter and sets the values to undefined.
- * @param credentials {Ref<LoginCredentialsDataObject>} object containing data to erase; inherited from parent function
+ * @param credentials {ComputedRef<CompleteNewAccountCredentialData> | Ref<LoginCredentialsData>}
+ * Object containing data to erase; inherited from parent function parameter.
  */
 function clearCredentials(
-  credentials: Ref<NewAccountDataObject> | Ref<LoginCredentialsDataObject>
+  credentials: ComputedRef<CompleteNewAccountCredentialData> | Ref<LoginCredentialsData>
 ): void {
-  for (let [key, value] of Object.entries(credentials.value)) {
-    if (key) {
-      value = undefined;
+  const clearObject = (object: Record<string, any>): void => {
+    for (const key in object) {
+      if (object.hasOwnProperty(key)) {
+        const value = object[key];
+        if (typeof value === "object" && value !== null) {
+          clearObject(value);
+        }
+        object[key] = undefined;
+      }
     }
-  }
+  };
+  clearObject(credentials.value);
 }
 /**
  * Attempts login via SupabaseAuthClient (@nuxtjs/supabase).
  * Pushes a notification to the user and redirects to hub page.
- * @param credentials {Ref<LoginCredentialsDataObject>} object containing data (username, password) to pass to backend
+ * @param credentials {Ref<LoginCredentialsData>} object containing data (username, password) to pass to backend
  */
 export async function loginUser(
-  credentials: Ref<LoginCredentialsDataObject>
+  credentials: Ref<LoginCredentialsData>
 ): Promise<void> {
   const notificationsStore = useNotificationsStore();
   if (!allCredentialFieldsArePopulated(credentials)) {
@@ -66,9 +74,10 @@ export async function loginUser(
 /**
  * Attempts account creation via SupabaseAuthClient (@nuxtjs/supabase).
  * Pushes a notification to the user and redirects to login page.
- * @param credentials {Ref<LoginCredentialsDataObject>} object containing data (username, password) to pass to backend
+ * @param credentials {ComputedRef<CompleteNewAccountCredentialData>}
+ * Object containing data to pass to the backend.
  */
-export async function createUser(credentials: Ref<NewAccountDataObject>) {
+export async function createUser(credentials: ComputedRef<CompleteNewAccountCredentialData>) {
   const notificationsStore = useNotificationsStore();
   if (!allCredentialFieldsArePopulated(credentials)) {
     notificationsStore.setMessage(
@@ -78,7 +87,7 @@ export async function createUser(credentials: Ref<NewAccountDataObject>) {
     return;
   }
   const countryID = convertCountry(
-    credentials.value.country as CountryName
+    credentials.value.country.value as CountryName
   ) as CountryID;
   const { data, error } = await useSupabaseAuthClient().auth.signUp({
     email: credentials.value.email as string,
