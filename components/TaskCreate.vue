@@ -2,18 +2,28 @@
   <div class="create-task">
     <form>
       <template v-for="formData in propData" :key="formData.index">
-        <FormHandler
-          :formData="formData"
-          v-model="newTask[formData.formID]"
-          @input="validateInput()"
-        />
+        <template v-if="formData.elementType === 'input'">
+          <FormHandler
+            :formData="formData"
+            v-model:input-element-value="rawTaskData[formData.formID]"
+            @input="validateInput()"
+          />
+        </template>
+        <template v-else-if="formData.elementType === 'autocomplete'">
+          <FormHandler
+            :formData="formData"
+            v-model:input-element-value="rawTaskFrequencyData.label"
+            v-model:data-attribute-value="rawTaskFrequencyData.value"
+            @input="validateInput()"
+          />
+        </template>
       </template>
       <button
         type="button"
         class="button"
-        @click="createNewTask(newTask)"
         :disabled="!isValidInput"
         :aria-disabled="!isValidInput"
+        @click="createNewTask(newTask)"
       >
         Submit
       </button>
@@ -25,7 +35,7 @@
 
 <script setup lang="ts">
 /* Prop/v-model-related data */
-const propData: Array<CompFormObject> = [
+const propData: Array<FormHandlerData> = [
   {
     index: 0,
     formID: "task",
@@ -43,10 +53,9 @@ const propData: Array<CompFormObject> = [
   {
     index: 2,
     formID: "frequency",
-    elementType: "select",
+    elementType: "autocomplete",
     labelText: "Frequency",
     options: [
-      { value: "unset", label: "Please select an option", isDisabled: true },
       { value: "daily", label: "Daily" },
       { value: "weekly", label: "Weekly" },
       { value: "fortnightly", label: "Fortnightly" },
@@ -55,17 +64,25 @@ const propData: Array<CompFormObject> = [
       { value: "biannually", label: "Bi-annually (6 months)" },
       { value: "annually", label: "Annually" },
     ],
-    default: "unset",
   },
 ];
 /* Pinia stores */
 const notificationsStore = useNotificationsStore();
 const taskStore = useTaskStore();
 /* Reactive variables */
-const newTask: TaskDataObject = reactive({
-  task: "",
-  description: "",
-  frequency: "unset",
+const rawTaskData: RawTaskData = reactive({
+  task: undefined,
+  description: undefined,
+});
+const rawTaskFrequencyData: AutocompleteTaskFrequencyData = reactive({
+  label: undefined,
+  value: undefined,
+});
+const newTask: ComputedRef<CompleteTaskData> = computed(() => {
+  return {
+    ...rawTaskData,
+    frequency: { ...rawTaskFrequencyData },
+  } as CompleteTaskData;
 });
 const isValidInput: Ref<boolean> = ref(false);
 /**
@@ -74,10 +91,10 @@ const isValidInput: Ref<boolean> = ref(false);
  * Called in createNewTask() and used for validation in template with :disabled attribute on submit button.
  */
 function validateInput(): void {
-  if (newTask.task === "") {
-    isValidInput.value = false;
-    return;
-  } else if (newTask.frequency === "unset") {
+  if (
+    newTask.value.task === undefined &&
+    newTask.value.frequency.value === undefined
+  ) {
     isValidInput.value = false;
     return;
   }
@@ -88,9 +105,10 @@ function validateInput(): void {
  * Attempts to create a new task from the supplied data.
  * Pushes a notification and returns early if no valid task is entered prior to submission.
  * Throws an error if no valid user is detected.
- * @param taskData {TaskDataObject} - object containing task data
+ * @param taskData {ComputedRef<CompleteTaskData>}
+ * A reactive data object containing user-supplied data to submit to the back end.
  */
-async function createNewTask(taskData: TaskDataObject): Promise<void> {
+async function createNewTask(taskData: CompleteTaskData): Promise<void> {
   if (!isValidInput) {
     notificationsStore.setMessage(
       "You must enter a task name before submitting",
@@ -108,7 +126,7 @@ async function createNewTask(taskData: TaskDataObject): Promise<void> {
         task: taskData.task,
         description: taskData.description,
         frequency_id: convertFrequency(
-          taskData.frequency as Database["frequency"]["repeats_every"]
+          taskData.frequency.value as Database["frequency"]["repeats_every"]
         ),
       },
     ]);
@@ -125,8 +143,9 @@ async function createNewTask(taskData: TaskDataObject): Promise<void> {
  * Called when a task has been successfully submitted.
  */
 function clearAllFields(): void {
-  newTask.task = "";
-  newTask.description = "";
-  newTask.frequency = "unset";
+  newTask.value.task = undefined;
+  newTask.value.description = undefined;
+  newTask.value.frequency.label = undefined;
+  newTask.value.frequency.value = undefined;
 }
 </script>
