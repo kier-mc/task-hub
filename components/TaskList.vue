@@ -45,7 +45,7 @@ const propData = {
     hue: 0,
     saturation: 0,
     lightness: 100,
-  } as LoadingIndicatorDataObject,
+  } as LoadingIndicatorData,
 };
 /* Reactive variables */
 const isLoading: Ref<boolean> = ref(true);

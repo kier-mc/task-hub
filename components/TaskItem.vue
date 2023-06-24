@@ -275,7 +275,7 @@ const userStore = useUserStore();
 const props = defineProps({
   taskData: { type: Object as PropType<Database["tasks"]>, required: true },
 });
-const propData: CompFormObject = {
+const propData: FormHandlerData = {
   index: 0,
   formID: "frequency",
   elementType: "select",
