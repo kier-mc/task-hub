@@ -10,7 +10,7 @@
  * populated.
  */
 export function allCredentialFieldsArePopulated(
-  credentials: Ref<NewAccountDataObject> | Ref<LoginCredentialsDataObject>
+  credentials: ComputedRef<CompleteNewAccountCredentialData> | Ref<LoginCredentialsData>
 ): boolean {
   for (const value of Object.values(credentials.value)) {
     if (!value) {

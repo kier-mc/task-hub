@@ -6,10 +6,10 @@
  * @returns {Array<CompFormOptionsObject>} An array containing individual options in a
  * format that is parsable by the FormHandler component.
  */
-export function generateCountryData(): Array<CompFormOptionsObject> {
+export function generateCountryData(): Array<FormHandlerOptionsData> {
     const payload = [];
     for (let i = 0; i < countriesHelper.length; i++) {
-      const dataObject: CompFormOptionsObject = {
+      const dataObject: FormHandlerOptionsData = {
         value: "",
         label: "",
       };
