@@ -78,7 +78,7 @@
 <script setup lang="ts">
 const props = defineProps({
   options: {
-    type: Object as PropType<LoadingIndicatorDataObject>,
+    type: Object as PropType<LoadingIndicatorData>,
     required: true,
   },
 });
