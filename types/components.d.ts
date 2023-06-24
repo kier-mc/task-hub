@@ -1,4 +1,4 @@
-interface CompFormObject {
+interface FormHandlerData {
   index: number;
   formID: string;
   elementType: "input" | "select" | "autocomplete";
@@ -60,37 +60,49 @@ interface CompFormObject {
   labelText: string;
   value?: string;
   hintText?: string;
-  options?: CompFormOptionsObject[];
+  options?: FormHandlerOptionsData[];
   default?: string;
 }
-interface CompFormOptionsObject {
+interface FormHandlerOptionsData {
   value: string;
   label: string;
   isDisabled?: boolean;
 }
-interface CompStepperPropData {
+interface CreateAccountStepperData {
   index: number;
   header: string;
   formData: Array<CompFormObject>;
 }
-interface LoginCredentialsDataObject {
+interface LoginCredentialsData {
   [key: string]: string | undefined;
   email: string | undefined;
   password: string | undefined;
 }
-interface NewAccountDataObject extends LoginCredentialsDataObject {
+interface RawNewAccountCredentialData extends LoginCredentialsData {
   [key: string]: string | undefined;
   preferred_name: string | undefined;
-  country: Database["countries"]["name"] | undefined;
   locale: string | undefined;
 }
-interface TaskDataObject {
-  [key: string]: string;
-  task: string;
-  description: string;
-  frequency: string;
+interface AutocompleteCountryData {
+  label: string | undefined,
+  value: Database["countries"]["name"] | undefined,
 }
-interface LoadingIndicatorDataObject {
+interface CompleteNewAccountCredentialData extends RawNewAccountCredentialData {
+  country: AutocompleteCountryData;
+}
+interface RawTaskData {
+  [key: string]: string | undefined;
+  task: string | undefined;
+  description: string | undefined;
+}
+interface AutocompleteTaskFrequencyData {
+  label: string | undefined;
+  value: Database["frequency"]["repeats_every"] | undefined
+}
+interface CompleteTaskData extends RawTaskData {
+  frequency: AutocompleteTaskFrequencyData;
+}
+interface LoadingIndicatorData {
   type: "circle" | "dots";
   width: number;
   height: number;
