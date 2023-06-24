@@ -4,7 +4,7 @@
       <template v-for="formData in propData" :key="formData.id">
         <FormHandler
           :formData="formData"
-          v-model="credentials[formData.formID]"
+          v-model:inputElementValue="credentials[formData.formID]"
         />
       </template>
       <button type="button" class="button" @click="loginUser(ref(credentials))">
@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 /* Prop/v-model-related data */
-const propData: Array<CompFormObject> = [
+const propData: Array<FormHandlerData> = [
   {
     index: 0,
     formID: "email",
@@ -49,7 +49,7 @@ const propData: Array<CompFormObject> = [
     labelText: "Password",
   },
 ];
-const credentials: LoginCredentialsDataObject = reactive({
+const credentials: LoginCredentialsData = reactive({
   email: "",
   password: "",
 });
