@@ -7,8 +7,8 @@
           class="form-group__label"
           :class="inputDetermineLabelClass"
           :for="props.formData.formID"
-          >{{ props.formData.labelText }}</label
-        >
+          >{{ props.formData.labelText }}
+        </label>
         <input
           ref="inputElement"
           class="form-group__input"
@@ -18,18 +18,18 @@
           :autocomplete="
             props.formData.autocomplete ? props.formData.autocomplete : 'on'
           "
-          :value="modelValue"
+          :value="inputElementValue"
           @input="emitEvent($event)"
           @focus="inputElementIsFocused = true"
           @blur="inputElementIsFocused = false"
         />
       </div>
-      <span v-if="props.formData.hintText" class="hint">{{
-        props.formData.hintText
-      }}</span>
+      <span v-if="props.formData.hintText" class="hint">
+        {{ props.formData.hintText }}
+      </span>
     </template>
     <!-- If element is select -->
-    <template v-else-if="props.formData.elementType === 'select'">
+    <!-- <template v-else-if="props.formData.elementType === 'select'">
       <label class="form-group__label" :for="props.formData.formID">{{
         props.formData.labelText
       }}</label>
@@ -48,7 +48,7 @@
           {{ option.label }}
         </option>
       </select>
-    </template>
+    </template> -->
     <!-- If element is autocomplete -->
     <template v-else-if="props.formData.elementType === 'autocomplete'">
       <div class="autocomplete" @keyup.escape="autocompleteIsExpanded = false">
@@ -65,7 +65,7 @@
             class="autocomplete__input"
             tabindex="0"
             :id="props.formData.formID"
-            :value="modelValue"
+            :value="inputElementValue"
             @click="autocompleteHandleClick($event)"
             @focus="autocompleteFilterData($event)"
             @blur="autocompleteHandleBlur($event)"
@@ -90,19 +90,19 @@
             class="autocomplete__li"
             v-for="(data, index) in autocompleteOptions"
             :key="index"
-            :data-value="data"
+            :data-value="data.value"
             :tabindex="autocompleteIsExpanded ? 0 : -1"
             @click="autocompleteSelectOption($event)"
             @keyup.enter="autocompleteSelectOption($event)"
             @keyup.space="autocompleteSelectOption($event)"
           >
-            {{ data }}
+            {{ data.label }}
           </li>
         </ul>
       </div>
-      <span v-if="props.formData.hintText" class="hint">{{
-        props.formData.hintText
-      }}</span>
+      <span v-if="props.formData.hintText" class="hint">
+        {{ props.formData.hintText }}
+      </span>
     </template>
   </div>
 </template>
@@ -263,31 +263,44 @@ $input-padding: 0.5rem;
 
 <script setup lang="ts">
 const props = defineProps({
-  formData: { type: Object as PropType<CompFormObject>, required: true },
-  modelValue: { type: String },
+  formData: { type: Object as PropType<FormHandlerData>, required: true },
+  inputElementValue: { type: String as PropType<String> },
+  dataAttributeValue: { type: String as PropType<String> },
 });
 
 const emit = defineEmits<{
-  (event: "update:model-value", value: string): void;
-  (event: "input", value: string): void;
+  (event: "update:inputElementValue", value: string): void;
+  (event: "update:dataAttributeValue", value: string): void;
 }>();
 
 function emitEvent(event: Event) {
   const target = event.target as HTMLInputElement | HTMLSelectElement;
-  const value = target.value;
-  emit("update:model-value", value);
-  emit("input", value);
+  const inputValue = target.value;
+  const dataAttributeValue = target.getAttribute("data-value");
+  emit("update:inputElementValue", inputValue);
+  if (dataAttributeValue) {
+    emit("update:dataAttributeValue", dataAttributeValue);
+  }
 }
+
 // Reactive variables
 const inputElementIsFocused: Ref<boolean> = ref(false);
 const autocompleteIsFocused: Ref<boolean> = ref(false);
 const autocompleteIsExpanded: Ref<boolean> = ref(false);
-const autocompleteOptions: Ref<Array<string>> = ref([]);
+const autocompleteOptions: Ref<Array<AutocompleteCountryData>> = ref([]);
 // Template refs
 const inputElement: Ref<HTMLInputElement | null> = ref(null);
 const autocompleteInput: Ref<HTMLInputElement | null> = ref(null);
 const autocompleteMenu: Ref<HTMLUListElement | null> = ref(null);
-
+// Computed properties
+/**
+ * Computed function that checks to see if the the input element is focused or if the
+ * value is greater than zero. If any of these conditions are met, returns a string
+ * value which is used in the template to set an appropriate class which determines
+ * the position of the form floating label.
+ * @returns {(string|void)} The class to apply to the label element, or void/undefined
+ * if a guard clause is met or none of the prerequisite conditions are met.
+ */
 const inputDetermineLabelClass = computed((): string | void => {
   if (!inputElement.value) return;
   let result = false;
@@ -296,6 +309,30 @@ const inputDetermineLabelClass = computed((): string | void => {
     result = true;
   }
   return result ? "form-group__label form-group__label--focused" : undefined;
+});
+/**
+ * Computed function that checks to see if the autocomplete menu is open, if
+ * the input element is focused or if the input element value is greater than
+ * zero. If any of these conditions are met, returns a string value which is used
+ * in the template to set an appropriate class which determines the position of
+ * the form floating label.
+ * @returns {(string|void)} The class to apply to the label element, or void/undefined
+ * if a guard clause is met or none of the prerequisite conditions are met.
+ */
+const autocompleteDetermineLabelClass = computed((): string | void => {
+  if (!autocompleteInput.value) return;
+  let result = false;
+  const input = autocompleteInput.value.value as string;
+  if (
+    autocompleteIsFocused.value ||
+    autocompleteIsExpanded.value ||
+    input.length > 0
+  ) {
+    result = true;
+  }
+  return result
+    ? "autocomplete__label autocomplete__label--focused"
+    : undefined;
 });
 /**
  * Handles click events for the autocomplete custom form element.
@@ -333,7 +370,9 @@ function autocompleteHandleClick(event: Event): void {
 async function autocompleteSelectOption(event: Event): Promise<void> {
   if (!autocompleteInput.value) return;
   const target = event.target as HTMLLIElement;
-  emit("update:model-value", target.textContent ?? "");
+  const dataAttributeValue = target.getAttribute("data-value");
+  emit("update:inputElementValue", target.textContent ?? "");
+  emit("update:dataAttributeValue", dataAttributeValue ?? "");
   await nextTick();
   autocompleteIsExpanded.value = false;
 }
@@ -381,12 +420,19 @@ function autocompleteFilterData(event: Event) {
   const input = target.value.toLowerCase();
   if (input) {
     for (let i = 0; i < props.formData.options.length; i++) {
-      const propValue = props.formData.options[i].label;
-      if (propValue.toLowerCase().includes(input)) {
-        if (propValue.toLowerCase().startsWith(input)) {
-          autocompleteOptions.value.unshift(propValue);
+      const label: string = props.formData.options[i].label;
+      const value: string = props.formData.options[i].value;
+      const dataObject: AutocompleteCountryData = {
+        label: "",
+        value: "",
+      };
+      if (label.toLowerCase().includes(input)) {
+        dataObject.label = label;
+        dataObject.value = value;
+        if (label.toLowerCase().startsWith(input)) {
+          autocompleteOptions.value.unshift(dataObject);
         } else {
-          autocompleteOptions.value.push(propValue);
+          autocompleteOptions.value.push(dataObject);
         }
       }
     }
@@ -404,8 +450,13 @@ function autocompleteFilterData(event: Event) {
 function autocompletePopulateDefaultOptions(): void {
   if (!props.formData.options) return;
   for (let i = 0; i < props.formData.options.length; i++) {
-    const propValue = props.formData.options[i].label;
-    autocompleteOptions.value.push(propValue);
+    const dataObject = {
+      label: "",
+      value: "",
+    };
+    dataObject.label = props.formData.options[i].label;
+    dataObject.value = props.formData.options[i].value;
+    autocompleteOptions.value.push(dataObject);
   }
 }
 /**
@@ -420,40 +471,26 @@ function autocompleteHandleBlur(event: Event) {
   autocompleteIsFocused.value = false;
   const target = event.target as HTMLInputElement;
   const input = target.value.toLowerCase();
-  const matches = autocompleteOptions.value.filter((option) =>
-    option.toLowerCase().includes(input)
-  );
-  if (matches.length > 0 && input.length > 0) {
-    emit("update:model-value", matches[0]);
+  const labels = autocompleteOptions.value.map((item) => item.label);
+  const values = autocompleteOptions.value.map((item) => item.value);
+  const labelMatches = labels.filter((option) => {
+    if (option) {
+      option.toLowerCase().includes(input);
+    }
+  });
+  const valueMatches = values.filter((option) => {
+    if (option) {
+      option.toLowerCase().includes(input);
+    }
+  });
+  if (labelMatches.length > 0 && input.length > 0) {
+    emit("update:inputElementValue", labelMatches[0] ?? "");
+    emit("update:dataAttributeValue", valueMatches[0] ?? "");
     return;
   }
-  emit("update:model-value", "");
+  emit("update:inputElementValue", "");
+  emit("update:dataAttributeValue", "");
 }
-/**
- * Computed function that checks to see if the autocomplete menu is open, if
- * the input element is focused or if the input element value is greater than
- * zero. If any of these conditions are met, returns a string value which is used
- * in the template to set an appropriate class which determines the position of
- * the form floating label. Uses Vue's computed function to manage this. Primarily
- * for brevity in the template.
- * @returns {(string|void)} The class to apply to the label element, or void/undefined
- * if a guard clause is met or none of the prerequisite conditions are met.
- */
-const autocompleteDetermineLabelClass = computed((): string | void => {
-  if (!autocompleteInput.value) return;
-  let result = false;
-  const input = autocompleteInput.value.value as string;
-  if (
-    autocompleteIsFocused.value ||
-    autocompleteIsExpanded.value ||
-    input.length > 0
-  ) {
-    result = true;
-  }
-  return result
-    ? "autocomplete__label autocomplete__label--focused"
-    : undefined;
-});
 /*
  * If the component is called with "autocomplete" as the specified type,
  * attach an event handler to the window to manage click events outside of
