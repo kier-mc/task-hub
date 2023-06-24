@@ -23,11 +23,22 @@
           :key="entry.index"
           :data-active="activeSlide === entry.index ? true : false"
         >
-          <template v-for="formData in entry.formData">
-            <FormHandler
-              :formData="formData"
-              v-model="credentials[formData.formID]"
-            />
+          <template v-for="(formData, index) in entry.formData" :key="index">
+            <template v-if="entry.formData[index].elementType === 'input'">
+              <FormHandler
+                :formData="formData"
+                v-model:input-element-value="rawCredentialData[formData.formID]"
+              />
+            </template>
+            <template
+              v-if="entry.formData[index].elementType === 'autocomplete'"
+            >
+              <FormHandler
+                :formData="formData"
+                v-model:input-element-value="rawCountryData.label"
+                v-model:data-attribute-value="rawCountryData.value"
+              />
+            </template>
           </template>
         </section>
       </div>
@@ -182,7 +193,7 @@ const propData = {
           hintText: "Password must be at least 12 characters long",
         },
       ],
-    } as CompStepperPropData,
+    } as CreateAccountStepperData,
     {
       index: 1,
       header: "Personalisation",
@@ -214,7 +225,7 @@ const propData = {
           hintText: "Used for providing precise weather information",
         },
       ],
-    } as CompStepperPropData,
+    } as CreateAccountStepperData,
   ],
   loadingIndicator: {
     type: "dots",
@@ -223,18 +234,29 @@ const propData = {
     hue: 0,
     saturation: 0,
     lightness: 100,
-  } as LoadingIndicatorDataObject,
+  } as LoadingIndicatorData,
 };
 /* Reactive variables */
 const activeSlide: Ref<number> = ref(0);
 const step: Ref<number> = ref(0);
 const current: Ref<number> = ref(0);
-const credentials: NewAccountDataObject = reactive({
+const credentials: ComputedRef<CompleteNewAccountCredentialData> = computed(
+  () => {
+    return {
+      ...rawCredentialData,
+      country: { ...rawCountryData },
+    } as CompleteNewAccountCredentialData;
+  }
+);
+const rawCredentialData: RawNewAccountCredentialData = reactive({
   email: undefined,
   password: undefined,
   preferred_name: undefined,
-  country: undefined,
   locale: undefined,
+});
+const rawCountryData: AutocompleteCountryData = reactive({
+  label: undefined,
+  value: undefined,
 });
 const contentWidth: Ref<string> = ref("");
 const isLoading: Ref<boolean> = ref(true);
@@ -272,7 +294,7 @@ function nextStep(): void {
     current.value += step.value;
     container.value.style.transform = `translate3d(${current.value}px, 0, 0)`;
   } else {
-    createUser(ref(credentials));
+    createUser(credentials);
   }
 }
 /**
