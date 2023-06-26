@@ -44,7 +44,7 @@ const notificationsStore = useNotificationsStore();
 
 describe("Tests related to logging in", () => {
   // Mock login credentials object
-  const loginCredentials: LoginCredentialsDataObject = reactive({
+  const loginCredentials: LoginCredentialsData = reactive({
     email: undefined,
     password: undefined,
   });
@@ -127,26 +127,36 @@ describe("Tests related to logging in", () => {
 
 describe("Tests related to creating an account", () => {
   // Mock new user credentials object
-  const newAccountCredentials: NewAccountDataObject = reactive({
+  const rawCredentialData: RawNewAccountCredentialData = reactive({
     email: undefined,
     password: undefined,
     preferred_name: undefined,
-    country: undefined,
     locale: undefined,
   });
+  const rawCountryData: AutocompleteCountryData = reactive({
+    label: undefined,
+    value: undefined,
+  });
+  const newAccountCredentials: ComputedRef<CompleteNewAccountCredentialData> =
+    computed(() => {
+      return {
+        ...rawCredentialData,
+        country: rawCountryData,
+      } as CompleteNewAccountCredentialData;
+    });
   // Reset values, notification store data and mocks
   beforeEach(() => {
-    newAccountCredentials.email = undefined;
-    newAccountCredentials.password = undefined;
-    newAccountCredentials.preferred_name = undefined;
-    newAccountCredentials.country = undefined;
-    newAccountCredentials.locale = undefined;
+    rawCredentialData.email = undefined;
+    rawCredentialData.password = undefined;
+    rawCredentialData.preferred_name = undefined;
+    rawCountryData.value = undefined;
+    rawCredentialData.locale = undefined;
     notificationsStore.clearAll();
     vi.resetAllMocks();
   });
   test("Empty credentials fail and push an error notification", async () => {
     // Calls
-    await createUser(ref(newAccountCredentials));
+    await createUser(newAccountCredentials);
     // Assertions
     expect(notificationsStore.message).toBe(
       "Account creation failed. Please ensure all fields are filled in."
@@ -155,11 +165,11 @@ describe("Tests related to creating an account", () => {
   });
   test("An invalid email fails and pushes an error notification", async () => {
     // Data
-    newAccountCredentials.email = "invalidemail";
-    newAccountCredentials.password = "validpassword";
-    newAccountCredentials.preferred_name = "User";
-    newAccountCredentials.country = "United Kingdom";
-    newAccountCredentials.locale = "Halton";
+    rawCredentialData.email = "invalidemail";
+    rawCredentialData.password = "validpassword";
+    rawCredentialData.preferred_name = "User";
+    rawCountryData.value = "United Kingdom";
+    rawCredentialData.locale = "Halton";
     // Mocks
     const mockData = {
       message: "Unable to validate email address: invalid format",
@@ -177,11 +187,11 @@ describe("Tests related to creating an account", () => {
   });
   test("A password of less than 12 characters fails and pushes an error notification", async () => {
     // Data
-    newAccountCredentials.email = "validemail@domain.com";
-    newAccountCredentials.password = "tooshort";
-    newAccountCredentials.preferred_name = "User";
-    newAccountCredentials.country = "United Kingdom";
-    newAccountCredentials.locale = "Halton";
+    rawCredentialData.email = "validemail@domain.com";
+    rawCredentialData.password = "tooshort";
+    rawCredentialData.preferred_name = "User";
+    rawCountryData.value = "United Kingdom";
+    rawCredentialData.locale = "Halton";
     // Mocks
     const mockData = {
       message: "Password should be at least 12 characters",
@@ -199,11 +209,11 @@ describe("Tests related to creating an account", () => {
   });
   test("Valid credentials succeed and push a success notification", async () => {
     // Data
-    newAccountCredentials.email = "validemail@domain.com";
-    newAccountCredentials.password = "validpassword";
-    newAccountCredentials.preferred_name = "User";
-    newAccountCredentials.country = "United Kingdom";
-    newAccountCredentials.locale = "Halton";
+    rawCredentialData.email = "validemail@domain.com";
+    rawCredentialData.password = "validpassword";
+    rawCredentialData.preferred_name = "User";
+    rawCountryData.value = "United Kingdom";
+    rawCredentialData.locale = "Halton";
     // Mocks
     const mock = vi.fn().mockResolvedValueOnce({ data: {} });
     useSupabaseAuthClient().auth.signUp = mock;
@@ -216,11 +226,11 @@ describe("Tests related to creating an account", () => {
   });
   test("Using a preexisting email fails and pushes an error notification", async () => {
     // Data
-    newAccountCredentials.email = "alreadyregisteredemail@domain.com";
-    newAccountCredentials.password = "validpassword";
-    newAccountCredentials.preferred_name = "User";
-    newAccountCredentials.country = "United Kingdom";
-    newAccountCredentials.locale = "Halton";
+    rawCredentialData.email = "preexistingemail@domain.com";
+    rawCredentialData.password = "validpassword";
+    rawCredentialData.preferred_name = "User";
+    rawCountryData.value = "United Kingdom";
+    rawCredentialData.locale = "Halton";
     // Mocks
     const mockData = { user: { identities: [] } };
     const mock = vi.fn().mockResolvedValueOnce({ data: mockData });
