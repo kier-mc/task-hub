@@ -21,11 +21,21 @@
         Trigger Separate Notification
       </button>
     </p>
-    <div class="temp-divider">
+    <div class="temp-divider" style="display: inline-block">
       <FormHandler
         :formData="propData.formData[0]"
-        v-model="vModelObject[propData.formData[0].formID]"
+        v-model:inputElementValue="objectToConcat.label"
+        v-model:dataAttributeValue="objectToConcat.value"
       />
+    </div>
+    <div class="temp-divider">
+      {{ object1 }}
+    </div>
+    <div class="temp-divider">
+      {{ objectToConcat }}
+    </div>
+    <div class="temp-divider">
+      {{ upsertObjects2 }}
     </div>
   </div>
 </template>
@@ -36,7 +46,6 @@
   background-color: hsl(0, 0%, 17.5%);
 }
 .temp-divider {
-  display: inline-block;
   margin-top: 3rem;
 }
 </style>
@@ -69,13 +78,45 @@ const propData = {
       elementType: "autocomplete",
       labelText: "Autocomplete Test",
       options: [...countryData.value],
-    } as CompFormObject,
+    } as FormHandlerData,
   ],
 };
 interface TemporaryInterface {
-  [key: string]: string | undefined;
+  [key: string]: Object | undefined;
+  autocomplete: {
+    label: string;
+    value: string;
+  };
 }
 const vModelObject: TemporaryInterface = reactive({
-  autocomplete: "",
+  autocomplete: { label: "", value: "" },
+});
+
+const object1: Object1Interface = reactive({
+  key1: "Value 1",
+});
+
+interface Object1Interface {
+  [key: string]: string;
+  key1: string;
+}
+
+interface ConcatInterface {
+  [key: string]: string;
+  label: string;
+  value: string;
+}
+
+const objectToConcat: ConcatInterface = reactive({
+  label: "",
+  value: "",
+});
+
+const upsertObjects2 = computed(() => {
+  const returnObject = {
+    ...object1,
+    object2: { ...objectToConcat },
+  };
+  return returnObject;
 });
 </script>

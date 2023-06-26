@@ -60,7 +60,7 @@ const propData: Array<FormHandlerData> = [
       { value: "weekly", label: "Weekly" },
       { value: "fortnightly", label: "Fortnightly" },
       { value: "monthly", label: "Monthly" },
-      { value: "triannually", label: "Tri-annually (3 months)" },
+      { value: "triannually", label: "Tri-annually (4 months)" },
       { value: "biannually", label: "Bi-annually (6 months)" },
       { value: "annually", label: "Annually" },
     ],

@@ -70,8 +70,8 @@ onMounted(async () => {
   if (!userStore.data) await userStore.fetchData();
   const userMetaData = {
     preferred_name: "Kieran",
-    country_id: convertCountry("United Kingdom"),
-    locale: "Runcorn",
+    country_id: convertCountry("Spain"),
+    locale: "Sotogrande",
   };
   // const { data, error } = await useSupabaseAuthClient().auth.updateUser({
   //   data: userMetaData,

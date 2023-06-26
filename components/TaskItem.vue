@@ -85,8 +85,7 @@
         <template v-else>
           <FormHandler
             :formData="propData"
-            v-model="localTask['frequency']"
-            @update:modelValue="handleTaskInput('frequency', $event)"
+            v-model:dataAttributeValue="localTask['frequency']"
           />
         </template>
       </div>
@@ -197,6 +196,7 @@
   &__footer {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     border-top: 1px solid hsl(0, 0%, 35%);
     font-size: 0.9rem;
   }
@@ -278,14 +278,14 @@ const props = defineProps({
 const propData: FormHandlerData = {
   index: 0,
   formID: "frequency",
-  elementType: "select",
+  elementType: "autocomplete",
   labelText: "Frequency",
   options: [
     { value: "daily", label: "Daily" },
     { value: "weekly", label: "Weekly" },
     { value: "fortnightly", label: "Fortnightly" },
     { value: "monthly", label: "Monthly" },
-    { value: "triannually", label: "Tri-annually (3 months)" },
+    { value: "triannually", label: "Tri-annually (4 months)" },
     { value: "biannually", label: "Bi-annually (6 months)" },
     { value: "annually", label: "Annually" },
   ],
@@ -317,6 +317,7 @@ function handleTaskInput(
   event: Event,
   value?: string
 ): void {
+  console.log(event);
   if (prop !== "frequency") {
     const target = event.target as HTMLHeadingElement | HTMLDivElement;
     localTask[prop] = target.textContent ?? "";
