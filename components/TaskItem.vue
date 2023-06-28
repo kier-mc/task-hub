@@ -136,11 +136,13 @@
     }
   }
   &__title {
+    width: 100%;
     font-size: 1.15rem;
   }
   &__options {
     display: flex;
     column-gap: 0.25rem;
+    margin-left: 0.5rem;
   }
   &__expand {
     mask: url("/img/svg/expand-more.svg") no-repeat center center;
@@ -349,10 +351,13 @@ function detectChanges(): void {
  * If hasBeenEditedLocally is true when it is called, call updateTask to commit the changes.
  */
 function toggleEditMode(): void {
+  if (!editIsValid()) return;
   isEditable.value = !isEditable.value;
   isEditable.value ? (isExpanded.value = true) : (isExpanded.value = false);
   if (hasBeenEditedLocally.value) {
-    updateTask();
+    if (editIsValid()) {
+      updateTask();
+    }
   }
 }
 /**
@@ -424,6 +429,20 @@ function updateEditDateAndTime(timestamp: string): void {
     userStore.getCountryISOCode() as string,
     timeOptions as Intl.LocaleOptions
   ) as string;
+}
+function editIsValid(): boolean | void {
+  if (!hasBeenEditedLocally.value) return true;
+  if (!localTask.task) {
+    notificationsStore.setMessage("Please enter a valid task name", "error");
+    return false;
+  } else if (!localTask.frequency) {
+    notificationsStore.setMessage(
+      "Please enter a valid task frequency",
+      "error"
+    );
+    return false;
+  }
+  return true;
 }
 /*
 Create a reactive copy of the prop data for potential edits
