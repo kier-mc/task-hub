@@ -203,7 +203,6 @@ $input-padding: 0.5rem;
     align-items: center;
     aspect-ratio: 1/1;
     min-width: 48px;
-    z-index: 10;
     background-color: hsl(0, 0%, 10%);
     cursor: pointer;
     transition: background-color 125ms;
