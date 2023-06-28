@@ -36,7 +36,7 @@ export function allCredentialFieldsArePopulated(
  *      | Ref<LoginCredentialsData>
  *    )[]
  * }
- * Object containing data to erase; inherited from parent function parameter.
+ * Object or array of objects containing data to erase.
  */
 export function clearCredentials(
   credentials:
