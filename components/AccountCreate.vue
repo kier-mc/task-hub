@@ -166,8 +166,6 @@
 </style>
 
 <script setup lang="ts">
-import { clearCredentials } from "composables/auth.helper";
-
 const countryData: Ref<Array<any>> = ref(generateCountryData());
 /* Prop/v-model-related data */
 const propData = {
