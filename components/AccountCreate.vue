@@ -166,6 +166,8 @@
 </style>
 
 <script setup lang="ts">
+import { clearCredentials } from "composables/auth.helper";
+
 const countryData: Ref<Array<any>> = ref(generateCountryData());
 /* Prop/v-model-related data */
 const propData = {
@@ -295,6 +297,7 @@ function nextStep(): void {
     container.value.style.transform = `translate3d(${current.value}px, 0, 0)`;
   } else {
     createUser(credentials);
+    clearCredentials([ref(rawCredentialData), ref(rawCountryData)]);
   }
 }
 /**
