@@ -10,7 +10,9 @@
  * populated.
  */
 export function allCredentialFieldsArePopulated(
-  credentials: ComputedRef<CompleteNewAccountCredentialData> | Ref<LoginCredentialsData>
+  credentials:
+    | ComputedRef<CompleteNewAccountCredentialData>
+    | Ref<LoginCredentialsData>
 ): boolean {
   for (const value of Object.values(credentials.value)) {
     if (!value) {
@@ -18,4 +20,51 @@ export function allCredentialFieldsArePopulated(
     }
   }
   return true;
+}
+/**
+ * Helper function to wipe credentials object once login/account creation submissions occur.
+ * Iterates over all key/value pairs in the supplied parameter and sets the values to undefined.
+ * Uses recursion to traverse deeply-nested structures. Can iterate over either an individual
+ * object or an array of objects.
+ * @param credentials {
+ *    | Ref<RawNewAccountCredentialData>
+ *    | Ref<AutocompleteCountryData>
+ *    | Ref<LoginCredentialsData>
+ *    | (
+ *      | Ref<RawNewAccountCredentialData>
+ *      | Ref<AutocompleteCountryData>
+ *      | Ref<LoginCredentialsData>
+ *    )[]
+ * }
+ * Object containing data to erase; inherited from parent function parameter.
+ */
+export function clearCredentials(
+  credentials:
+    | Ref<RawNewAccountCredentialData>
+    | Ref<AutocompleteCountryData>
+    | Ref<LoginCredentialsData>
+    | (
+        | Ref<RawNewAccountCredentialData>
+        | Ref<AutocompleteCountryData>
+        | Ref<LoginCredentialsData>
+      )[]
+): void {
+  const clearObject = (object: Record<string, any>): void => {
+    for (const key in object) {
+      if (object.hasOwnProperty(key)) {
+        const value = object[key];
+        if (typeof value === "object" && value !== null) {
+          clearObject(value);
+        }
+        object[key] = undefined;
+      }
+    }
+  };
+  if (Array.isArray(credentials)) {
+    for (const credential of credentials) {
+      clearObject(credential.value);
+    }
+  } else {
+    clearObject(credentials.value);
+  }
 }

@@ -6,34 +6,16 @@
  * Declared at start of each function instead, which can only be called after init
  */
 
-import { allCredentialFieldsArePopulated } from "./auth.helper";
+import {
+  allCredentialFieldsArePopulated,
+  clearCredentials,
+} from "./auth.helper";
 
-/**
- * Helper function to wipe credentials object once login/account creation submissions occur.
- * Iterates over all key/value pairs in the supplied parameter and sets the values to undefined.
- * @param credentials {ComputedRef<CompleteNewAccountCredentialData> | Ref<LoginCredentialsData>}
- * Object containing data to erase; inherited from parent function parameter.
- */
-function clearCredentials(
-  credentials: ComputedRef<CompleteNewAccountCredentialData> | Ref<LoginCredentialsData>
-): void {
-  const clearObject = (object: Record<string, any>): void => {
-    for (const key in object) {
-      if (object.hasOwnProperty(key)) {
-        const value = object[key];
-        if (typeof value === "object" && value !== null) {
-          clearObject(value);
-        }
-        object[key] = undefined;
-      }
-    }
-  };
-  clearObject(credentials.value);
-}
 /**
  * Attempts login via SupabaseAuthClient (@nuxtjs/supabase).
  * Pushes a notification to the user and redirects to hub page.
- * @param credentials {Ref<LoginCredentialsData>} object containing data (username, password) to pass to backend
+ * @param credentials {Ref<LoginCredentialsData>}
+ * Object containing data (username, password) to pass to the back end.
  */
 export async function loginUser(
   credentials: Ref<LoginCredentialsData>
@@ -74,10 +56,14 @@ export async function loginUser(
 /**
  * Attempts account creation via SupabaseAuthClient (@nuxtjs/supabase).
  * Pushes a notification to the user and redirects to login page.
+ * Credentials are cleared where the function is called, as it accepts a
+ * computed ref as a parameter and only its constituents can be modified.
  * @param credentials {ComputedRef<CompleteNewAccountCredentialData>}
- * Object containing data to pass to the backend.
+ * Object containing data to pass to the back end.
  */
-export async function createUser(credentials: ComputedRef<CompleteNewAccountCredentialData>) {
+export async function createUser(
+  credentials: ComputedRef<CompleteNewAccountCredentialData>
+) {
   const notificationsStore = useNotificationsStore();
   if (!allCredentialFieldsArePopulated(credentials)) {
     notificationsStore.setMessage(
@@ -114,7 +100,6 @@ export async function createUser(credentials: ComputedRef<CompleteNewAccountCred
     return;
   }
   notificationsStore.setMessage("Account created successfully!", "success");
-  clearCredentials(credentials);
   await navigateTo("/login");
 }
 /**
