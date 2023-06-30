@@ -19,7 +19,7 @@
     "@vitest/coverage-c8": "^0.32.2",
     "@vue/test-utils": "^2.4.0",
     "nuxt": "^3.6.1",
-    "nuxt-vitest": "^0.8.6",
+    "nuxt-vitest": "^0.8.7",
     "sass": "^1.63.6",
     "sass-loader": "^13.3.2",
     "typescript": "^5.1.6"
