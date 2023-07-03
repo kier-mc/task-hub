@@ -1,12 +1,14 @@
 <template>
   <div class="temp">
     <form class="login" @keyup.enter="loginUser(ref(credentials))">
-      <template v-for="formData in propData" :key="formData.id">
-        <FormHandler
-          :formData="formData"
-          v-model:inputElementValue="credentials[formData.formID]"
-        />
-      </template>
+      <FormHandler
+        :form-data="propData.formHandler[0]"
+        v-model:emit-value="credentials.email"
+      />
+      <FormHandler
+        :form-data="propData.formHandler[1]"
+        v-model:emit-value="credentials.password"
+      />
       <button type="button" class="button" @click="loginUser(ref(credentials))">
         Submit
       </button>
@@ -31,26 +33,28 @@
 
 <script setup lang="ts">
 /* Prop/v-model-related data */
-const propData: Array<FormHandlerData> = [
-  {
-    index: 0,
-    formID: "email",
-    elementType: "input",
-    attrType: "text",
-    autocomplete: "email",
-    labelText: "Email",
-  },
-  {
-    index: 1,
-    formID: "password",
-    elementType: "input",
-    attrType: "password",
-    autocomplete: "current-password",
-    labelText: "Password",
-  },
-];
+const propData = {
+  formHandler: [
+    {
+      index: 0,
+      formID: "email",
+      elementType: "input",
+      attrType: "text",
+      autocomplete: "email",
+      labelText: "Email",
+    } as FormHandlerData,
+    {
+      index: 1,
+      formID: "password",
+      elementType: "input",
+      attrType: "password",
+      autocomplete: "current-password",
+      labelText: "Password",
+    } as FormHandlerData,
+  ],
+};
 const credentials: LoginCredentialsData = reactive({
-  email: "",
-  password: "",
+  email: null,
+  password: null,
 });
 </script>

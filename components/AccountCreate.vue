@@ -26,17 +26,27 @@
           <template v-for="(formData, index) in entry.formData" :key="index">
             <template v-if="entry.formData[index].elementType === 'input'">
               <FormHandler
-                :formData="formData"
-                v-model:input-element-value="rawCredentialData[formData.formID]"
+                :form-data="formData"
+                :emit-value="credentialData[formData.formID]"
               />
             </template>
             <template
               v-if="entry.formData[index].elementType === 'autocomplete'"
             >
-              <FormHandler
-                :formData="formData"
-                v-model:input-element-value="rawCountryData.label"
-                v-model:data-attribute-value="rawCountryData.value"
+              <FormAutocomplete
+                :form-data="formData"
+                :emit-label="countryData.label"
+                :emit-value="countryData.value"
+                @update:emit-label="
+                  (label) => {
+                    countryData.label = label;
+                  }
+                "
+                @update:emit-value="
+                  (value) => {
+                    countryData.value = value as CountryName;
+                  }
+                "
               />
             </template>
           </template>
@@ -166,8 +176,8 @@
 </style>
 
 <script setup lang="ts">
-const countryData: Ref<Array<any>> = ref(generateCountryData());
-/* Prop/v-model-related data */
+const countries: Ref<Array<any>> = ref(generateCountryData());
+/* Prop data */
 const propData = {
   formHandler: [
     {
@@ -213,7 +223,7 @@ const propData = {
           elementType: "autocomplete",
           labelText: "Country",
           hintText: "Used for providing precise weather information",
-          options: [...countryData.value],
+          options: [...countries.value],
         },
         {
           index: 2,
@@ -243,20 +253,20 @@ const current: Ref<number> = ref(0);
 const credentials: ComputedRef<CompleteNewAccountCredentialData> = computed(
   () => {
     return {
-      ...rawCredentialData,
-      country: { ...rawCountryData },
+      ...credentialData,
+      country: { ...countryData },
     } as CompleteNewAccountCredentialData;
   }
 );
-const rawCredentialData: RawNewAccountCredentialData = reactive({
-  email: undefined,
-  password: undefined,
-  preferred_name: undefined,
-  locale: undefined,
+const credentialData: PartialNewAccountCredentialData = reactive({
+  email: null,
+  password: null,
+  preferred_name: null,
+  locale: null,
 });
-const rawCountryData: AutocompleteCountryData = reactive({
-  label: undefined,
-  value: undefined,
+const countryData: AutocompleteCountryData = reactive({
+  label: null,
+  value: null,
 });
 const contentWidth: Ref<string> = ref("");
 const isLoading: Ref<boolean> = ref(true);
@@ -295,7 +305,7 @@ function nextStep(): void {
     container.value.style.transform = `translate3d(${current.value}px, 0, 0)`;
   } else {
     createUser(credentials);
-    clearCredentials([ref(rawCredentialData), ref(rawCountryData)]);
+    clearCredentials([ref(credentialData), ref(countryData)]);
   }
 }
 /**

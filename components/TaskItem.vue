@@ -16,17 +16,32 @@
         </button>
       </div>
     </div>
-    <div :class="isExpanded ? 'task__header--expanded' : 'task__header'">
-      <h3
-        class="task__title"
-        :contenteditable="isEditable ? 'true' : 'false'"
-        @input="handleTaskInput('task', $event)"
-      >
-        {{ taskData.task }}
+    <div
+      :class="
+        isExpanded ? 'task__header task__header--expanded' : 'task__header'
+      "
+    >
+      <h3 v-show="!isEditable" class="task__title">
+        {{ localTask.task }}
       </h3>
+      <label v-show="isEditable" class="screen-reader-label" for="task-title"
+        >Task Title</label
+      >
+      <input
+        v-show="isEditable"
+        id="task-title"
+        class="task__title--editable"
+        :value="localTask.task"
+        @input="
+          {
+            handleTaskInput('task', $event);
+          }
+        "
+      />
+
       <div class="task__options">
         <button
-          v-if="taskData.description"
+          v-show="localTask.description"
           type="button"
           class="header-button"
           :class="isExpanded ? 'task__expand--expanded' : 'task__expand'"
@@ -46,11 +61,24 @@
       </div>
     </div>
     <div
+      v-show="!isEditable"
       :class="isExpanded ? 'task__description--expanded' : 'task__description'"
-      :contenteditable="isEditable ? 'true' : 'false'"
-      @input="handleTaskInput('description', $event)"
     >
-      {{ taskData.description }}
+      {{ localTask.description }}
+    </div>
+    <div
+      v-show="isEditable"
+      :class="isExpanded ? 'task__description--expanded' : 'task__description'"
+    >
+      <input
+        class="task__description--editable"
+        :value="localTask.description"
+        @input="
+          {
+            handleTaskInput('description', $event);
+          }
+        "
+      />
     </div>
     <div class="task__footer">
       <div class="task__timestamp">
@@ -62,7 +90,7 @@
         <span class="task__timestamp--highlighted">{{
           formattedCreationTime
         }}</span>
-        <template v-if="hasBeenEditedPreviously">
+        <template v-show="hasBeenEditedPreviously">
           <span class="task__timestamp--delimiter">|</span>Edited on
           <span class="task__timestamp--highlighted">{{
             convertedEditDate
@@ -75,19 +103,25 @@
       </div>
       <div class="task__frequency">
         <template v-if="!isEditable">
-          {{
-            convertFrequency(
-              (taskData as Database["tasks"])
-                .frequency_id as Database["frequency"]["frequency_id"]
-            )
-          }}
+          {{ localTask.frequency.label }}
         </template>
-        <template v-else>
-          <FormHandler
-            :formData="propData"
-            v-model:dataAttributeValue="localTask['frequency']"
-          />
-        </template>
+
+        <FormAutocomplete
+          v-if="isEditable"
+          :form-data="propData.formHandler[0]"
+          :emit-label="(localTask.frequency.label as string)"
+          :emit-value="(localTask.frequency.value as Database['frequency']['repeats_every'])"
+          @update:emit-label="
+            (label) => {
+              (localTask.frequency.label = label), detectChanges;
+            }
+          "
+          @update:emit-value="
+            (value) => {
+              (localTask.frequency.value = value as FrequencyRepetition), detectChanges;
+            }
+          "
+        />
       </div>
     </div>
   </div>
@@ -112,7 +146,6 @@
 .task {
   position: relative;
   border: 1px solid hsl(0, 0%, 30%);
-  border-radius: 0.5rem;
   background-color: hsl(0, 0%, 15%);
   &__header,
   &__header--expanded,
@@ -125,19 +158,31 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 0.5rem 0.5rem 0 0;
     background-color: hsl(0, 0%, 10%);
   }
   &__header {
-    border-bottom: 1px solid hsla(0, 0%, 35%, 0);
-    transition: border-bottom 125ms;
-    &--expanded {
-      border-bottom: 1px solid hsla(0, 0%, 35%, 1);
+    position: relative;
+    // Simulate a border without the layout shift
+    &--expanded::before {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      left: 0;
+      height: 1px;
+      background-color: hsl(0, 0%, 35%);
     }
   }
   &__title {
     width: 100%;
     font-size: 1.15rem;
+    &--editable {
+      all: unset;
+      width: 100%;
+      outline: 1px dashed hsla(0, 0%, 35%, 0.75);
+      font-size: 1.15rem;
+      font-weight: bold;
+    }
   }
   &__options {
     display: flex;
@@ -194,6 +239,11 @@
       transition: opacity $transition-time, grid-template-rows $transition-time,
         padding $transition-time;
     }
+    &--editable {
+      all: unset;
+      width: 100%;
+      outline: 1px dashed hsl(0, 0%, 35%);
+    }
   }
   &__footer {
     display: flex;
@@ -230,7 +280,6 @@
     position: absolute;
     inset: 0;
     z-index: 0;
-    border-radius: 0.5rem;
     background-color: hsla(0, 0%, 10%, 0.85);
     backdrop-filter: blur(0.25rem);
   }
@@ -266,6 +315,13 @@
     }
   }
 }
+.screen-reader-label {
+  position: absolute;
+  left: -5000px;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+}
 </style>
 
 <script setup lang="ts">
@@ -277,19 +333,23 @@ const userStore = useUserStore();
 const props = defineProps({
   taskData: { type: Object as PropType<Database["tasks"]>, required: true },
 });
-const propData: FormHandlerData = {
-  index: 0,
-  formID: "frequency",
-  elementType: "autocomplete",
-  labelText: "Frequency",
-  options: [
-    { value: "daily", label: "Daily" },
-    { value: "weekly", label: "Weekly" },
-    { value: "fortnightly", label: "Fortnightly" },
-    { value: "monthly", label: "Monthly" },
-    { value: "triannually", label: "Tri-annually (4 months)" },
-    { value: "biannually", label: "Bi-annually (6 months)" },
-    { value: "annually", label: "Annually" },
+const propData = {
+  formHandler: [
+    {
+      index: 0,
+      formID: "task-frequency",
+      elementType: "autocomplete",
+      labelText: "Frequency",
+      options: [
+        { value: "daily", label: "Daily" },
+        { value: "weekly", label: "Weekly" },
+        { value: "fortnightly", label: "Fortnightly" },
+        { value: "monthly", label: "Monthly" },
+        { value: "triannually", label: "Tri-annually (4 months)" },
+        { value: "biannually", label: "Bi-annually (6 months)" },
+        { value: "annually", label: "Annually" },
+      ],
+    } as FormHandlerData,
   ],
 };
 /* Reactive variables */
@@ -298,54 +358,45 @@ const isExpanded: Ref<boolean> = ref(false);
 const hasBeenEditedPreviously: Ref<boolean> = ref(false);
 const hasBeenEditedLocally: Ref<boolean> = ref(false);
 const modalVisible: Ref<boolean> = ref(false);
-const localTask = reactive({
-  task: "",
-  description: "",
-  frequency: "",
+const localTask: CompleteTaskData = reactive({
+  task: null,
+  description: null,
+  frequency: {
+    label: null,
+    value: null,
+  },
 });
 const formattedCreationDate: Ref<string> = ref("");
 const formattedCreationTime: Ref<string> = ref("");
 const convertedEditDate: Ref<string> = ref("");
 const convertedEditTime: Ref<string> = ref("");
+const frequencyLabels: Ref<Array<string | undefined>> = ref([]);
 /**
  * Called on a task when edit mode is induced.
  * Updates localTask reactive variable to sync with changes made.
- * @param prop {"task"|"description"|"frequency"} - string that references the value to be altered
+ * @param prop {"task"|"description"} - string that references the value to be altered
  * @param event {Event} - relevant input event, passed by $event in the template
- * @param {string}[value] - optional string populated via modelValue emit
  */
-function handleTaskInput(
-  prop: "task" | "description" | "frequency",
-  event: Event,
-  value?: string
-): void {
-  console.log(event);
-  if (prop !== "frequency") {
-    const target = event.target as HTMLHeadingElement | HTMLDivElement;
-    localTask[prop] = target.textContent ?? "";
-  } else {
-    if (value) localTask.frequency = value;
-  }
-  detectChanges();
+function handleTaskInput(prop: "task" | "description", event: Event): void {
+  const target = event.target as HTMLInputElement;
+  localTask[prop] = target.value ?? "";
 }
-/**
- * Determines differences between prop data/local copy.
- * Updates hasBeenEditedLocally value to be utilised in other logic.
- */
-function detectChanges(): void {
+
+const detectChanges = computed((): void => {
+  const frequency = convertFrequency(
+    props.taskData.frequency_id as Database["frequency"]["frequency_id"]
+  );
   if (
     localTask.task !== props.taskData.task ||
     localTask.description !== props.taskData.description ||
-    localTask.frequency !==
-      convertFrequency(
-        props.taskData.frequency_id as Database["frequency"]["frequency_id"]
-      )
+    localTask.frequency.value !== frequency
   ) {
     hasBeenEditedLocally.value = true;
   } else {
     hasBeenEditedLocally.value = false;
   }
-}
+});
+
 /**
  * Determines whether a task is in an editable state or not.
  * If hasBeenEditedLocally is true when it is called, call updateTask to commit the changes.
@@ -373,7 +424,7 @@ async function updateTask(): Promise<void> {
       task: localTask.task,
       description: localTask.description,
       frequency_id: convertFrequency(
-        localTask.frequency as Database["frequency"]["repeats_every"]
+        localTask.frequency.value as Database["frequency"]["repeats_every"]
       ),
       edited_at: timestamp,
     })
@@ -384,11 +435,6 @@ async function updateTask(): Promise<void> {
   }
   notificationsStore.setMessage(`Task updated successfully`, "success");
   hasBeenEditedLocally.value = false;
-  props.taskData.task = localTask.task;
-  props.taskData.description = localTask.description;
-  props.taskData.frequency_id = convertFrequency(
-    localTask.frequency as Database["frequency"]["repeats_every"]
-  ) as number;
   updateEditDateAndTime(timestamp);
 }
 /**
@@ -444,17 +490,32 @@ function editIsValid(): boolean | void {
   }
   return true;
 }
+function generateFrequencyLabels(): void {
+  if (!propData.formHandler[0].options) return;
+  for (let i = 0; i < propData.formHandler[0].options.length; i++) {
+    const option = propData.formHandler[0].options[i];
+    frequencyLabels.value.push(option.label);
+  }
+}
+
 /*
 Create a reactive copy of the prop data for potential edits
 Read the timestamp from the props and attempt to populate date/time refs
 */
 onMounted(async () => {
   if (!userStore.data) await userStore.fetchData();
+  generateFrequencyLabels();
   localTask.task = props.taskData.task;
   localTask.description = props.taskData.description;
-  localTask.frequency = convertFrequency(
+
+  localTask.frequency.value = convertFrequency(
     props.taskData.frequency_id as Database["frequency"]["frequency_id"]
-  ) as string;
+  ) as Database["frequency"]["repeats_every"];
+
+  localTask.frequency.label = frequencyLabels.value[
+    props.taskData.frequency_id - 1
+  ] as string;
+
   formattedCreationDate.value = convertDate(
     props.taskData.created_at,
     userStore.getCountryISOCode() as string

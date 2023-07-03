@@ -1,4 +1,4 @@
-// Main database schema type definitions
+// Database schema
 interface Database {
   users: {
     user_id: number;
@@ -17,19 +17,12 @@ interface Database {
     edited_at: string;
   };
   frequency: {
-    frequency_id: 1 | 2 | 3 | 4 | 5 | 6 | 7;
-    repeats_every:
-      | "daily"
-      | "weekly"
-      | "fortnightly"
-      | "monthly"
-      | "triannually"
-      | "biannually"
-      | "annually";
+    frequency_id: FrequencyID;
+    repeats_every: FrequencyRepetition;
   };
   countries: {
-    country_id: CountryIDs;
-    name: CountryNames;
-    iso_code: CountryISOCodes;
+    country_id: CountryID;
+    name: CountryName;
+    iso_code: CountryISOCode;
   };
 }
