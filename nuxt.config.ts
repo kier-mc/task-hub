@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ["@pinia/nuxt", "nuxt-vitest", "@nuxtjs/supabase"],
+  modules: ["@pinia/nuxt", "nuxt-vitest", "@nuxtjs/supabase", "@vueuse/nuxt"],
   pinia: {
     autoImports: ["defineStore", "useStore"],
   },
