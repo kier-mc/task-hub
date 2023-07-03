@@ -1,4 +1,4 @@
-interface NavDataLinkObject {
+interface NavigationLinkData {
   index: number;
   name: string;
   type: string;
@@ -6,7 +6,7 @@ interface NavDataLinkObject {
   url?: string;
 }
 
-interface NavDataObject {
+interface NavigationData {
   index: number;
   title: string;
   display: "always" | "auth=true" | "auth=false";
