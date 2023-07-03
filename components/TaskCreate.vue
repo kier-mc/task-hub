@@ -3,36 +3,36 @@
     <form>
       <FormHandler
         :form-data="propData.formHandler[0]"
-        :emit-value="newTask.task"
+        :emit-value="taskData.task"
         @update:emit-value="
           (value) => {
-            (newTask.task = value), validateInput;
+            (taskData.task = value), validateInput;
           }
         "
       />
 
       <FormHandler
         :form-data="propData.formHandler[1]"
-        :emit-value="newTask.description"
+        :emit-value="taskData.description"
         @update:emit-value="
           (value) => {
-            (newTask.description = value), validateInput;
+            (taskData.description = value), validateInput;
           }
         "
       />
 
       <FormAutocomplete
         :form-data="propData.formHandler[2]"
-        :emit-label="newTask.frequency.label"
-        :emit-value="newTask.frequency.value"
+        :emit-label="frequencyData.label"
+        :emit-value="frequencyData.value"
         @update:emit-label="
           (label) => {
-            (newTask.frequency.label = label), validateInput;
+            (frequencyData.label = label), validateInput;
           }
         "
         @update:emit-value="
           (value) => {
-            (newTask.frequency.value = value as FrequencyRepetition), validateInput;
+            (frequencyData.value = value as FrequencyRepetition), validateInput;
           }
         "
       />
