@@ -45,13 +45,13 @@ const notificationsStore = useNotificationsStore();
 describe("Tests related to logging in", () => {
   // Mock login credentials object
   const loginCredentials: LoginCredentialsData = reactive({
-    email: undefined,
-    password: undefined,
+    email: null,
+    password: null,
   });
   // Reset values, notification store data and mocks
   beforeEach(() => {
-    loginCredentials.email = undefined;
-    loginCredentials.password = undefined;
+    loginCredentials.email = null;
+    loginCredentials.password = null;
     notificationsStore.clearAll();
     vi.resetAllMocks();
   });
@@ -127,15 +127,15 @@ describe("Tests related to logging in", () => {
 
 describe("Tests related to creating an account", () => {
   // Mock new user credentials object
-  const rawCredentialData: RawNewAccountCredentialData = reactive({
-    email: undefined,
-    password: undefined,
-    preferred_name: undefined,
-    locale: undefined,
+  const rawCredentialData: PartialNewAccountCredentialData = reactive({
+    email: null,
+    password: null,
+    preferred_name: null,
+    locale: null,
   });
   const rawCountryData: AutocompleteCountryData = reactive({
-    label: undefined,
-    value: undefined,
+    label: null,
+    value: null,
   });
   const newAccountCredentials: ComputedRef<CompleteNewAccountCredentialData> =
     computed(() => {
@@ -146,11 +146,12 @@ describe("Tests related to creating an account", () => {
     });
   // Reset values, notification store data and mocks
   beforeEach(() => {
-    rawCredentialData.email = undefined;
-    rawCredentialData.password = undefined;
-    rawCredentialData.preferred_name = undefined;
-    rawCountryData.value = undefined;
-    rawCredentialData.locale = undefined;
+    rawCredentialData.email = null;
+    rawCredentialData.password = null;
+    rawCredentialData.preferred_name = null;
+    rawCountryData.label = null;
+    rawCountryData.value = null;
+    rawCredentialData.locale = null;
     notificationsStore.clearAll();
     vi.resetAllMocks();
   });
@@ -168,8 +169,9 @@ describe("Tests related to creating an account", () => {
     rawCredentialData.email = "invalidemail";
     rawCredentialData.password = "validpassword";
     rawCredentialData.preferred_name = "User";
-    rawCountryData.value = "United Kingdom";
     rawCredentialData.locale = "Halton";
+    rawCountryData.label = "United Kingdom";
+    rawCountryData.value = "United Kingdom";
     // Mocks
     const mockData = {
       message: "Unable to validate email address: invalid format",
@@ -190,8 +192,9 @@ describe("Tests related to creating an account", () => {
     rawCredentialData.email = "validemail@domain.com";
     rawCredentialData.password = "tooshort";
     rawCredentialData.preferred_name = "User";
-    rawCountryData.value = "United Kingdom";
     rawCredentialData.locale = "Halton";
+    rawCountryData.label = "United Kingdom";
+    rawCountryData.value = "United Kingdom";
     // Mocks
     const mockData = {
       message: "Password should be at least 12 characters",
@@ -212,8 +215,9 @@ describe("Tests related to creating an account", () => {
     rawCredentialData.email = "validemail@domain.com";
     rawCredentialData.password = "validpassword";
     rawCredentialData.preferred_name = "User";
-    rawCountryData.value = "United Kingdom";
     rawCredentialData.locale = "Halton";
+    rawCountryData.label = "United Kingdom";
+    rawCountryData.value = "United Kingdom";
     // Mocks
     const mock = vi.fn().mockResolvedValueOnce({ data: {} });
     useSupabaseAuthClient().auth.signUp = mock;
@@ -229,8 +233,9 @@ describe("Tests related to creating an account", () => {
     rawCredentialData.email = "preexistingemail@domain.com";
     rawCredentialData.password = "validpassword";
     rawCredentialData.preferred_name = "User";
-    rawCountryData.value = "United Kingdom";
     rawCredentialData.locale = "Halton";
+    rawCountryData.label = "United Kingdom";
+    rawCountryData.value = "United Kingdom";
     // Mocks
     const mockData = { user: { identities: [] } };
     const mock = vi.fn().mockResolvedValueOnce({ data: mockData });
