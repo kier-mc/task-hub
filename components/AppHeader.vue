@@ -22,7 +22,7 @@
     >
       <!-- Menu if user is logged in -->
       <template v-if="user">
-        <template v-for="data in navData" :key="data.index">
+        <template v-for="data in propData.navData" :key="data.index">
           <section class="nav__section" v-if="data.display !== 'auth=false'">
             <h1 class="nav__title">{{ data.title }}</h1>
             <ul class="nav__links">
@@ -46,7 +46,7 @@
       </template>
       <!-- Menu if user is not logged in -->
       <template v-else>
-        <template v-for="data in navData" :key="data.index">
+        <template v-for="data in propData.navData" :key="data.index">
           <section
             class="nav__section"
             v-if="data.display === 'auth=false' || data.display === 'always'"
@@ -208,70 +208,72 @@
 const menuIsOpen: Ref<boolean> = ref(false);
 const button: Ref<HTMLElement | null> = ref(null);
 const user = useSupabaseUser();
-const navData: Array<NavDataObject> = [
-  {
-    index: 0,
-    title: "Site",
-    display: "always",
-    links: [
-      {
-        index: 0,
-        name: "Home",
-        type: "route",
-        display: "always",
-        url: "/",
-      },
-      {
-        index: 1,
-        name: "Login",
-        type: "route",
-        display: "auth=false",
-        url: "/login",
-      },
-      {
-        index: 2,
-        name: "Create Account",
-        type: "route",
-        display: "auth=false",
-        url: "/create-account",
-      },
-      {
-        index: 3,
-        name: "Hub",
-        type: "route",
-        display: "auth=true",
-        url: "/hub",
-      },
-      {
-        index: 4,
-        name: "Logout",
-        type: "logout",
-        display: "auth=true",
-      },
-    ],
-  },
-  {
-    index: 1,
-    title: "Actions",
-    display: "auth=true",
-    links: [
-      {
-        index: 0,
-        name: "Create Item",
-        type: "route",
-        display: "auth=true",
-        url: "/",
-      },
-      {
-        index: 1,
-        name: "View All Items",
-        type: "route",
-        display: "auth=true",
-        url: "/",
-      },
-    ],
-  },
-];
+const propData = {
+  navData: [
+    {
+      index: 0,
+      title: "Site",
+      display: "always",
+      links: [
+        {
+          index: 0,
+          name: "Home",
+          type: "route",
+          display: "always",
+          url: "/",
+        },
+        {
+          index: 1,
+          name: "Login",
+          type: "route",
+          display: "auth=false",
+          url: "/login",
+        },
+        {
+          index: 2,
+          name: "Create Account",
+          type: "route",
+          display: "auth=false",
+          url: "/create-account",
+        },
+        {
+          index: 3,
+          name: "Hub",
+          type: "route",
+          display: "auth=true",
+          url: "/hub",
+        },
+        {
+          index: 4,
+          name: "Logout",
+          type: "logout",
+          display: "auth=true",
+        },
+      ],
+    } as NavigationData,
+    {
+      index: 1,
+      title: "Actions",
+      display: "auth=true",
+      links: [
+        {
+          index: 0,
+          name: "Create Item",
+          type: "route",
+          display: "auth=true",
+          url: "/",
+        },
+        {
+          index: 1,
+          name: "View All Items",
+          type: "route",
+          display: "auth=true",
+          url: "/",
+        },
+      ],
+    } as NavigationData,
+  ],
+};
 
 function closeMenuWithClickOutside(event: Event): void {
   const target = event.target as Element;
