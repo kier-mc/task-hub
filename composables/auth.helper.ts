@@ -5,22 +5,61 @@
  * clause to avoid pointless calls to the Supabase endpoint when failure is
  * guaranteed.
  * @param credentials {Ref<NewAccountDataObject>|Ref<LoginCredentialsDataObject>}
- * the credentials (login or for a new account) to iterate over and check
- * @returns {boolean} a boolean response based on whether or not all fields are
+ * The credentials to iterate over and check for truthiness.
+ * @returns {boolean} A boolean response based on whether or not all fields are
  * populated.
  */
 export function allCredentialFieldsArePopulated(
   credentials:
-    | ComputedRef<CompleteNewAccountCredentialData>
+    | Ref<PartialNewAccountCredentialData>
+    | Ref<PartialTaskData>
+    | Ref<AutocompleteEmitData>
+    | Ref<AutocompleteTaskFrequencyData>
+    | Ref<AutocompleteCountryData>
     | Ref<LoginCredentialsData>
+    | (
+        | Ref<PartialNewAccountCredentialData>
+        | Ref<PartialTaskData>
+        | Ref<AutocompleteEmitData>
+        | Ref<AutocompleteTaskFrequencyData>
+        | Ref<AutocompleteCountryData>
+        | Ref<LoginCredentialsData>
+      )[]
 ): boolean {
-  for (const value of Object.values(credentials.value)) {
-    if (!value) {
-      return false;
+  const checkFields = (object: any): boolean => {
+    if (Array.isArray(object)) {
+      for (const item of object) {
+        if (!checkFields(item)) {
+          return false;
+        }
+      }
+    } else {
+      for (const value of Object.values(object)) {
+        if (typeof value === "object" && value !== null) {
+          if (!checkFields(value)) {
+            return false;
+          }
+        } else {
+          if (!value) {
+            return false;
+          }
+        }
+      }
     }
+    return true;
+  };
+  if (Array.isArray(credentials)) {
+    for (const credential of credentials) {
+      if (!checkFields(credential.value)) {
+        return false;
+      }
+    }
+  } else {
+    return checkFields(credentials.value);
   }
   return true;
 }
+
 /**
  * Helper function to wipe credentials object once login/account creation submissions occur.
  * Iterates over all key/value pairs in the supplied parameter and sets the values to undefined.
@@ -40,11 +79,17 @@ export function allCredentialFieldsArePopulated(
  */
 export function clearCredentials(
   credentials:
-    | Ref<RawNewAccountCredentialData>
+    | Ref<PartialNewAccountCredentialData>
+    | Ref<PartialTaskData>
+    | Ref<AutocompleteEmitData>
+    | Ref<AutocompleteTaskFrequencyData>
     | Ref<AutocompleteCountryData>
     | Ref<LoginCredentialsData>
     | (
-        | Ref<RawNewAccountCredentialData>
+        | Ref<PartialNewAccountCredentialData>
+        | Ref<PartialTaskData>
+        | Ref<AutocompleteEmitData>
+        | Ref<AutocompleteTaskFrequencyData>
         | Ref<AutocompleteCountryData>
         | Ref<LoginCredentialsData>
       )[]
