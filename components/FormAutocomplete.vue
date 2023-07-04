@@ -174,6 +174,8 @@
 </style>
 
 <script setup lang="ts">
+import { Value } from "sass";
+
 // Prop definitions
 const props = defineProps({
   formData: {
@@ -284,6 +286,8 @@ function filterData(): void {
   if (!props.formData.options) return;
   // Reset current options list
   options.value = [];
+  // Create an array for partial substring matches
+  const partialMatches = [];
   // Get search string
   const target = inputElement.value as HTMLInputElement;
   const string = target.value;
@@ -297,16 +301,22 @@ function filterData(): void {
         value: "",
       };
       const regex = new RegExp(`^${string.toLocaleLowerCase()}`);
-      // if (label.toLocaleLowerCase().includes(string.toLocaleLowerCase()))
       if (regex.test(label.toLocaleLowerCase())) {
         result.label = label;
         result.value = value;
         options.value.push(result);
+      } else if (
+        label.toLocaleLowerCase().includes(string.toLocaleLowerCase())
+      ) {
+        result.label = label;
+        result.value = value;
+        partialMatches.push(result);
       }
     }
   } else {
     populateDefaultOptions();
   }
+  options.value = [...options.value, ...partialMatches];
 }
 
 async function selectFromList(event: Event): Promise<void> {
