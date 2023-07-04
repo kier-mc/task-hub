@@ -44,7 +44,7 @@
       </li>
     </ul>
   </div>
-  <span v-if="props.formData.hintText" class="hint">
+  <span v-if="props.formData.hintText">
     {{ props.formData.hintText }}
   </span>
 </template>
@@ -174,8 +174,6 @@
 </style>
 
 <script setup lang="ts">
-import { Value } from "sass";
-
 // Prop definitions
 const props = defineProps({
   formData: {
