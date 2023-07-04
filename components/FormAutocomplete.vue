@@ -44,7 +44,7 @@
       </li>
     </ul>
   </div>
-  <span v-if="props.formData.hintText">
+  <span v-if="props.formData.hintText" class="autocomplete__hint">
     {{ props.formData.hintText }}
   </span>
 </template>
@@ -164,6 +164,12 @@
     &:focus {
       background-color: hsl(0, 0%, 10%);
     }
+  }
+  &__hint {
+    margin-bottom: 0.25rem;
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    opacity: 0.5;
   }
   &__input:focus,
   &__button:focus,
