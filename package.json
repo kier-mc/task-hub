@@ -16,7 +16,7 @@
     "@nuxt/typescript-build": "^3.0.1",
     "@nuxtjs/supabase": "^0.3.8",
     "@types/node": "^18.16.19",
-    "@vitest/coverage-c8": "^0.32.3",
+    "@vitest/coverage-c8": "^0.32.4",
     "@vue/test-utils": "^2.4.0",
     "@vueuse/core": "^10.2.1",
     "@vueuse/nuxt": "^10.2.1",
