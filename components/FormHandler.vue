@@ -15,7 +15,7 @@
           :autocomplete="
             props.formData.autocomplete ? props.formData.autocomplete : 'on'
           "
-          :value="emitValue"
+          :value="props.emitValue"
           @input="emitEvent($event)"
           @focus="inputElementIsFocused = true"
           @blur="inputElementIsFocused = false"
@@ -114,13 +114,13 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (event: "update:emit-value", value: string | null): void;
+  (event: "update:emit-value", data: string | null): void;
 }>();
 
 function emitEvent(event: Event) {
   const target = event.target as HTMLInputElement | HTMLSelectElement;
-  const inputValue = target.value;
-  emit("update:emit-value", inputValue);
+  const value = target.value;
+  emit("update:emit-value", value);
 }
 
 // Reactive variables
