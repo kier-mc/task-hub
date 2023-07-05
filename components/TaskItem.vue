@@ -34,7 +34,7 @@
         :value="localTask.task"
         @input="
           {
-            handleTaskInput('task', $event);
+            handleInput('task', $event), detectChanges;
           }
         "
       />
@@ -83,7 +83,7 @@
         :value="localTask.description"
         @input="
           {
-            handleTaskInput('description', $event);
+            handleInput('description', $event), detectChanges;
           }
         "
       />
@@ -117,8 +117,8 @@
         <FormAutocomplete
           v-if="isEditable"
           :form-data="propData.formHandler[0]"
-          :emit-label="(localTask.frequency.label as string)"
-          :emit-value="(localTask.frequency.value as FrequencyRepetition)"
+          :emit-label="localTask.frequency.label"
+          :emit-value="localTask.frequency.value"
           @update:emit-label="
             (label) => {
               (localTask.frequency.label = label), detectChanges;
@@ -386,7 +386,7 @@ const frequencyLabels: Ref<Array<string | undefined>> = ref([]);
  * @param prop {"task"|"description"} - string that references the value to be altered
  * @param event {Event} - relevant input event, passed by $event in the template
  */
-function handleTaskInput(prop: "task" | "description", event: Event): void {
+function handleInput(prop: "task" | "description", event: Event): void {
   const target = event.target as HTMLInputElement;
   localTask[prop] = target.value ?? "";
 }
