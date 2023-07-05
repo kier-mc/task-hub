@@ -10,7 +10,7 @@ interface FormHandlerData {
   hintText?: string;
   options?: FormHandlerOptionsData[];
   default?: string;
-  style?: FormHandlerElementType;
+  style?: FormhandlerStyle;
 }
 interface FormHandlerOptionsData {
   label: string;
