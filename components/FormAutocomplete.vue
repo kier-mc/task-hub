@@ -16,7 +16,7 @@
         @input="handleInput($event)"
         @keyup.enter="selectFromList($event)"
       />
-      <button :class="setClearButtonClass" @click="clearInput" type="button">
+      <button :class="setClearButtonClass" @click="clearInput()" type="button">
         <SVGXMark class="autocomplete__icon" />
       </button>
       <button
@@ -35,6 +35,7 @@
     >
       <li
         v-for="(data, index) in options"
+        ref="listElements"
         :key="index"
         :data-value="data.value"
         :class="setLIClass"
@@ -221,10 +222,12 @@ function emitData(label: string | null, value: string | null): void {
 // Reactive variables
 const isExpanded: Ref<boolean> = ref(false);
 const options: Ref<Array<AutocompleteEmitData>> = ref([]);
+const forceRefresh: Ref<number> = ref(0);
 
 // Template refs
 const inputElement: Ref<HTMLInputElement | null> = ref(null);
 const menuElement: Ref<HTMLUListElement | null> = ref(null);
+const listElements: Ref<Array<HTMLLIElement | null>> = ref([]);
 
 // Computed properties
 const setParentClass = computed(() => {
@@ -241,6 +244,7 @@ const setControlsClass = computed(() => {
 
 const setLabelClass = computed((): string | void => {
   if (!inputElement.value) return;
+  forceRefresh.value;
   const element = inputElement.value;
   const input = element.value;
   let result = false;
@@ -302,9 +306,8 @@ async function handleInput(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement;
   const label = target.value as string;
   emitData(label, null);
-  filterData();
   await nextTick();
-  isExpanded.value = true;
+  filterData();
 }
 
 function filterData(): void {
@@ -348,6 +351,7 @@ async function clearInput() {
   emitData(null, null);
   await nextTick();
   filterData();
+  forceRefresh.value++;
 }
 
 async function selectFromList(event: Event): Promise<void> {
@@ -359,7 +363,7 @@ async function selectFromList(event: Event): Promise<void> {
   if (target === inputElement.value) {
     label = options.value[0].label;
     value = options.value[0].value;
-  } else if (target.className.includes("autocomplete__li")) {
+  } else if (listElements.value.includes(target as HTMLLIElement)) {
     label = target.textContent;
     value = target.getAttribute("data-value");
   }
@@ -372,7 +376,7 @@ async function selectFromList(event: Event): Promise<void> {
 async function handleBlur(event: Event) {
   if (!inputElement.value) return;
   const target = event.target as Element;
-  const isClickInside = target.closest(".autocomplete");
+  const isClickInside = target.closest(`#${props.formData.formID}`);
   if (isClickInside) return;
   let label = "";
   let value = "";
@@ -401,13 +405,8 @@ onMounted(async () => {
   document.addEventListener("click", (event: Event) => {
     closeMenuWithClickOutside(event);
   });
-  // document.addEventListener("keyup", (event: Event) => {
-  //   handleBlur(event);
-  // });
   // Populate local options with prop data
   filterData();
-  await nextTick();
-  setLabelClass;
 });
 
 onUnmounted(() => {
