@@ -24,9 +24,9 @@
       <h3 v-show="!isEditable" class="task__title">
         {{ localTask.task }}
       </h3>
-      <label v-show="isEditable" class="screen-reader-label" for="task-title"
-        >Task Title</label
-      >
+      <label v-show="isEditable" class="screen-reader-label" for="task-title">
+        Task Title
+      </label>
       <input
         v-show="isEditable"
         id="task-title"
@@ -38,13 +38,13 @@
           }
         "
       />
-
       <div class="task__options">
         <button
           v-show="localTask.description"
           type="button"
           class="header-button"
           :class="isExpanded ? 'task__expand--expanded' : 'task__expand'"
+          :disabled="isEditable === true"
           @click="isExpanded = !isExpanded"
         ></button>
         <button
@@ -70,7 +70,15 @@
       v-show="isEditable"
       :class="isExpanded ? 'task__description--expanded' : 'task__description'"
     >
+      <label
+        v-show="isEditable"
+        class="screen-reader-label"
+        for="task-description"
+      >
+        Task Description
+      </label>
       <input
+        id="task-description"
         class="task__description--editable"
         :value="localTask.description"
         @input="
@@ -110,7 +118,7 @@
           v-if="isEditable"
           :form-data="propData.formHandler[0]"
           :emit-label="(localTask.frequency.label as string)"
-          :emit-value="(localTask.frequency.value as Database['frequency']['repeats_every'])"
+          :emit-value="(localTask.frequency.value as FrequencyRepetition)"
           @update:emit-label="
             (label) => {
               (localTask.frequency.label = label), detectChanges;
@@ -340,6 +348,7 @@ const propData = {
       formID: "task-frequency",
       elementType: "autocomplete",
       labelText: "Frequency",
+      style: "mini",
       options: [
         { value: "daily", label: "Daily" },
         { value: "weekly", label: "Weekly" },
@@ -384,7 +393,7 @@ function handleTaskInput(prop: "task" | "description", event: Event): void {
 
 const detectChanges = computed((): void => {
   const frequency = convertFrequency(
-    props.taskData.frequency_id as Database["frequency"]["frequency_id"]
+    props.taskData.frequency_id as FrequencyID
   );
   if (
     localTask.task !== props.taskData.task ||
@@ -424,7 +433,7 @@ async function updateTask(): Promise<void> {
       task: localTask.task,
       description: localTask.description,
       frequency_id: convertFrequency(
-        localTask.frequency.value as Database["frequency"]["repeats_every"]
+        localTask.frequency.value as FrequencyRepetition
       ),
       edited_at: timestamp,
     })
@@ -509,8 +518,8 @@ onMounted(async () => {
   localTask.description = props.taskData.description;
 
   localTask.frequency.value = convertFrequency(
-    props.taskData.frequency_id as Database["frequency"]["frequency_id"]
-  ) as Database["frequency"]["repeats_every"];
+    props.taskData.frequency_id as FrequencyID
+  ) as FrequencyRepetition;
 
   localTask.frequency.label = frequencyLabels.value[
     props.taskData.frequency_id - 1
