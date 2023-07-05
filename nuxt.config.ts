@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   imports: {
     dirs: ["stores"],
   },
+  components: ["~/components/svg", "~/components"],
   css: ["@/assets/scss/reset.scss", "@/assets/scss/main.scss"],
   app: {
     head: {
