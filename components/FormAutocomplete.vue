@@ -16,8 +16,11 @@
         @input="handleInput($event)"
         @keyup.enter="selectFromList($event)"
       />
+      <button :class="setClearButtonClass" @click="clearInput" type="button">
+        <SVGXMark class="autocomplete__icon" />
+      </button>
       <button
-        :class="setButtonClass"
+        :class="setDropdownButtonClass"
         @click="isExpanded = !isExpanded"
         type="button"
       >
@@ -92,7 +95,6 @@
     height: calc(48px - 1rem);
     padding-inline: 0.5rem;
     padding-top: 1rem;
-    border-right: 1px solid hsl(0, 0%, 30%);
     margin-right: 1px;
     &--mini {
       padding: 0.25rem;
@@ -109,12 +111,26 @@
     background-color: hsl(0, 0%, 10%);
     cursor: pointer;
     transition: background-color 125ms;
+    &:hover {
+      background-color: hsl(0, 0%, 15%);
+    }
+    &--clear {
+      min-width: 24px;
+      border-radius: 50%;
+      margin-inline: 0.5rem;
+      &:hover {
+        background-color: hsl(0, 0%, 20%);
+      }
+    }
+    &--dropdown {
+      border-left: 1px solid hsl(0, 0%, 30%);
+    }
     &--mini {
       // Desired width plus inline input padding * 2
       min-width: calc(24px + 0.5rem);
     }
-    &:hover {
-      background-color: hsl(0, 0%, 15%);
+    &--clear.autocomplete__button--mini {
+      min-width: calc(12px + 0.5rem);
     }
   }
   &__icon {
@@ -247,10 +263,16 @@ const setInputClass = computed(() => {
     : "autocomplete__input";
 });
 
-const setButtonClass = computed(() => {
+const setClearButtonClass = computed(() => {
   return props.formData.style
-    ? `autocomplete__button autocomplete__button--${props.formData.style}`
-    : "autocomplete__button";
+    ? `autocomplete__button autocomplete__button--clear autocomplete__button--${props.formData.style}`
+    : "autocomplete__button autocomplete__button--clear";
+});
+
+const setDropdownButtonClass = computed(() => {
+  return props.formData.style
+    ? `autocomplete__button autocomplete__button--dropdown autocomplete__button--${props.formData.style}`
+    : "autocomplete__button autocomplete__button--dropdown";
 });
 
 const setULClass = computed(() => {
@@ -320,6 +342,12 @@ function filterData(): void {
     populateDefaultOptions();
   }
   options.value = [...options.value, ...partialMatches];
+}
+
+async function clearInput() {
+  emitData(null, null);
+  await nextTick();
+  filterData();
 }
 
 async function selectFromList(event: Event): Promise<void> {
