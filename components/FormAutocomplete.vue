@@ -53,9 +53,6 @@
 .autocomplete {
   position: relative;
   background-color: hsl(0, 0%, 15%);
-  &--mini {
-    max-height: 16px;
-  }
   &__label {
     pointer-events: none;
     position: absolute;
@@ -69,12 +66,11 @@
       top: 0.5rem;
       transform: scale(0.75);
     }
-    &--screen-reader-label {
-      position: absolute;
+    &--mini {
       left: -5000px;
       overflow: hidden;
-      width: 1px;
-      height: 1px;
+      width: 0;
+      height: 0;
     }
   }
   &__controls {
@@ -85,7 +81,7 @@
     border: 1px solid hsl(0, 0%, 30%);
     cursor: text;
     &--mini {
-      min-height: 16px;
+      min-height: 24px;
     }
   }
   &__input {
@@ -99,8 +95,8 @@
     border-right: 1px solid hsl(0, 0%, 30%);
     margin-right: 1px;
     &--mini {
-      padding: 0;
-      height: 16px;
+      padding: 0.25rem;
+      height: 24px;
     }
   }
   &__button {
@@ -114,7 +110,8 @@
     cursor: pointer;
     transition: background-color 125ms;
     &--mini {
-      min-width: 16px;
+      // Desired width plus inline input padding * 2
+      min-width: calc(24px + 0.5rem);
     }
     &:hover {
       background-color: hsl(0, 0%, 15%);
@@ -140,9 +137,6 @@
     border-bottom: 1px solid hsl(0, 0%, 30%);
     background-color: hsl(0, 0%, 15%);
     transition: opacity 150ms;
-    &--mini {
-      margin-top: 2px;
-    }
     &[aria-expanded="false"] {
       visibility: hidden;
       opacity: 0;
@@ -236,6 +230,11 @@ const setLabelClass = computed((): string | void => {
   let result = false;
   if (isExpanded.value || input.length > 0) {
     result = true;
+  }
+  if (props.formData.style) {
+    return result
+      ? `autocomplete__label--${props.formData.style} autocomplete__label--focused--${props.formData.style}`
+      : `autocomplete__label--${props.formData.style}`;
   }
   return result
     ? "autocomplete__label autocomplete__label--focused"
