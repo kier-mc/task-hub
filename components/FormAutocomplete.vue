@@ -12,6 +12,7 @@
         ref="inputElement"
         :class="setInputClass"
         :value="props.emitLabel"
+        :placeholder="props.formData.default"
         @click="isExpanded = true"
         @input="handleInput($event)"
         @keyup.enter="selectFromList($event)"
@@ -304,8 +305,19 @@ function populateDefaultOptions() {
 
 async function handleInput(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement;
-  const label = target.value as string;
-  emitData(label, null);
+  const propOptions = props.formData.options;
+  const label = target.value;
+  let value: string | null = null;
+  if (propOptions) {
+    for (let i = 0; i < propOptions.length; i++) {
+      const option = propOptions[i];
+      if (label.toLocaleLowerCase() === option.label.toLocaleLowerCase()) {
+        value = option.value;
+        break;
+      }
+    }
+  }
+  emitData(label, value);
   await nextTick();
   filterData();
 }
@@ -329,13 +341,14 @@ function filterData(): void {
         value: "",
       };
       const regex = new RegExp(`^${string.toLocaleLowerCase()}`);
+      // Matching the beginning of the string takes precedent
       if (regex.test(label.toLocaleLowerCase())) {
         result.label = label;
         result.value = value;
         options.value.push(result);
-      } else if (
-        label.toLocaleLowerCase().includes(string.toLocaleLowerCase())
-      ) {
+      }
+      // Substrings are returned as partial matches at the end of the array
+      else if (label.toLocaleLowerCase().includes(string.toLocaleLowerCase())) {
         result.label = label;
         result.value = value;
         partialMatches.push(result);
