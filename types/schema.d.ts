@@ -13,7 +13,7 @@ interface Database {
     author_id: number;
     task: string;
     description: string;
-    frequency_id: number;
+    frequency_id: FrequencyID;
     edited_at: string;
   };
   frequency: {
