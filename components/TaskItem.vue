@@ -32,6 +32,7 @@
         id="task-title"
         class="task__title--editable"
         :value="localTask.task"
+        :placeholder="props.taskData.task"
         @input="
           {
             handleInput('task', $event), detectChanges;
@@ -40,24 +41,37 @@
       />
       <div class="task__options">
         <button
-          v-show="localTask.description"
+          v-show="localTask.description && isEditable === false"
           type="button"
-          class="header-button"
-          :class="isExpanded ? 'task__expand--expanded' : 'task__expand'"
-          :disabled="isEditable === true"
+          class="task__button"
           @click="isExpanded = !isExpanded"
-        ></button>
+        >
+          <template v-if="isExpanded">
+            <SVGExpandLess class="task__icon" />
+          </template>
+          <template v-else>
+            <SVGExpandMore class="task__icon" />
+          </template>
+        </button>
         <button
+          v-show="isEditable"
           type="button"
-          class="header-button"
-          :class="isEditable ? 'task__edit--editable' : 'task__edit'"
-          @click="toggleEditMode()"
-        ></button>
-        <button
-          type="button"
-          class="header-button task__delete"
-          @click="modalVisible = true"
-        ></button>
+          class="task__button"
+          @click="handleUndo()"
+        >
+          <SVGUndo class="task__icon" />
+        </button>
+        <button type="button" class="task__button" @click="toggleEditMode()">
+          <template v-if="isEditable">
+            <SVGSave class="task__icon" />
+          </template>
+          <template v-else>
+            <SVGEdit class="task__icon" />
+          </template>
+        </button>
+        <button type="button" class="task__button" @click="modalVisible = true">
+          <SVGDelete class="task__icon" />
+        </button>
       </div>
     </div>
     <div
@@ -81,6 +95,7 @@
         id="task-description"
         class="task__description--editable"
         :value="localTask.description"
+        :placeholder="props.taskData.description"
         @input="
           {
             handleInput('description', $event), detectChanges;
@@ -136,21 +151,6 @@
 </template>
 
 <style scoped lang="scss">
-.header-button {
-  all: unset;
-  aspect-ratio: 1/1;
-  min-width: 24px;
-  mask-size: cover;
-  -webkit-mask-size: cover;
-  background-color: hsl(0, 0%, 70%);
-  background-repeat: no-repeat;
-  background-position: center;
-  cursor: pointer;
-  transition: background-color 175ms;
-  &:hover {
-    background-color: hsl(0, 0%, 80%);
-  }
-}
 .task {
   position: relative;
   border: 1px solid hsl(0, 0%, 30%);
@@ -197,37 +197,21 @@
     column-gap: 0.25rem;
     margin-left: 0.5rem;
   }
-  &__expand {
-    mask: url("/img/svg/expand-more.svg") no-repeat center center;
-    -webkit-mask: url("/img/svg/expand-more.svg") no-repeat center center;
-    &--expanded {
-      mask: url("/img/svg/expand-less.svg") no-repeat center center;
-      mask-size: cover;
-      -webkit-mask: url("/img/svg/expand-less.svg") no-repeat center center;
-      -webkit-mask-size: cover;
-      background-color: hsl(0, 0%, 90%);
-      &:hover {
-        background-color: hsl(0, 0%, 90%);
-      }
-    }
+  &__button {
+    all: unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1/1;
+    min-width: 24px;
+    cursor: pointer;
   }
-  &__edit {
-    mask: url("/img/svg/edit.svg") no-repeat center center;
-    -webkit-mask: url("/img/svg/edit.svg") no-repeat center center;
-    &--editable {
-      mask: url("/img/svg/save.svg") no-repeat center center;
-      mask-size: cover;
-      -webkit-mask: url("/img/svg/save.svg") no-repeat center center;
-      -webkit-mask-size: cover;
-      background-color: hsl(0, 0%, 90%);
-      &:hover {
-        background-color: hsl(0, 0%, 90%);
-      }
+  &__icon {
+    fill: hsl(0, 0%, 80%);
+    transition: fill 125ms;
+    &:hover {
+      fill: hsl(0, 0%, 90%);
     }
-  }
-  &__delete {
-    mask: url("/img/svg/delete.svg") no-repeat center center;
-    -webkit-mask: url("/img/svg/delete.svg") no-repeat center center;
   }
   &__description,
   &__description--expanded {
@@ -341,6 +325,25 @@ const userStore = useUserStore();
 const props = defineProps({
   taskData: { type: Object as PropType<Database["tasks"]>, required: true },
 });
+const propOptions = [
+  { value: "daily", label: "Daily" },
+  { value: "weekly", label: "Weekly" },
+  { value: "fortnightly", label: "Fortnightly" },
+  { value: "monthly", label: "Monthly" },
+  { value: "triannually", label: "Tri-annually (4 months)" },
+  { value: "biannually", label: "Bi-annually (6 months)" },
+  { value: "annually", label: "Annually" },
+];
+const propDefaultLabel = (): string | void => {
+  for (let i = 0; i < propOptions.length; i++) {
+    const option = propOptions[i];
+    const frequency = convertFrequency(props.taskData.frequency_id);
+    if (option.value === frequency) {
+      return option.label;
+    }
+  }
+  return;
+};
 const propData = {
   formHandler: [
     {
@@ -348,16 +351,9 @@ const propData = {
       formID: "task-frequency",
       elementType: "autocomplete",
       labelText: "Frequency",
+      default: propDefaultLabel(),
       style: "mini",
-      options: [
-        { value: "daily", label: "Daily" },
-        { value: "weekly", label: "Weekly" },
-        { value: "fortnightly", label: "Fortnightly" },
-        { value: "monthly", label: "Monthly" },
-        { value: "triannually", label: "Tri-annually (4 months)" },
-        { value: "biannually", label: "Bi-annually (6 months)" },
-        { value: "annually", label: "Annually" },
-      ],
+      options: [...propOptions],
     } as FormHandlerData,
   ],
 };
@@ -410,10 +406,11 @@ const detectChanges = computed((): void => {
  * Determines whether a task is in an editable state or not.
  * If hasBeenEditedLocally is true when it is called, call updateTask to commit the changes.
  */
-function toggleEditMode(): void {
+async function toggleEditMode(): Promise<void> {
   if (!editIsValid()) return;
   isEditable.value = !isEditable.value;
   isEditable.value ? (isExpanded.value = true) : (isExpanded.value = false);
+  await nextTick();
   if (hasBeenEditedLocally.value) {
     if (editIsValid()) {
       updateTask();
@@ -506,25 +503,20 @@ function generateFrequencyLabels(): void {
     frequencyLabels.value.push(option.label);
   }
 }
-
-/*
-Create a reactive copy of the prop data for potential edits
-Read the timestamp from the props and attempt to populate date/time refs
-*/
-onMounted(async () => {
-  if (!userStore.data) await userStore.fetchData();
-  generateFrequencyLabels();
+function syncPropDataWithLocalData(): void {
   localTask.task = props.taskData.task;
   localTask.description = props.taskData.description;
-
+  localTask.frequency.label = propDefaultLabel() ?? null;
   localTask.frequency.value = convertFrequency(
-    props.taskData.frequency_id as FrequencyID
+    props.taskData.frequency_id
   ) as FrequencyRepetition;
-
-  localTask.frequency.label = frequencyLabels.value[
-    props.taskData.frequency_id - 1
-  ] as string;
-
+}
+async function handleUndo(): Promise<void> {
+  syncPropDataWithLocalData();
+  await nextTick();
+  hasBeenEditedLocally.value = false;
+}
+function formatDateAndTime() {
   formattedCreationDate.value = convertDate(
     props.taskData.created_at,
     userStore.getCountryISOCode() as string
@@ -536,6 +528,16 @@ onMounted(async () => {
       timeStyle: "short",
     }
   ) as string;
+}
+/*
+Create a reactive copy of the prop data for potential edits
+Read the timestamp from the props and attempt to populate date/time refs
+*/
+onMounted(async () => {
+  if (!userStore.data) await userStore.fetchData();
+  generateFrequencyLabels();
+  syncPropDataWithLocalData();
+  formatDateAndTime();
   checkForPreviousEdit();
 });
 </script>
