@@ -386,24 +386,6 @@ async function selectFromList(event: Event): Promise<void> {
   filterData();
 }
 
-async function handleBlur(event: Event) {
-  if (!inputElement.value) return;
-  const target = event.target as Element;
-  const isClickInside = target.closest(`#${props.formData.formID}`);
-  if (isClickInside) return;
-  let label = "";
-  let value = "";
-  const input = inputElement.value;
-  if (options.value.length > 0 && input.value.length > 0) {
-    label = options.value[0].label as string;
-    value = options.value[0].value as string;
-  }
-  emitData(label, value);
-  await nextTick();
-  isExpanded.value = false;
-  filterData();
-}
-
 function closeMenuWithClickOutside(event: Event): void {
   if (!isExpanded.value) return;
   const target = event.target as Element;
