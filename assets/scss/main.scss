@@ -1,20 +1,12 @@
 @import "./variables.scss";
-:root {
-  // Breakpoints
-  --breakpoint-smallest: {$breakpoint-smallest};
-  // Main layout
-  --content-max-width: 1280px;
-  // Header
-  --header-height: 48px;
-  --header-inline-padding: 1rem;
-  --nav-button-size: 32px;
-  --nav-link-width: 25ch;
-}
-
 body {
-  background-color: hsl(0, 0%, 20%);
-  color: hsl(0, 0%, 90%);
+  background-color: $colour-lm-background;
+  color: $colour-lm-font;
   font-family: Inter, sans-serif;
+  @media (prefers-color-scheme: dark) {
+    background-color: $colour-dm-background;
+    color: $colour-dm-font;
+  }
 }
 
 .button {
