@@ -60,6 +60,7 @@
   background-color: hsl(0, 0%, 15%);
   &__label {
     pointer-events: none;
+    user-select: none;
     position: absolute;
     top: 50%;
     right: 0rem;
