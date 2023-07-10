@@ -29,12 +29,12 @@
               <template v-for="link in data.links" :key="link.index">
                 <template v-if="link.display !== 'auth=false'">
                   <template v-if="link.type === 'route'">
-                    <li @click="navigateTo(link.url)">
+                    <li class="nav__link" @click="navigateTo(link.url)">
                       {{ link.name }}
                     </li>
                   </template>
                   <template v-else-if="link.type === 'logout'">
-                    <li @click="logoutUser">
+                    <li class="nav__link" @click="logoutUser">
                       {{ link.name }}
                     </li>
                   </template>
@@ -60,12 +60,7 @@
                   "
                 >
                   <template v-if="link.type === 'route'">
-                    <li @click="navigateTo(link.url)">
-                      {{ link.name }}
-                    </li>
-                  </template>
-                  <template v-else-if="link.type === 'logout'">
-                    <li @click="logoutUser">
+                    <li class="nav__link" @click="navigateTo(link.url)">
                       {{ link.name }}
                     </li>
                   </template>
@@ -87,19 +82,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: var(--content-max-width);
-  height: var(--header-height);
+  max-width: $breakpoint-largest;
   z-index: 30;
-  padding-inline: var(--header-inline-padding);
+  padding-inline: 1rem;
   margin: 0 auto;
-  background-color: inherit;
   &__menu-button {
     all: unset;
     display: flex;
     justify-content: center;
     align-items: center;
     aspect-ratio: 1/1;
-    min-width: var(--nav-button-size);
+    min-width: 48px;
     z-index: 20;
     transition: background-color 200ms;
     cursor: pointer;
@@ -124,82 +117,75 @@
 }
 .nav {
   position: relative;
-  max-width: var(--content-max-width);
+  max-width: $breakpoint-largest;
   margin: 0 auto;
   user-select: none;
-  // Format longer transitions on new lines
   /* prettier-ignore */
   &__menu {
-    will-change: opacity, transform;
     opacity: 0;
     transform: translate3d(0, -100%, 0);
+    filter: blur($blur-default);
     position: absolute;
     top: 0;
     right: 0;
     display: flex;
     column-gap: 5rem;
-    z-index: 10;
+    z-index: -10;
     padding: 0 1rem 1rem 1rem;
-    color: hsl(0, 0%, 90%);
-    backdrop-filter: blur(0.25rem);
+    background-color: $colour-lm-nav-menu;
+    color: $colour-lm-font;
+    backdrop-filter: blur($blur-default);
     transition:
-      opacity 250ms cubic-bezier(0.77, 0, 0.175, 1),
-      transform 200ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
-    @media screen and (max-width: $breakpoint-smallest) {
+      opacity $transition-short,
+      transform $transition-long,
+      filter $transition-short;
+    @media (max-width: $breakpoint-small) {
       flex-direction: column;
       width: 100%;
     }
-    @media (prefers-reduced-motion) {
-      transition: opacity 250ms cubic-bezier(0.77, 0, 0.175, 1);
+    @media (max-width: $breakpoint-large) {
+      justify-content: space-evenly;
+      width: 100%;
+    }
+    @media (prefers-color-scheme: dark) {
+      background-color: $colour-dm-nav-menu;
+      color: $colour-dm-font;
     }
     &--visible {
       opacity: 1;
       transform: translate3d(0, 0%, 0);
-    }
-    &::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: -10;
-      background-color: hsl(0, 0%, 12.5%);
-      opacity: 0.8;
+      filter: none;
     }
   }
-  // &__section {
-  // }
   &__title {
     padding-top: 1rem;
     padding-bottom: 1rem;
     padding-left: 0.75rem;
-    font-size: 1.2rem;
+    font-size: $font-size-largest;
   }
   &__links {
     display: flex;
     flex-direction: column;
     gap: 1rem;
     list-style-type: none;
-    font-size: 0.875rem;
+    font-size: $font-size-small;
     cursor: default;
   }
-  &__links li {
-    width: var(--nav-link-width);
+  &__link {
+    width: 25ch;
     padding: 1rem;
-    border-radius: 0.5rem;
-    background-color: hsl(0, 0%, 12.5%);
+    border: 1px solid $colour-lm-border;
     cursor: pointer;
-    transition: background-color 175ms;
-    @media screen and (max-width: $breakpoint-smallest) {
+    transition: border $transition-medium;
+    @media (max-width: $breakpoint-small) {
       width: 100%;
     }
-  }
-  &__links li:hover {
-    background-color: hsl(0, 0%, 10%);
-  }
-  &__links a {
-    all: unset;
-    display: block;
-    width: 100%;
-    height: 100%;
+    @media (prefers-color-scheme: dark) {
+      border: 1px solid $colour-dm-border;
+    }
+    &:hover {
+      border: 1px solid $colour-primary;
+    }
   }
 }
 </style>
@@ -253,22 +239,15 @@ const propData = {
     } as NavigationData,
     {
       index: 1,
-      title: "Actions",
+      title: "User",
       display: "auth=true",
       links: [
         {
           index: 0,
-          name: "Create Item",
+          name: "Settings",
           type: "route",
           display: "auth=true",
-          url: "/",
-        },
-        {
-          index: 1,
-          name: "View All Items",
-          type: "route",
-          display: "auth=true",
-          url: "/",
+          url: "/settings",
         },
       ],
     } as NavigationData,
