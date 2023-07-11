@@ -13,16 +13,16 @@ export function allCredentialFieldsArePopulated(
   credentials:
     | Ref<PartialNewAccountCredentialData>
     | Ref<PartialTaskData>
-    | Ref<AutocompleteEmitData>
-    | Ref<AutocompleteTaskFrequencyData>
-    | Ref<AutocompleteCountryData>
+    | Ref<EmitData>
+    | Ref<EmitTaskFrequencyData>
+    | Ref<EmitCountryData>
     | Ref<LoginCredentialsData>
     | (
         | Ref<PartialNewAccountCredentialData>
         | Ref<PartialTaskData>
-        | Ref<AutocompleteEmitData>
-        | Ref<AutocompleteTaskFrequencyData>
-        | Ref<AutocompleteCountryData>
+        | Ref<EmitData>
+        | Ref<EmitTaskFrequencyData>
+        | Ref<EmitCountryData>
         | Ref<LoginCredentialsData>
       )[]
 ): boolean {
@@ -81,16 +81,16 @@ export function clearCredentials(
   credentials:
     | Ref<PartialNewAccountCredentialData>
     | Ref<PartialTaskData>
-    | Ref<AutocompleteEmitData>
-    | Ref<AutocompleteTaskFrequencyData>
-    | Ref<AutocompleteCountryData>
+    | Ref<EmitData>
+    | Ref<EmitTaskFrequencyData>
+    | Ref<EmitCountryData>
     | Ref<LoginCredentialsData>
     | (
         | Ref<PartialNewAccountCredentialData>
         | Ref<PartialTaskData>
-        | Ref<AutocompleteEmitData>
-        | Ref<AutocompleteTaskFrequencyData>
-        | Ref<AutocompleteCountryData>
+        | Ref<EmitData>
+        | Ref<EmitTaskFrequencyData>
+        | Ref<EmitCountryData>
         | Ref<LoginCredentialsData>
       )[]
 ): void {
