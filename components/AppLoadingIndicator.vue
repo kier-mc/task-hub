@@ -5,14 +5,14 @@
 <template>
   <template v-if="options.type === 'circle'">
     <svg
-      :width="options.width"
-      :height="options.height"
+      :width="options.size.width"
+      :height="options.size.height"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       :fill="`hsl(
-      ${options.hue},
-      ${options.saturation}%,
-      ${options.lightness}%)
+      ${options.colour.hue},
+      ${options.colour.saturation}%,
+      ${options.colour.lightness}%)
     `"
     >
       <path
@@ -30,14 +30,14 @@
   </template>
   <template v-else-if="options.type === 'dots'">
     <svg
-      :width="options.width"
-      :height="options.height"
+      :width="options.size.width"
+      :height="options.size.height"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       :fill="`hsl(
-      ${options.hue},
-      ${options.saturation}%,
-      ${options.lightness}%)
+      ${options.colour.hue},
+      ${options.colour.saturation}%,
+      ${options.colour.lightness}%)
     `"
     >
       <circle cx="4" cy="12" r="3" opacity="1">
