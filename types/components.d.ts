@@ -1,42 +1,46 @@
 // Form handler component
 interface FormHandlerData {
   index: number;
-  formID: string;
-  elementType: FormHandlerElementType;
-  attrType?: string;
-  autocomplete?: AutocompleteAttributeOptions;
-  labelText: string;
-  value?: string;
-  hintText?: string;
-  options?: FormHandlerOptionsData[];
-  default?: string;
-  style?: FormhandlerStyle;
-}
-interface FormHandlerOptionsData {
+  type: FormHandlerElementType;
   label: string;
-  value: string;
-  isDisabled?: boolean;
+  hint?: string;
+  default?: string;
+  style?: FormHandlerStyle;
+  attributes: {
+    autocomplete?: AutocompleteAttributeOptions;
+    id: string;
+    type?: string;
+  };
+  options?: FormHandlerOptionsData[];
 }
-// Autocomplete component
-interface AutocompleteData<TypeLabel, TypeValue> {
+// Form handler emits
+interface EmitDataTemplate<TypeLabel, TypeValue> {
   label: TypeLabel | null;
   value: TypeValue | null;
 }
-interface AutocompleteEmitData extends AutocompleteData<string, string> {}
 
-interface AutocompleteTaskFrequencyData
-  extends AutocompleteData<string, FrequencyRepetition> {}
+interface FormHandlerOptionsData extends EmitDataTemplate<string, string> {
+  isDisabled?: boolean;
+}
 
-interface AutocompleteCountryData
-  extends AutocompleteData<string, CountryName> {}
+interface EmitData extends EmitDataTemplate<string, string> {}
+
+interface EmitTaskFrequencyData
+  extends EmitDataTemplate<string, FrequencyRepetition> {}
+
+interface EmitCountryData extends EmitDataTemplate<string, CountryName> {}
 // Loading indicator component
 interface LoadingIndicatorData {
   type: "circle" | "dots";
-  width: number;
-  height: number;
-  hue: number;
-  saturation: number;
-  lightness: number;
+  size: {
+    width: number;
+    height: number;
+  };
+  colour: {
+    hue: number;
+    saturation: number;
+    lightness: number;
+  };
 }
 // Login form
 interface LoginCredentialsData {
