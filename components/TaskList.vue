@@ -40,11 +40,15 @@ const taskStore = useTaskStore();
 const propData = {
   loadingIndicator: {
     type: "dots",
-    width: 48,
-    height: 48,
-    hue: 0,
-    saturation: 0,
-    lightness: 100,
+    size: {
+      width: 48,
+      height: 48,
+    },
+    colour: {
+      hue: 0,
+      saturation: 0,
+      lightness: 100,
+    },
   } as LoadingIndicatorData,
 };
 /* Reactive variables */
