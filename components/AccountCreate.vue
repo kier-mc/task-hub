@@ -27,13 +27,13 @@
             <template v-if="entry.formData[index].elementType === 'input'">
               <FormHandler
                 :form-data="formData"
-                :emit-value="credentialData[formData.formID]"
+                :emit-label="credentialData[formData.formID]"
               />
             </template>
             <template
               v-if="entry.formData[index].elementType === 'autocomplete'"
             >
-              <FormAutocomplete
+              <FormHandler
                 :form-data="formData"
                 :emit-label="countryData.label"
                 :emit-value="countryData.value"
@@ -239,11 +239,15 @@ const propData = {
   ],
   loadingIndicator: {
     type: "dots",
-    width: 48,
-    height: 48,
-    hue: 0,
-    saturation: 0,
-    lightness: 100,
+    size: {
+      width: 48,
+      height: 48,
+    },
+    colour: {
+      hue: 0,
+      saturation: 0,
+      lightness: 100,
+    },
   } as LoadingIndicatorData,
 };
 /* Reactive variables */
@@ -264,7 +268,7 @@ const credentialData: PartialNewAccountCredentialData = reactive({
   preferred_name: null,
   locale: null,
 });
-const countryData: AutocompleteCountryData = reactive({
+const countryData: EmitCountryData = reactive({
   label: null,
   value: null,
 });
