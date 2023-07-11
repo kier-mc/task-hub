@@ -1,6 +1,6 @@
 <template>
   <div class="temp">
-    <form class="login" @keyup.enter="loginUser(ref(credentials))">
+    <form class="login" @keyup.enter="loginWrapper(ref(credentials))">
       <div v-if="isLoading" class="modal">
         <AppLoadingIndicator
           class="modal__indicator"
@@ -13,14 +13,14 @@
         :form-data="propData.formHandler[0]"
         :disabled="isLoading"
         :aria-disabled="isLoading"
-        v-model:emit-value="credentials.email"
+        v-model:emit-label="credentials.email"
       />
       <FormHandler
         class="login__input"
         :form-data="propData.formHandler[1]"
         :disabled="isLoading"
         :aria-disabled="isLoading"
-        v-model:emit-value="credentials.password"
+        v-model:emit-label="credentials.password"
       />
       <button
         type="button"
@@ -76,28 +76,36 @@ const propData = {
   formHandler: [
     {
       index: 0,
-      formID: "email",
-      elementType: "input",
-      attrType: "email",
-      autocomplete: "email",
-      labelText: "Email",
+      type: "input",
+      label: "Email",
+      attributes: {
+        autocomplete: "email",
+        id: "email",
+        type: "email",
+      },
     } as FormHandlerData,
     {
       index: 1,
-      formID: "password",
-      elementType: "input",
-      attrType: "password",
-      autocomplete: "current-password",
-      labelText: "Password",
+      type: "input",
+      label: "Password",
+      attributes: {
+        autocomplete: "current-password",
+        id: "password",
+        type: "password",
+      },
     } as FormHandlerData,
   ],
   loadingIndicator: {
     type: "circle",
-    width: 48,
-    height: 48,
-    hue: 0,
-    saturation: 0,
-    lightness: 100,
+    size: {
+      width: 48,
+      height: 48,
+    },
+    colour: {
+      hue: 0,
+      saturation: 0,
+      lightness: 100,
+    },
   } as LoadingIndicatorData,
 };
 
