@@ -1,12 +1,12 @@
 <template>
   <div
     :class="setParentClass"
-    :id="props.formData.formID"
+    :id="props.formData.attributes.id"
     @keyup.escape="isExpanded = false"
   >
     <div :class="setControlsClass">
-      <label :class="setLabelClass" :for="props.formData.formID">
-        {{ props.formData.labelText }}
+      <label :class="setLabelClass" :for="props.formData.attributes.id">
+        {{ props.formData.label }}
       </label>
       <input
         ref="inputElement"
@@ -49,8 +49,8 @@
       </li>
     </ul>
   </div>
-  <span v-if="props.formData.hintText" class="autocomplete__hint">
-    {{ props.formData.hintText }}
+  <span v-if="props.formData.hint" class="autocomplete__hint">
+    {{ props.formData.hint }}
   </span>
 </template>
 
@@ -216,14 +216,14 @@ const emit = defineEmits<{
 }>();
 
 // Emit handler
-function emitData(label: string | null, value: string | null): void {
+function emitHandler(label: string | null, value: string | null): void {
   emit("update:emit-label", label);
   emit("update:emit-value", value);
 }
 
 // Reactive variables
 const isExpanded: Ref<boolean> = ref(false);
-const options: Ref<Array<AutocompleteEmitData>> = ref([]);
+const options: Ref<Array<EmitData>> = ref([]);
 const forceRefresh: Ref<number> = ref(0);
 
 // Template refs
@@ -312,19 +312,22 @@ async function handleInput(event: Event): Promise<void> {
   if (propOptions) {
     for (let i = 0; i < propOptions.length; i++) {
       const option = propOptions[i];
-      if (label.toLocaleLowerCase() === option.label.toLocaleLowerCase()) {
+      if (label.toLocaleLowerCase() === option.label?.toLocaleLowerCase()) {
         value = option.value;
         break;
       }
     }
   }
-  emitData(label, value);
+  emitHandler(label, value);
   await nextTick();
   filterData();
 }
 
 function filterData(): void {
-  if (!props.formData.options) return;
+  if (!props.formData.options) {
+    console.warn("No options provided to autocomplete component!");
+    return;
+  }
   // Reset current options list
   options.value = [];
   // Create an array for partial substring matches
@@ -337,22 +340,26 @@ function filterData(): void {
     for (let i = 0; i < props.formData.options.length; i++) {
       const label = props.formData.options[i].label;
       const value = props.formData.options[i].value;
-      const result = {
-        label: "",
-        value: "",
+      const result: EmitData = {
+        label: null,
+        value: null,
       };
       const regex = new RegExp(`^${string.toLocaleLowerCase()}`);
       // Matching the beginning of the string takes precedent
-      if (regex.test(label.toLocaleLowerCase())) {
-        result.label = label;
-        result.value = value;
-        options.value.push(result);
-      }
-      // Substrings are returned as partial matches at the end of the array
-      else if (label.toLocaleLowerCase().includes(string.toLocaleLowerCase())) {
-        result.label = label;
-        result.value = value;
-        partialMatches.push(result);
+      if (label) {
+        if (regex.test(label.toLocaleLowerCase())) {
+          result.label = label;
+          result.value = value;
+          options.value.push(result);
+        }
+        // Substrings are returned as partial matches at the end of the array
+        else if (
+          label.toLocaleLowerCase().includes(string.toLocaleLowerCase())
+        ) {
+          result.label = label;
+          result.value = value;
+          partialMatches.push(result);
+        }
       }
     }
   } else {
@@ -362,7 +369,7 @@ function filterData(): void {
 }
 
 async function clearInput() {
-  emitData(null, null);
+  emitHandler(null, null);
   await nextTick();
   filterData();
   forceRefresh.value++;
@@ -370,7 +377,7 @@ async function clearInput() {
 
 async function selectFromList(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement | HTMLLIElement;
-  let { label, value } = <AutocompleteEmitData>{
+  let { label, value } = <EmitData>{
     label: null,
     value: null,
   };
@@ -381,7 +388,7 @@ async function selectFromList(event: Event): Promise<void> {
     label = target.textContent;
     value = target.getAttribute("data-value");
   }
-  emitData(label, value);
+  emitHandler(label, value);
   await nextTick();
   isExpanded.value = false;
   filterData();
@@ -390,7 +397,7 @@ async function selectFromList(event: Event): Promise<void> {
 function closeMenuWithClickOutside(event: Event): void {
   if (!isExpanded.value) return;
   const target = event.target as Element;
-  const isClickInside = target.closest(`#${props.formData.formID}`);
+  const isClickInside = target.closest(`#${props.formData.attributes.id}`);
   if (!isClickInside) {
     isExpanded.value = false;
   }
