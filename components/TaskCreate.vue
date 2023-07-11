@@ -3,8 +3,8 @@
     <form>
       <FormHandler
         :form-data="propData.formHandler[0]"
-        :emit-value="taskData.task"
-        @update:emit-value="
+        :emit-label="taskData.task"
+        @update:emit-label="
           (value) => {
             (taskData.task = value), validateInput;
           }
@@ -13,15 +13,15 @@
 
       <FormHandler
         :form-data="propData.formHandler[1]"
-        :emit-value="taskData.description"
-        @update:emit-value="
+        :emit-label="taskData.description"
+        @update:emit-label="
           (value) => {
             (taskData.description = value), validateInput;
           }
         "
       />
 
-      <FormAutocomplete
+      <FormHandler
         :form-data="propData.formHandler[2]"
         :emit-label="frequencyData.label"
         :emit-value="frequencyData.value"
@@ -58,23 +58,29 @@ const propData = {
   formHandler: [
     {
       index: 0,
-      formID: "task",
-      elementType: "input",
-      attrType: "text",
-      labelText: "Task",
+      type: "input",
+      label: "Task",
+      attributes: {
+        id: "task",
+        type: "text",
+      },
     } as FormHandlerData,
     {
       index: 1,
-      formID: "description",
-      elementType: "input",
-      attrType: "text",
-      labelText: "Description",
+      type: "input",
+      label: "Description",
+      attributes: {
+        id: "description",
+        type: "text",
+      },
     } as FormHandlerData,
     {
       index: 2,
-      formID: "frequency",
-      elementType: "autocomplete",
-      labelText: "Frequency",
+      type: "autocomplete",
+      label: "Frequency",
+      attributes: {
+        id: "frequency",
+      },
       options: [
         { value: "daily", label: "Daily" },
         { value: "weekly", label: "Weekly" },
@@ -96,7 +102,7 @@ const taskData: PartialTaskData = reactive({
   task: null,
   description: null,
 });
-const frequencyData: AutocompleteTaskFrequencyData = reactive({
+const frequencyData: EmitTaskFrequencyData = reactive({
   label: null,
   value: null,
 });
