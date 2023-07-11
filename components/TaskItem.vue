@@ -129,7 +129,7 @@
           {{ localTask.frequency.label }}
         </template>
 
-        <FormAutocomplete
+        <FormHandler
           v-if="isEditable"
           :form-data="propData.formHandler[0]"
           :emit-label="localTask.frequency.label"
@@ -348,11 +348,13 @@ const propData = {
   formHandler: [
     {
       index: 0,
-      formID: "task-frequency",
-      elementType: "autocomplete",
-      labelText: "Frequency",
+      type: "autocomplete",
+      label: "Frequency",
       default: propDefaultLabel(),
       style: "mini",
+      attributes: {
+        id: "task-frequency",
+      },
       options: [...propOptions],
     } as FormHandlerData,
   ],
@@ -375,7 +377,7 @@ const formattedCreationDate: Ref<string> = ref("");
 const formattedCreationTime: Ref<string> = ref("");
 const convertedEditDate: Ref<string> = ref("");
 const convertedEditTime: Ref<string> = ref("");
-const frequencyLabels: Ref<Array<string | undefined>> = ref([]);
+const frequencyLabels: Ref<Array<string | null>> = ref([]);
 /**
  * Called on a task when edit mode is induced.
  * Updates localTask reactive variable to sync with changes made.
@@ -407,15 +409,17 @@ const detectChanges = computed((): void => {
  * If hasBeenEditedLocally is true when it is called, call updateTask to commit the changes.
  */
 async function toggleEditMode(): Promise<void> {
-  if (!editIsValid()) return;
+  if (!editIsValid) return;
   isEditable.value = !isEditable.value;
   isEditable.value ? (isExpanded.value = true) : (isExpanded.value = false);
   await nextTick();
   if (hasBeenEditedLocally.value) {
     if (editIsValid()) {
       updateTask();
+      return;
     }
   }
+  syncPropDataWithLocalData();
 }
 /**
  * Connects to database, updates data and pushes a notification to the user.
@@ -496,6 +500,7 @@ function editIsValid(): boolean | void {
   }
   return true;
 }
+
 function generateFrequencyLabels(): void {
   if (!propData.formHandler[0].options) return;
   for (let i = 0; i < propData.formHandler[0].options.length; i++) {
