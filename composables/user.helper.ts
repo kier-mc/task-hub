@@ -19,13 +19,10 @@
  * convertCountry("Afghanistan")
  */
 export function convertCountry(
-  input: Database["countries"]["country_id"] | Database["countries"]["name"]
-): Database["countries"]["name"] | Database["countries"]["country_id"] {
+  input: CountryID | CountryName
+): CountryName | CountryID {
   // Lookup label via ID
-  const countryLabels: Record<
-    Database["countries"]["country_id"],
-    Database["countries"]["name"]
-  > = {
+  const countryLabels: Record<CountryID, CountryName> = {
     1: "Afghanistan",
     2: "Åland Islands",
     3: "Albania",
@@ -276,10 +273,7 @@ export function convertCountry(
     248: "Zambia",
     249: "Zimbabwe",
   };
-  const countryIDs: Record<
-    Database["countries"]["name"],
-    Database["countries"]["country_id"]
-  > = {
+  const countryIDs: Record<CountryName, CountryID> = {
     Afghanistan: 1,
     "Åland Islands": 2,
     Albania: 3,
@@ -559,13 +553,8 @@ export function convertCountry(
  * // Returns "GB"
  * getISOCodeFromCountry("United Kingdom")
  */
-export function getISOCodeFromCountry(
-  input: CountryName
-): Database["countries"]["iso_code"] {
-  const lookupTable: Record<
-    Database["countries"]["name"],
-    Database["countries"]["iso_code"]
-  > = {
+export function getISOCodeFromCountry(input: CountryName): CountryISOCode {
+  const lookupTable: Record<CountryName, CountryISOCode> = {
     Afghanistan: "AF",
     "Åland Islands": "AX",
     Albania: "AL",

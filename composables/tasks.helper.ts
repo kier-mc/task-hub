@@ -6,17 +6,10 @@
  * @returns {string|number} a string or a number, depending on param
  */
 export function convertFrequency(
-  input:
-    | Database["frequency"]["frequency_id"]
-    | Database["frequency"]["repeats_every"]
-):
-  | Database["frequency"]["repeats_every"]
-  | Database["frequency"]["frequency_id"] {
+  input: FrequencyID | FrequencyRepetition
+): FrequencyRepetition | FrequencyID {
   // Lookup label via ID
-  const frequencyLabels: Record<
-    Database["frequency"]["frequency_id"],
-    Database["frequency"]["repeats_every"]
-  > = {
+  const frequencyLabels: Record<FrequencyID, FrequencyRepetition> = {
     1: "daily",
     2: "weekly",
     3: "fortnightly",
@@ -26,10 +19,7 @@ export function convertFrequency(
     7: "annually",
   };
   // Lookup ID via label
-  const frequencyIDs: Record<
-    Database["frequency"]["repeats_every"],
-    Database["frequency"]["frequency_id"]
-  > = {
+  const frequencyIDs: Record<FrequencyRepetition, FrequencyID> = {
     daily: 1,
     weekly: 2,
     fortnightly: 3,
