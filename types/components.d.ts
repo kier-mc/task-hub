@@ -9,7 +9,7 @@ interface FormHandlerData {
   attributes: {
     autocomplete?: AutocompleteAttributeOptions;
     id: string;
-    type?: string;
+    type?: InputAttributeType;
   };
   options?: FormHandlerOptionsData[];
 }
