@@ -165,10 +165,15 @@
     filter: none;
   }
 }
-
 .button {
   &:not(:last-child) {
     margin-right: 1rem;
+  }
+}
+.input-wrapper,
+.autocomplete-wrapper {
+  &:not(:last-child) {
+    margin-bottom: 1rem;
   }
 }
 </style>
@@ -287,6 +292,7 @@ const STEPPER_WIDTH = 640 - 32;
 /* Template refs */
 const container: Ref<HTMLDivElement | null> = ref(null);
 const timeline: Ref<HTMLDivElement | null> = ref(null);
+
 /**
  * Calculates the content portion of the stepper. The content portion
  * is defined as the section of the stepper that displays form information,
