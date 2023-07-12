@@ -68,5 +68,5 @@ interface PartialTaskData {
   description: string | null;
 }
 interface CompleteTaskData extends PartialTaskData {
-  frequency: AutocompleteTaskFrequencyData;
+  frequency: EmitTaskFrequencyData;
 }
