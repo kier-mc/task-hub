@@ -1,7 +1,7 @@
 <template>
   <div class="create-task">
     <form>
-      <FormHandler
+      <FormInput
         :form-data="propData.formHandler[0]"
         :emit-label="taskData.task"
         @update:emit-label="
@@ -11,7 +11,7 @@
         "
       />
 
-      <FormHandler
+      <FormInput
         :form-data="propData.formHandler[1]"
         :emit-label="taskData.description"
         @update:emit-label="
@@ -21,7 +21,7 @@
         "
       />
 
-      <FormHandler
+      <FormAutocomplete
         :form-data="propData.formHandler[2]"
         :emit-label="frequencyData.label"
         :emit-value="frequencyData.value"
@@ -157,7 +157,7 @@ async function createNewTask(taskData: CompleteTaskData): Promise<void> {
     return;
   }
   notificationsStore.setMessage("Successfully created task", "success");
-  clearCredentials([ref(taskData), ref(frequencyData)]);
+  clearAllFields([ref(taskData), ref(frequencyData)]);
   taskStore.getTasks();
 }
 </script>

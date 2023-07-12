@@ -24,16 +24,14 @@
           :data-active="activeSlide === entry.index ? true : false"
         >
           <template v-for="(formData, index) in entry.formData" :key="index">
-            <template v-if="entry.formData[index].elementType === 'input'">
-              <FormHandler
+            <template v-if="entry.formData[index].type === 'input'">
+              <FormInput
                 :form-data="formData"
                 :emit-label="credentialData[formData.formID]"
               />
             </template>
-            <template
-              v-if="entry.formData[index].elementType === 'autocomplete'"
-            >
-              <FormHandler
+            <template v-if="entry.formData[index].type === 'autocomplete'">
+              <FormAutocomplete
                 :form-data="formData"
                 :emit-label="countryData.label"
                 :emit-value="countryData.value"
@@ -319,7 +317,7 @@ function nextStep(): void {
     container.value.style.transform = `translate3d(${current.value}px, 0, 0)`;
   } else {
     createUser(credentials);
-    clearCredentials([ref(credentialData), ref(countryData)]);
+    clearAllFields([ref(credentialData), ref(countryData)]);
   }
 }
 /**

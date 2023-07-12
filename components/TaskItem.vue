@@ -62,7 +62,7 @@
           <SVGUndo class="task__icon" />
         </button>
         <button type="button" class="task__button" @click="toggleEditMode()">
-          <template v-if="isEditable">
+          <template v-if="hasBeenEditedLocally">
             <SVGSave class="task__icon" />
           </template>
           <template v-else>
@@ -129,7 +129,7 @@
           {{ localTask.frequency.label }}
         </template>
 
-        <FormHandler
+        <FormAutocomplete
           v-if="isEditable"
           :form-data="propData.formHandler[0]"
           :emit-label="localTask.frequency.label"
@@ -409,7 +409,7 @@ const detectChanges = computed((): void => {
  * If hasBeenEditedLocally is true when it is called, call updateTask to commit the changes.
  */
 async function toggleEditMode(): Promise<void> {
-  if (!editIsValid) return;
+  if (!editIsValid()) return;
   isEditable.value = !isEditable.value;
   isEditable.value ? (isExpanded.value = true) : (isExpanded.value = false);
   await nextTick();
@@ -419,7 +419,6 @@ async function toggleEditMode(): Promise<void> {
       return;
     }
   }
-  syncPropDataWithLocalData();
 }
 /**
  * Connects to database, updates data and pushes a notification to the user.
@@ -487,15 +486,19 @@ function updateEditDateAndTime(timestamp: string): void {
   ) as string;
 }
 function editIsValid(): boolean | void {
-  if (!hasBeenEditedLocally.value) return true;
+  const frequencyIsValid = propOptions.some((option) => {
+    return option.value === localTask.frequency.value;
+  });
   if (!localTask.task) {
-    notificationsStore.setMessage("Please enter a valid task name", "error");
+    notificationsStore.setMessage("Invalid task title", "error");
+    syncLocalDataWithPropData();
+    hasBeenEditedLocally.value = false;
     return false;
-  } else if (!localTask.frequency) {
-    notificationsStore.setMessage(
-      "Please enter a valid task frequency",
-      "error"
-    );
+  }
+  if (!frequencyIsValid) {
+    notificationsStore.setMessage("Invalid task frequency", "error");
+    syncLocalDataWithPropData();
+    hasBeenEditedLocally.value = false;
     return false;
   }
   return true;
@@ -508,16 +511,16 @@ function generateFrequencyLabels(): void {
     frequencyLabels.value.push(option.label);
   }
 }
-function syncPropDataWithLocalData(): void {
+function syncLocalDataWithPropData(): void {
   localTask.task = props.taskData.task;
   localTask.description = props.taskData.description;
   localTask.frequency.label = propDefaultLabel() ?? null;
-  localTask.frequency.value = convertFrequency(
-    props.taskData.frequency_id
-  ) as FrequencyRepetition;
+  localTask.frequency.value =
+    (convertFrequency(props.taskData.frequency_id) as FrequencyRepetition) ??
+    null;
 }
 async function handleUndo(): Promise<void> {
-  syncPropDataWithLocalData();
+  syncLocalDataWithPropData();
   await nextTick();
   hasBeenEditedLocally.value = false;
 }
@@ -541,7 +544,7 @@ Read the timestamp from the props and attempt to populate date/time refs
 onMounted(async () => {
   if (!userStore.data) await userStore.fetchData();
   generateFrequencyLabels();
-  syncPropDataWithLocalData();
+  syncLocalDataWithPropData();
   formatDateAndTime();
   checkForPreviousEdit();
 });

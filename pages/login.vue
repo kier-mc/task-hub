@@ -8,14 +8,14 @@
         />
         <div class="modal__message">Logging in...</div>
       </div>
-      <FormHandler
+      <FormInput
         class="login__input"
         :form-data="propData.formHandler[0]"
         :disabled="isLoading"
         :aria-disabled="isLoading"
         v-model:emit-label="credentials.email"
       />
-      <FormHandler
+      <FormInput
         class="login__input"
         :form-data="propData.formHandler[1]"
         :disabled="isLoading"
