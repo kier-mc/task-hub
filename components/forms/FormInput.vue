@@ -1,24 +1,26 @@
 <template>
-  <div class="input">
-    <label :class="setLabelClass" :for="setIDAttribute">
-      {{ props.formData.label }}
-    </label>
-    <input
-      ref="inputElement"
-      class="input__element"
-      :type="setTypeAttribute"
-      :id="setIDAttribute"
-      :name="setIDAttribute"
-      :autocomplete="setAutocompleteAttribute"
-      :value="props.emitLabel"
-      @input="emitEvent()"
-      @focus="isFocused = true"
-      @blur="isFocused = false"
-    />
+  <div class="input-wrapper">
+    <div class="input">
+      <label :class="setLabelClass" :for="setIDAttribute">
+        {{ props.formData.label }}
+      </label>
+      <input
+        ref="inputElement"
+        class="input__element"
+        :type="setTypeAttribute"
+        :id="setIDAttribute"
+        :name="setIDAttribute"
+        :autocomplete="setAutocompleteAttribute"
+        :value="props.emitLabel"
+        @input="emitEvent()"
+        @focus="isFocused = true"
+        @blur="isFocused = false"
+      />
+    </div>
+    <span v-if="props.formData.hint" class="input__hint">
+      {{ props.formData.hint }}
+    </span>
   </div>
-  <span v-if="props.formData.hint" class="input__hint">
-    {{ props.formData.hint }}
-  </span>
 </template>
 
 <style scoped lang="scss">

@@ -1,57 +1,63 @@
 <template>
-  <div
-    :class="setParentClass"
-    :id="props.formData.attributes.id"
-    @keyup.escape="isExpanded = false"
-  >
-    <div :class="setControlsClass">
-      <label :class="setLabelClass" :for="props.formData.attributes.id">
-        {{ props.formData.label }}
-      </label>
-      <input
-        ref="inputElement"
-        :class="setInputClass"
-        :value="props.emitLabel"
-        :placeholder="props.formData.default"
-        @click="isExpanded = true"
-        @input="handleInput($event)"
-        @keyup.enter="selectFromList($event)"
-      />
-      <button :class="setClearButtonClass" @click="clearInput()" type="button">
-        <SVGXMark class="autocomplete__icon" />
-      </button>
-      <button
-        :class="setDropdownButtonClass"
-        @click="isExpanded = !isExpanded"
-        type="button"
-      >
-        <SVGExpandMore class="autocomplete__icon" />
-      </button>
-    </div>
-    <ul
-      ref="menuElement"
-      :class="setULClass"
-      :aria-expanded="setARIAExpandedState"
-      tabindex="-1"
+  <div class="autocomplete-wrapper">
+    <div
+      :class="setParentClass"
+      :id="props.formData.attributes.id"
+      @keyup.escape="isExpanded = false"
     >
-      <li
-        v-for="(data, index) in options"
-        ref="listElements"
-        :key="index"
-        :data-value="data.value"
-        :class="setLIClass"
-        :tabindex="isExpanded ? 0 : -1"
-        @click="selectFromList($event)"
-        @keyup.enter="selectFromList($event)"
-        @keyup.space="selectFromList($event)"
+      <div :class="setControlsClass">
+        <label :class="setLabelClass" :for="props.formData.attributes.id">
+          {{ props.formData.label }}
+        </label>
+        <input
+          ref="inputElement"
+          :class="setInputClass"
+          :value="props.emitLabel"
+          :placeholder="props.formData.default"
+          @click="isExpanded = true"
+          @input="handleInput($event)"
+          @keyup.enter="selectFromList($event)"
+        />
+        <button
+          :class="setClearButtonClass"
+          @click="clearInput()"
+          type="button"
+        >
+          <SVGXMark class="autocomplete__icon" />
+        </button>
+        <button
+          :class="setDropdownButtonClass"
+          @click="isExpanded = !isExpanded"
+          type="button"
+        >
+          <SVGExpandMore class="autocomplete__icon" />
+        </button>
+      </div>
+      <ul
+        ref="menuElement"
+        :class="setULClass"
+        :aria-expanded="setARIAExpandedState"
+        tabindex="-1"
       >
-        {{ data.label }}
-      </li>
-    </ul>
+        <li
+          v-for="(data, index) in options"
+          ref="listElements"
+          :key="index"
+          :data-value="data.value"
+          :class="setLIClass"
+          :tabindex="isExpanded ? 0 : -1"
+          @click="selectFromList($event)"
+          @keyup.enter="selectFromList($event)"
+          @keyup.space="selectFromList($event)"
+        >
+          {{ data.label }}
+        </li>
+      </ul>
+    </div>
+    <span v-if="props.formData.hint" class="autocomplete__hint">
+      {{ props.formData.hint }}
+    </span>
   </div>
-  <span v-if="props.formData.hint" class="autocomplete__hint">
-    {{ props.formData.hint }}
-  </span>
 </template>
 
 <style scoped lang="scss">
