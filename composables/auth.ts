@@ -6,11 +6,6 @@
  * Declared at start of each function instead, which can only be called after init
  */
 
-import {
-  allCredentialFieldsArePopulated,
-  clearCredentials,
-} from "./auth.helper";
-
 /**
  * Attempts login via SupabaseAuthClient (@nuxtjs/supabase).
  * Pushes a notification to the user and redirects to hub page.
@@ -21,7 +16,7 @@ export async function loginUser(
   credentials: Ref<LoginCredentialsData>
 ): Promise<void> {
   const notificationsStore = useNotificationsStore();
-  if (!allCredentialFieldsArePopulated(credentials)) {
+  if (!allFieldsArePopulated(credentials)) {
     notificationsStore.setMessage(
       "Login failed. Please ensure all fields are filled in.",
       "error"
@@ -49,7 +44,7 @@ export async function loginUser(
       "success"
     );
     await userStore.fetchData();
-    clearCredentials(credentials);
+    clearAllFields(credentials);
     await navigateTo("/hub");
   }
 }
@@ -65,7 +60,7 @@ export async function createUser(
   credentials: ComputedRef<CompleteNewAccountCredentialData>
 ) {
   const notificationsStore = useNotificationsStore();
-  if (!allCredentialFieldsArePopulated(credentials)) {
+  if (!allFieldsArePopulated(credentials)) {
     notificationsStore.setMessage(
       "Account creation failed. Please ensure all fields are filled in.",
       "error"
