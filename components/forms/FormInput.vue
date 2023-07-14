@@ -1,6 +1,6 @@
 <template>
   <div class="input-wrapper">
-    <div class="input">
+    <div class="input" :aria-disabled="props.isDisabled">
       <label :class="setLabelClass" :for="setIDAttribute">
         {{ props.formData.label }}
       </label>
@@ -12,6 +12,8 @@
         :name="setIDAttribute"
         :autocomplete="setAutocompleteAttribute"
         :value="props.emitLabel"
+        :disabled="props.isDisabled"
+        :aria-disabled="props.isDisabled"
         @input="emitEvent()"
         @focus="isFocused = true"
         @blur="isFocused = false"
@@ -24,16 +26,23 @@
 </template>
 
 <style scoped lang="scss">
+@use "../assets/scss/data/colour";
 .input {
   position: relative;
+  transition: opacity 200ms ease-in-out;
+  &[aria-disabled="true"] {
+    opacity: 0.5;
+  }
   &__label {
     pointer-events: none;
     position: absolute;
     top: 50%;
     right: 0rem;
     left: 0.55rem;
+    font-size: 0.875rem;
+    color: colour.$input-label;
     transform: translateY(-50%);
-    transition: top 125ms, transform 125ms;
+    transition: top 125ms, left 125ms, transform 125ms;
     transform-origin: top left;
     &--focused {
       top: 0.5rem;
@@ -42,16 +51,18 @@
   }
   &__element {
     all: unset;
-    box-sizing: content-box;
     width: calc(calc(100% - 1rem) - 2px);
     min-height: calc(48px - 1rem);
     padding-top: 1rem;
     padding-inline: 0.5rem;
-    border: 1px solid hsl(0, 0%, 30%);
-    background-color: hsl(0, 0%, 15%);
+    border: 1px solid colour.$input-border;
+    background-color: colour.$input-background;
     cursor: text;
+    &:disabled {
+      cursor: not-allowed;
+    }
     &:focus {
-      outline: 1px solid hsl(0, 0%, 50%);
+      outline: 2px solid colour.$input-border-focus;
     }
   }
   &__hint {
@@ -73,6 +84,10 @@ const props = defineProps({
   emitLabel: {
     type: [String, null] as PropType<String | null>,
     required: true,
+  },
+  isDisabled: {
+    type: Boolean as PropType<boolean>,
+    required: false,
   },
 });
 

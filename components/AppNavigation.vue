@@ -40,21 +40,20 @@
     height: 0;
     position: absolute;
     top: 0;
-    right: 0;    
-    background-color: colour.$app-navigation-menu;
+    right: 0;
+    z-index: 990; 
     box-shadow: effect.$drop-shadow-3-lighter;
     color: colour.$font-light;
+    backdrop-filter: blur(4px);
     transition:
       visibility 200ms ease-in-out,
       height 175ms ease-in-out;
     &[aria-expanded="true"] {
       visibility: visible;
-      height: v-bind(menuHeight);
-      z-index: 990;
+      height: v-bind(menuHeight);      
     }
     &[aria-expanded="true"] .nav__option {
       opacity: 1;
-      z-index: 1000;
     }
   }
   /* prettier-ignore */
@@ -66,7 +65,9 @@
     align-items: center;
     height: 3rem;
     width: 15rem;
+    z-index: 1000;
     padding-inline: 1rem;
+    background-color: colour.$app-navigation-menu;
     cursor: pointer;
     transition:
       background-color 125ms ease-in-out,
