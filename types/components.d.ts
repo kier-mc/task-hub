@@ -32,15 +32,6 @@ interface EmitCountryData extends EmitDataTemplate<string, CountryName> {}
 // Loading indicator component
 interface LoadingIndicatorData {
   type: "circle" | "dots";
-  size: {
-    width: number;
-    height: number;
-  };
-  colour: {
-    hue: number;
-    saturation: number;
-    lightness: number;
-  };
 }
 // Login form
 interface LoginCredentialsData {
