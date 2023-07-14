@@ -1,55 +1,80 @@
-$app-background: linear-gradient(
-  240deg,
-  hsl(210, 10%, 50%) 0%,
-  hsl(210, 15%, 35%) 100%
-);
-$app-background-dark: linear-gradient(
-  240deg,
-  hsl(210, 10%, 30%) 0%,
+@use "sass:color";
+/*
+ *
+ * Main colour definitions
+ *
+ */
+// Main
+$primary: hsl(210, 15%, 15%);
+$secondary: hsl(345, 85%, 60%);
+$tertiary: hsl(165, 95%, 40%);
+$neutral: hsl(210, 10%, 50%);
 
-  hsl(210, 15%, 15%) 100%
+// Gradients
+$gradient-app-background: linear-gradient(
+  210deg,
+  hsl(208.8, 9.8%, 50%),
+  hsl(210, 10.5%, 48.6%),
+  hsl(208.8, 10.4%, 47.3%),
+  hsl(210, 11.1%, 45.9%),
+  hsl(207.7, 11.5%, 44.3%),
+  hsl(210, 11.8%, 43.1%),
+  hsl(211.1, 12.7%, 41.8%),
+  hsl(210, 12.6%, 40.4%),
+  hsl(211.1, 13.6%, 39%),
+  hsl(211.1, 14%, 37.8%),
+  hsl(211.1, 14.6%, 36.3%),
+  hsl(211.1, 15.1%, 35.1%)
 );
-$app-background-bright: linear-gradient(
-  240deg,
-  hsl(210, 30%, 60%) 0%,
-  hsl(210, 45%, 45%) 100%
-);
-
-$font-light: hsl(210, 5%, 90%);
-$font-dark: hsl(210, 5%, 15%);
-$font-light-semitransparent: hsla(210, 15%, 90%, 0.8);
-$font-dark-semitransparent: hsla(210, 15%, 5%, 0.8);
-$font-accent: hsl(210, 10%, 25%);
-
-$app-header: linear-gradient(
+$gradient-app-header: linear-gradient(
   180deg,
-  hsl(210, 5%, 10%) 0%,
-  hsl(210, 10%, 15%) 100%
+  color.adjust($primary, $lightness: -5%),
+  color.adjust($primary)
 );
-
-$app-navigation-menu: hsl(210, 10%, 15%);
-$app-navigation-menu-hover: hsl(210, 10%, 25%);
-
-$window-title: linear-gradient(
+$gradient-window-title: linear-gradient(
   180deg,
-  hsl(210, 10%, 20%) 0%,
-  hsl(210, 15%, 35%) 100%
+  color.adjust($primary, $lightness: +2.5%) 0%,
+  color.adjust($primary, $lightness: +5%) 100%
 );
-$window-body: hsl(210, 10%, 85%);
-
-$window-title-glassmorphic: linear-gradient(
+$gradient-button-background: linear-gradient(
   180deg,
-  hsla(210, 10%, 20%, 0.5) 0%,
-  hsla(210, 15%, 35%, 0.5) 100%
+  color.adjust($primary, $lightness: +5%) 0%,
+  color.adjust($primary, $lightness: +7.5%) 100%
 );
-$window-body-glassmorphic: hsla(210, 25%, 80%, 0.5);
 
-$button-background: hsl(210, 10%, 95%);
-$button-background-hover: hsl(210, 10%, 25%);
-$button-border: hsl(210, 15%, 60%);
-$button-border-hover: hsl(210, 15%, 35%);
-$button-font: hsl(210, 20%, 25%);
+// Fonts
+$font-light: color.adjust($neutral, $saturation: -5%, $lightness: +40%);
+$font-dark: color.adjust($neutral, $saturation: -5%, $lightness: -30%);
+$font-light-translucent: color.adjust($font-light, $alpha: -0.2);
+$font-dark-translucent: color.adjust($font-dark, $alpha: -0.2);
+$font-accent-primary: color.adjust($primary, $saturation: -5%, $lightness: +10%);
 
-$input-background: hsl(210, 10%, 95%);
-$input-border: hsl(210, 15%, 60%);
-$input-border-hover: hsl(210, 15%, 35%);
+/*
+ *
+ * Layout utilisation
+ *
+ */
+// App
+$app-background: $gradient-app-background;
+$app-header: $gradient-app-header;
+$app-navigation-menu: color.adjust($primary, $saturation: -5%, $alpha: -0.2);
+$app-navigation-menu-hover: color.adjust($app-navigation-menu, $lightness: +5%);
+
+// Windows/menus
+$window-title: $gradient-window-title;
+$window-body: color.adjust($neutral, $lightness: +37.5%);
+
+// Generic buttons
+$button-background: color.adjust($primary, $lightness: +10%);
+$button-background-hover: color.adjust($button-background, $lightness: +10%);
+$button-border: color.adjust($button-background, $lightness: -5%);
+$button-border-hover: color.adjust($button-background-hover, $lightness: -5%);
+$button-font: color.adjust($neutral, $lightness: +40%);
+$button-font-hover: color.adjust($button-font, $lightness: +5%);
+$button-focus: color.adjust($button-border, $saturation: +10%, $lightness: +40%);
+
+// Generic input
+$input-background: color.adjust($neutral, $lightness: +47.5%);
+$input-label: $font-accent-primary;
+$input-border: color.adjust($primary, $lightness: +45%);
+$input-border-focus: color.adjust($input-border, $lightness: -10%);
