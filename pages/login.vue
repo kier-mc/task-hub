@@ -1,72 +1,101 @@
 <template>
-  <div class="temp">
+  <div class="container-login">
+    <header class="header">
+      <h2 class="header__title">Login</h2>
+    </header>
     <form class="login" @keyup.enter="loginWrapper(ref(credentials))">
-      <div v-if="isLoading" class="modal">
-        <AppLoadingIndicator
-          class="modal__indicator"
-          :options="propData.loadingIndicator"
-        />
-        <div class="modal__message">Logging in...</div>
-      </div>
       <FormInput
         class="login__input"
         :form-data="propData.formHandler[0]"
-        :disabled="isLoading"
+        :is-disabled="isLoading"
         :aria-disabled="isLoading"
         v-model:emit-label="credentials.email"
       />
       <FormInput
         class="login__input"
         :form-data="propData.formHandler[1]"
-        :disabled="isLoading"
+        :is-disabled="isLoading"
         :aria-disabled="isLoading"
         v-model:emit-label="credentials.password"
       />
+
       <button
+        ref="button"
         type="button"
-        class="button"
+        class="app-button submit-button"
         :disabled="isLoading"
         :aria-disabled="isLoading"
         @click="loginWrapper(ref(credentials))"
       >
-        Submit
+        <Transition name="transition-fade-opacity">
+          <AppLoadingIndicator
+            v-if="isLoading"
+            class="submit-button__loading"
+            :options="propData.loadingIndicator"
+          />
+          <div v-else class="submit-button__label">Submit</div>
+        </Transition>
       </button>
     </form>
   </div>
 </template>
 
 <style scoped lang="scss">
-.temp {
-  padding: 1rem;
-  background-color: hsl(0, 0%, 17.5%);
+@use "../assets/scss/data/colour";
+@use "../assets/scss/data/effect";
+@use "../assets/scss/data/layout";
+.container-login {
+  max-width: 35ch;
+  margin-inline: auto;
+  margin-top: 2rem;
+  box-shadow: effect.$drop-shadow-2;
+}
+.header {
+  display: flex;
+  align-items: center;
+  height: 3rem;
+  padding-inline: 1rem;
+  margin-inline: auto;
+  background-image: colour.$window-title;
+  color: colour.$font-light;
+  &__title {
+    all: unset;
+    font-size: 1.025rem;
+    font-weight: bold;
+  }
 }
 .login {
   position: relative;
-  max-width: 384px;
   padding: 1rem;
-  margin: 0 auto;
-  background-color: hsl(0, 0%, 20%);
+  margin-inline: auto;
+  background-color: colour.$window-body;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   &__input {
     margin-bottom: 1rem;
   }
 }
-.modal {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-  background-color: hsla(0, 0%, 10%, 0.75);
-  backdrop-filter: blur(4px);
-  &__indicator {
-    margin-bottom: 1rem;
+.submit-button {
+  width: v-bind(buttonWidth);
+  margin-left: auto;
+  &__loading {
+    position: absolute;
+    inset: 0;
+    height: inherit;
+    margin-inline: auto;
+    fill: colour.$font-light;
   }
-  &__message {
-    user-select: none;
-    font-size: 1.25rem;
-  }
+}
+.transition-fade-opacity-enter-active,
+.transition-fade-opacity-leave-active {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 200ms ease, visibility 200ms ease;
+}
+
+.transition-fade-opacity-enter-from,
+.transition-fade-opacity-leave-to {
+  visibility: hidden;
+  opacity: 0;
 }
 </style>
 
@@ -96,16 +125,7 @@ const propData = {
     } as FormHandlerData,
   ],
   loadingIndicator: {
-    type: "circle",
-    size: {
-      width: 48,
-      height: 48,
-    },
-    colour: {
-      hue: 0,
-      saturation: 0,
-      lightness: 100,
-    },
+    type: "dots",
   } as LoadingIndicatorData,
 };
 
@@ -115,10 +135,22 @@ const credentials: LoginCredentialsData = reactive({
 });
 
 const isLoading: Ref<boolean> = ref(false);
+const buttonWidth: Ref<string> = ref("initial");
+
+const button: Ref<HTMLButtonElement | null> = ref(null);
 
 async function loginWrapper(credentials: Ref<LoginCredentialsData>) {
   isLoading.value = true;
   await loginUser(credentials);
   isLoading.value = false;
 }
+
+function getInitialButtonWidth() {
+  if (!button.value) return;
+  buttonWidth.value = `${button.value.clientWidth}px`;
+}
+
+onMounted(() => {
+  getInitialButtonWidth();
+});
 </script>
