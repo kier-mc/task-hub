@@ -1,0 +1,48 @@
+@use "./data/colour";
+@use "./data/effect";
+@use "./data/layout";
+@use "./data/normalise";
+
+body {
+  height: 100vh;
+  background-image: colour.$app-background;
+  color: colour.$font-dark;
+  font-family: Inter, sans-serif;
+}
+
+.app-button {
+  all: unset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 2rem;
+  padding-inline: 0.5rem;
+  border: 1px solid colour.$button-border;
+  border-radius: 4px;
+  background-color: colour.$button-background;
+  text-rendering: optimizeLegibility;
+  font-variant: tabular-nums;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  font-weight: bold;
+  letter-spacing: 0.05rem;
+  color: colour.$button-font;
+  transition: background-color 125ms ease-in-out, border 125ms ease-in-out;
+  cursor: pointer;
+  &:disabled {
+    cursor: not-allowed;
+    &:hover {
+      border: 1px solid colour.$button-border;
+      border-radius: 4px;
+      background-color: colour.$button-background;
+    }
+  }
+  &:focus {
+    outline: 2px solid colour.$input-border-hover;
+  }
+  &:hover {
+    border: 1px solid colour.$button-border-hover;
+    background-color: colour.$button-background-hover;
+    color: colour.$font-light;
+  }
+}

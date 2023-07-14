@@ -1,0 +1,55 @@
+$app-background: linear-gradient(
+  240deg,
+  hsl(210, 10%, 50%) 0%,
+  hsl(210, 15%, 35%) 100%
+);
+$app-background-dark: linear-gradient(
+  240deg,
+  hsl(210, 10%, 30%) 0%,
+
+  hsl(210, 15%, 15%) 100%
+);
+$app-background-bright: linear-gradient(
+  240deg,
+  hsl(210, 30%, 60%) 0%,
+  hsl(210, 45%, 45%) 100%
+);
+
+$font-light: hsl(210, 5%, 90%);
+$font-dark: hsl(210, 5%, 15%);
+$font-light-semitransparent: hsla(210, 15%, 90%, 0.8);
+$font-dark-semitransparent: hsla(210, 15%, 5%, 0.8);
+$font-accent: hsl(210, 10%, 25%);
+
+$app-header: linear-gradient(
+  180deg,
+  hsl(210, 5%, 10%) 0%,
+  hsl(210, 10%, 15%) 100%
+);
+
+$app-navigation-menu: hsl(210, 10%, 15%);
+$app-navigation-menu-hover: hsl(210, 10%, 25%);
+
+$window-title: linear-gradient(
+  180deg,
+  hsl(210, 10%, 20%) 0%,
+  hsl(210, 15%, 35%) 100%
+);
+$window-body: hsl(210, 10%, 85%);
+
+$window-title-glassmorphic: linear-gradient(
+  180deg,
+  hsla(210, 10%, 20%, 0.5) 0%,
+  hsla(210, 15%, 35%, 0.5) 100%
+);
+$window-body-glassmorphic: hsla(210, 25%, 80%, 0.5);
+
+$button-background: hsl(210, 10%, 95%);
+$button-background-hover: hsl(210, 10%, 25%);
+$button-border: hsl(210, 15%, 60%);
+$button-border-hover: hsl(210, 15%, 35%);
+$button-font: hsl(210, 20%, 25%);
+
+$input-background: hsl(210, 10%, 95%);
+$input-border: hsl(210, 15%, 60%);
+$input-border-hover: hsl(210, 15%, 35%);

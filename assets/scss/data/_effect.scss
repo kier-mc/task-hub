@@ -1,0 +1,13 @@
+$drop-shadow-1: 0 1px 3px hsla(210, 5%, 5%, 0.12),
+  0 1px 2px hsla(210, 5%, 5%, 0.24);
+$drop-shadow-2: 0 3px 6px hsla(210, 5%, 5%, 0.16),
+  0 3px 6px hsla(210, 5%, 5%, 0.23);
+$drop-shadow-3: 0 10px 20px hsla(210, 5%, 5%, 0.19),
+  0 6px 6px hsla(210, 5%, 5%, 0.23);
+
+$drop-shadow-1-lighter: 0 1px 3px hsla(210, 5%, 5%, 0.06),
+  0 1px 2px hsla(210, 5%, 5%, 0.12);
+$drop-shadow-2-lighter: 0 3px 6px hsla(210, 5%, 5%, 0.08),
+  0 3px 6px hsla(210, 5%, 5%, 0.115);
+$drop-shadow-3-lighter: 0 10px 20px hsla(210, 5%, 5%, 0.095),
+  0 6px 6px hsla(210, 5%, 5%, 0.115);
