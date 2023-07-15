@@ -6,36 +6,24 @@
     <form class="login" @keyup.enter="loginWrapper(ref(credentials))">
       <FormInput
         class="login__input"
-        :form-data="propData.formHandler[0]"
+        :data="propData.formHandler[0]"
         :is-disabled="isLoading"
         :aria-disabled="isLoading"
         v-model:emit-label="credentials.email"
       />
       <FormInput
         class="login__input"
-        :form-data="propData.formHandler[1]"
+        :data="propData.formHandler[1]"
         :is-disabled="isLoading"
         :aria-disabled="isLoading"
         v-model:emit-label="credentials.password"
       />
-
-      <button
-        ref="button"
-        type="button"
-        class="app-button submit-button"
-        :disabled="isLoading"
-        :aria-disabled="isLoading"
-        @click="loginWrapper(ref(credentials))"
-      >
-        <Transition name="transition-fade-opacity">
-          <AppLoadingIndicator
-            v-if="isLoading"
-            class="submit-button__loading"
-            :options="propData.loadingIndicator"
-          />
-          <div v-else class="submit-button__label">Submit</div>
-        </Transition>
-      </button>
+      <FormButton
+        class="login__button"
+        :data="propData.buttonData"
+        :is-disabled="isLoading"
+        :is-loading="isLoading"
+      />
     </form>
   </div>
 </template>
@@ -49,6 +37,9 @@
   margin-inline: auto;
   margin-top: 2rem;
   box-shadow: effect.$drop-shadow-2;
+  @media (max-width: layout.$breakpoint-medium) {
+    max-width: calc(100% - 2rem);
+  }
 }
 .header {
   display: flex;
@@ -69,37 +60,17 @@
   padding: 1rem;
   margin-inline: auto;
   background-color: colour.$window-body;
-  border: 1px solid rgba(255, 255, 255, 0.18);
   &__input {
     margin-bottom: 1rem;
   }
-}
-.submit-button {
-  width: v-bind(buttonWidth);
-  margin-left: auto;
-  &__loading {
-    position: absolute;
-    inset: 0;
-    height: inherit;
-    margin-inline: auto;
-    fill: colour.$font-light;
+  &__button {
+    margin-left: auto;
   }
-}
-.transition-fade-opacity-enter-active,
-.transition-fade-opacity-leave-active {
-  visibility: visible;
-  opacity: 1;
-  transition: opacity 200ms ease, visibility 200ms ease;
-}
-
-.transition-fade-opacity-enter-from,
-.transition-fade-opacity-leave-to {
-  visibility: hidden;
-  opacity: 0;
 }
 </style>
 
 <script setup lang="ts">
+import { SVGLogin } from "#components";
 /* Prop data */
 const propData = {
   formHandler: [
@@ -124,6 +95,14 @@ const propData = {
       },
     } as FormHandlerData,
   ],
+  buttonData: {
+    function: () => loginWrapper(ref(credentials)),
+    label: "Login",
+    icon: SVGLogin,
+    attributes: {
+      type: "button",
+    },
+  } as FormButtonData,
   loadingIndicator: {
     type: "dots",
   } as LoadingIndicatorData,
@@ -135,22 +114,10 @@ const credentials: LoginCredentialsData = reactive({
 });
 
 const isLoading: Ref<boolean> = ref(false);
-const buttonWidth: Ref<string> = ref("initial");
-
-const button: Ref<HTMLButtonElement | null> = ref(null);
 
 async function loginWrapper(credentials: Ref<LoginCredentialsData>) {
   isLoading.value = true;
   await loginUser(credentials);
   isLoading.value = false;
 }
-
-function getInitialButtonWidth() {
-  if (!button.value) return;
-  buttonWidth.value = `${button.value.clientWidth}px`;
-}
-
-onMounted(() => {
-  getInitialButtonWidth();
-});
 </script>
