@@ -1,4 +1,4 @@
-type InputAttributeType =
+type HTMLInputAttributeOptions =
   | "button"
   | "checkbox"
   | "color"

@@ -1,4 +1,4 @@
-type AutocompleteAttributeOptions =
+type HTMLAutocompleteAttributeOptions =
   | "on"
   | "name"
   | "honorific-prefix"

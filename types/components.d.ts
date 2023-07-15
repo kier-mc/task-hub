@@ -7,9 +7,9 @@ interface FormHandlerData {
   default?: string;
   style?: FormHandlerStyle;
   attributes: {
-    autocomplete?: AutocompleteAttributeOptions;
+    autocomplete?: HTMLAutocompleteAttributeOptions;
     id: string;
-    type?: InputAttributeType;
+    type?: HTMLInputAttributeOptions;
   };
   options?: FormHandlerOptionsData[];
 }
@@ -60,4 +60,12 @@ interface PartialTaskData {
 }
 interface CompleteTaskData extends PartialTaskData {
   frequency: EmitTaskFrequencyData;
+}
+interface FormButtonData {
+  function: Function;
+  label: string;
+  icon?: Component;
+  attributes: {
+    type: HTMLButtonAttributeOptions;
+  };
 }
