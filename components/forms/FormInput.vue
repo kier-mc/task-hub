@@ -2,7 +2,7 @@
   <div class="input-wrapper">
     <div class="input" :aria-disabled="props.isDisabled">
       <label :class="setLabelClass" :for="setIDAttribute">
-        {{ props.formData.label }}
+        {{ props.data.label }}
       </label>
       <input
         ref="inputElement"
@@ -19,8 +19,8 @@
         @blur="isFocused = false"
       />
     </div>
-    <span v-if="props.formData.hint" class="input__hint">
-      {{ props.formData.hint }}
+    <span v-if="props.data.hint" class="input__hint">
+      {{ props.data.hint }}
     </span>
   </div>
 </template>
@@ -77,7 +77,7 @@
 <script setup lang="ts">
 // Prop definitions
 const props = defineProps({
-  formData: {
+  data: {
     type: Object as PropType<FormHandlerData>,
     required: true,
   },
@@ -121,14 +121,14 @@ const setLabelClass = computed((): string | void => {
 });
 
 const setTypeAttribute = computed(() => {
-  return props.formData.attributes.type;
+  return props.data.attributes.type;
 });
 const setIDAttribute = computed(() => {
-  return props.formData.attributes.id;
+  return props.data.attributes.id;
 });
 const setAutocompleteAttribute = computed(() => {
-  return props.formData.attributes.autocomplete
-    ? props.formData.attributes.autocomplete
+  return props.data.attributes.autocomplete
+    ? props.data.attributes.autocomplete
     : "on";
 });
 </script>
