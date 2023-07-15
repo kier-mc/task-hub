@@ -5,17 +5,13 @@
         <template v-if="user && option.requiresAuth === true">
           <li class="nav__option" @click="option.function">
             <div class="option__label">{{ option.label }}</div>
-            <div class="option__icon">
-              <component class="option__icon" :is="option.icon" />
-            </div>
+            <component class="option__icon" :is="option.icon" />
           </li>
         </template>
         <template v-else-if="!user && option.requiresAuth === false">
           <li class="nav__option" @click="option.function">
             <div class="option__label">{{ option.label }}</div>
-            <div class="option__icon">
-              <component class="option__icon" :is="option.icon" />
-            </div>
+            <component class="option__icon" :is="option.icon" />
           </li>
         </template>
       </template>
@@ -48,13 +44,16 @@
     transition:
       visibility 200ms ease-in-out,
       height 175ms ease-in-out;
+    @media (max-width: layout.$breakpoint-medium) {
+      width: 100vw;
+    }
     &[aria-expanded="true"] {
       visibility: visible;
       height: v-bind(menuHeight);      
     }
     &[aria-expanded="true"] .nav__option {
       opacity: 1;
-    }
+    }    
   }
   /* prettier-ignore */
   &__option {
@@ -71,25 +70,29 @@
     cursor: pointer;
     transition:
       background-color 125ms ease-in-out,
-      opacity 150ms ease-in-out 100ms;
+      opacity 150ms ease-in-out 50ms;
+    @media (max-width: layout.$breakpoint-medium) {
+      width: calc(100% - 2rem);
+    }
     &:hover {
       background-color: colour.$app-navigation-menu-hover;
     }
-  }
-}
-.option {
-  &__label {
-    font-weight: bold;
-  }
-  &__icon {
-    aspect-ratio: 1/1;
-    width: 1.5rem;
-    fill: colour.$font-light;
+    @at-root .option {
+      &__label {
+        font-weight: bold;
+      }
+      &__icon {
+        aspect-ratio: 1/1;
+        width: 1.5rem;
+        fill: colour.$font-light;
+      }
+    }
   }
 }
 </style>
 
 <script setup lang="ts">
+import { User } from "@supabase/supabase-js";
 import {
   SVGHome,
   SVGCreateAccount,
@@ -102,7 +105,7 @@ const props = defineProps({
   isExpanded: { type: Boolean as PropType<boolean>, required: true },
 });
 
-const user = useSupabaseUser();
+const user: Ref<User | null> = useSupabaseUser();
 
 const propData = {
   navigation: [
@@ -145,7 +148,7 @@ const propData = {
   ],
 };
 
-const menuHeight = computed(() => {
+const menuHeight: ComputedRef<string> = computed((): string => {
   const count = propData.navigation.reduce((accumulator, option) => {
     if ((user && option.requiresAuth) || (!user && !option.requiresAuth)) {
       return accumulator + 1;
