@@ -131,4 +131,8 @@ const setAutocompleteAttribute = computed(() => {
     ? props.data.attributes.autocomplete
     : "on";
 });
+
+onMounted(() => {
+  setLabelClass;
+});
 </script>
