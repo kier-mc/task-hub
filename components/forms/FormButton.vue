@@ -37,6 +37,7 @@
   border-radius: 4px;
   background-color: colour.$button-background;
   box-shadow: effect.$drop-shadow-1-lighter;
+  user-select: none;
   text-rendering: optimizeLegibility;
   font-variant: tabular-nums;
   text-transform: uppercase;
@@ -44,13 +45,14 @@
   font-weight: bold;
   letter-spacing: 0.05rem;
   color: colour.$button-font;
-  transition: background-color 125ms ease-in-out, border 125ms ease-in-out;
+  transition: background-color 125ms ease-in-out, border 125ms ease-in-out,
+    opacity 200ms ease-in-out;
   cursor: pointer;
   &:disabled {
+    opacity: 0.5;
     cursor: not-allowed;
     &:hover {
       border: 1px solid colour.$button-border;
-      border-radius: 4px;
       background-color: colour.$button-background;
     }
   }
