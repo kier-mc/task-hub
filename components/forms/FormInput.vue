@@ -19,9 +19,9 @@
         @blur="isFocused = false"
       />
     </div>
-    <span v-if="props.data.hint" class="input__hint">
+    <div v-if="props.data.hint" class="input__hint">
       {{ props.data.hint }}
-    </span>
+    </div>
   </div>
 </template>
 
@@ -30,15 +30,31 @@
 .input {
   position: relative;
   transition: opacity 200ms ease-in-out;
+  &:focus-within {
+    &::before {
+      opacity: 1;
+    }
+  }
   &[aria-disabled="true"] {
     opacity: 0.5;
+  }
+  &::before {
+    content: "";
+    opacity: 0;
+    position: absolute;
+    inset: 0;
+    margin: -2px;
+    background-color: colour.$input-border-focus;
+    transition: opacity 200ms;
   }
   &__label {
     pointer-events: none;
     position: absolute;
     top: 50%;
     right: 0rem;
-    left: 0.55rem;
+    left: 0rem;
+    z-index: 10;
+    padding-inline: 0.75rem;
     font-size: 0.875rem;
     color: colour.$input-label;
     transform: translateY(-50%);
@@ -51,6 +67,7 @@
   }
   &__element {
     all: unset;
+    position: relative;
     width: calc(calc(100% - 1rem) - 2px);
     min-height: calc(48px - 1rem);
     padding-top: 1rem;
@@ -61,15 +78,14 @@
     &:disabled {
       cursor: not-allowed;
     }
-    &:focus {
-      outline: 2px solid colour.$input-border-focus;
-    }
   }
   &__hint {
-    margin-bottom: 0.25rem;
-    margin-left: 0.5rem;
+    display: flex;
+    align-items: center;
+    height: 1rem;
+    padding-inline: 0.25rem;
     font-size: 0.75rem;
-    opacity: 0.5;
+    color: colour.$font-dark-translucent;
   }
 }
 </style>
