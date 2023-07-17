@@ -1,5 +1,5 @@
 <template>
-  <div class="container-login">
+  <section class="container__login">
     <header class="header">
       <h2 class="header__title">Login</h2>
     </header>
@@ -25,15 +25,15 @@
         :is-loading="isLoading"
       />
     </form>
-  </div>
+  </section>
 </template>
 
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/effect";
 @use "../assets/scss/data/layout";
-.container-login {
-  max-width: 35ch;
+.container__login {
+  max-width: 40ch;
   margin-inline: auto;
   margin-top: 2rem;
   box-shadow: effect.$drop-shadow-2;
