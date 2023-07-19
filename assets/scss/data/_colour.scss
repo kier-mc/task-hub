@@ -64,7 +64,7 @@ $app-navigation-menu-hover: color.adjust($app-navigation-menu, $lightness: +5%);
 $window-title: $gradient-window-title;
 $window-body: color.adjust($neutral, $lightness: +37.5%);
 
-// Generic buttons
+// Buttons
 $button-background: color.adjust($primary, $lightness: +10%);
 $button-background-hover: color.adjust($button-background, $lightness: +10%);
 $button-border: color.adjust($button-background, $lightness: -5%);
@@ -73,8 +73,19 @@ $button-font: color.adjust($neutral, $lightness: +40%);
 $button-font-hover: color.adjust($button-font, $lightness: +5%);
 $button-focus: color.adjust($button-border, $saturation: +10%, $lightness: +40%);
 
-// Generic input
+// Inputs
 $input-background: color.adjust($neutral, $lightness: +47.5%);
 $input-label: $font-accent-primary;
 $input-border: color.adjust($primary, $lightness: +45%);
 $input-border-focus: color.adjust($input-border, $lightness: -10%);
+
+
+// Autocomplete
+$autocomplete-background: color.adjust($neutral, $lightness: +47.5%);
+$autocomplete-label: $font-accent-primary;
+$autocomplete-border: color.adjust($primary, $lightness: +45%);
+$autocomplete-border-focus: color.adjust($input-border, $lightness: -10%);
+$autocomplete-options-background: color.adjust($neutral, $lightness: +50%);
+$autocomplete-option-background-a: color.adjust($neutral, $lightness: +40%);
+$autocomplete-option-background-b: color.adjust($neutral, $lightness: +47.5%);
+$autocomplete-option-background-hover: color.adjust($primary, $lightness: +55%);
