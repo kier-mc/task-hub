@@ -48,7 +48,6 @@
     transition: opacity 200ms;
   }
   &__label {
-    pointer-events: none;
     position: absolute;
     top: 50%;
     right: 0rem;
@@ -56,10 +55,11 @@
     z-index: 10;
     padding-inline: 0.75rem;
     font-size: 0.875rem;
+    user-select: none;
     color: colour.$input-label;
     transform: translateY(-50%);
-    transition: top 125ms, left 125ms, transform 125ms;
     transform-origin: top left;
+    transition: top 125ms, left 125ms, transform 125ms;
     &--focused {
       top: 0.5rem;
       transform: scale(0.75);
