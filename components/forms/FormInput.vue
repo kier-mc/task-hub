@@ -43,7 +43,7 @@
     opacity: 0;
     position: absolute;
     inset: 0;
-    margin: -2px;
+    margin: -1px;
     background-color: colour.$input-border-focus;
     transition: opacity 200ms;
   }
@@ -84,6 +84,7 @@
     align-items: center;
     height: 1rem;
     padding-inline: 0.25rem;
+    margin-top: 0.125rem;
     font-size: 0.75rem;
     color: colour.$font-dark-translucent;
   }
