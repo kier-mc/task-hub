@@ -70,7 +70,7 @@
     cursor: pointer;
     transition:
       background-color 125ms ease-in-out,
-      opacity 150ms ease-in-out 50ms;
+      opacity 150ms ease-in-out;
     @media (max-width: layout.$breakpoint-medium) {
       width: calc(100% - 2rem);
     }
