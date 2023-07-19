@@ -268,6 +268,9 @@ function emitHandler(label: string | null, value: string | null): void {
   emit("update:emit-value", value);
 }
 
+// Nonreactive variables
+let timeout: NodeJS.Timeout | undefined;
+
 // Reactive variables
 const isExpanded: Ref<boolean> = ref(false);
 const options: Ref<Array<EmitData>> = ref([]);
@@ -372,7 +375,8 @@ async function handleInput(event: Event): Promise<void> {
   }
   emitHandler(label, value);
   await nextTick();
-  filterData();
+  if (timeout) clearTimeout(timeout);
+  timeout = setTimeout(filterData, 400);
 }
 
 function filterData(): void {
