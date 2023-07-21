@@ -57,6 +57,7 @@
     font-size: 0.875rem;
     user-select: none;
     color: colour.$input-label;
+    cursor: text;
     transform: translateY(-50%);
     transform-origin: top left;
     transition: top 125ms, left 125ms, transform 125ms;
@@ -95,16 +96,16 @@
 // Prop definitions
 const props = defineProps({
   data: {
-    type: Object as PropType<FormHandlerData>,
-    required: true,
-  },
-  emitLabel: {
-    type: [String, null] as PropType<String | null>,
+    type: Object as PropType<FormInputPropData>,
     required: true,
   },
   isDisabled: {
     type: Boolean as PropType<boolean>,
     required: false,
+  },
+  emitLabel: {
+    type: [String, null] as PropType<String | null>,
+    required: true,
   },
 });
 
@@ -138,7 +139,7 @@ const setLabelClass = computed((): string | void => {
 });
 
 const setTypeAttribute = computed(() => {
-  return props.data.attributes.type;
+  return props.data.attributes.type ? props.data.attributes.type : "text";
 });
 const setIDAttribute = computed(() => {
   return props.data.attributes.id;
@@ -147,9 +148,5 @@ const setAutocompleteAttribute = computed(() => {
   return props.data.attributes.autocomplete
     ? props.data.attributes.autocomplete
     : "on";
-});
-
-onMounted(() => {
-  setLabelClass;
 });
 </script>
