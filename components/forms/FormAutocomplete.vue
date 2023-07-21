@@ -12,8 +12,9 @@
         <input
           ref="inputElement"
           :class="setInputClass"
-          :value="props.emitLabel"
+          :disabled="props.isDisabled"
           :placeholder="props.data.default"
+          :value="props.emitLabel"
           @click="isExpanded = true"
           @input="handleInput($event)"
           @keyup.enter="selectFromList($event)"
@@ -21,6 +22,7 @@
         />
         <button
           :class="setClearButtonClass"
+          :disabled="props.isDisabled"
           @click="clearInput()"
           type="button"
         >
@@ -28,6 +30,7 @@
         </button>
         <button
           :class="setDropdownButtonClass"
+          :disabled="props.isDisabled"
           @click="isExpanded = !isExpanded"
           type="button"
         >
@@ -243,8 +246,12 @@
 // Prop definitions
 const props = defineProps({
   data: {
-    type: Object as PropType<FormHandlerData>,
+    type: Object as PropType<FormAutocompletePropData>,
     required: true,
+  },
+  isDisabled: {
+    type: Boolean as PropType<boolean>,
+    required: false,
   },
   emitLabel: {
     type: [String, null] as PropType<string | null>,
@@ -466,8 +473,6 @@ onMounted(async () => {
   });
   // Populate local options with prop data
   filterData();
-  // Position the label correctly
-  setLabelClass;
 });
 
 onUnmounted(() => {
