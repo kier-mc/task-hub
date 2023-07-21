@@ -1,0 +1,134 @@
+<template>
+  <button
+    ref="button"
+    type="button"
+    class="button"
+    :disabled="props.isDisabled"
+    :aria-disabled="props.isDisabled"
+    @click="props.data.function"
+  >
+    <Transition name="transition-fade-opacity">
+      <AppLoadingIndicator
+        v-if="isLoading"
+        class="button__loading"
+        :options="propData.loadingIndicator"
+      />
+      <div v-else class="button__display">
+        <component :is="data.icon" class="button__icon" />
+        <div class="button__label">{{ data.label }}</div>
+      </div>
+    </Transition>
+  </button>
+</template>
+
+<style scoped lang="scss">
+@use "../assets/scss/data/colour";
+@use "../assets/scss/data/effect";
+.button {
+  all: unset;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: v-bind(buttonWidth);
+  height: 2rem;
+  padding-inline: 0.5rem;
+  border: 1px solid colour.$button-border;
+  border-radius: 4px;
+  background-color: colour.$button-background;
+  box-shadow: effect.$drop-shadow-1-lighter;
+  user-select: none;
+  text-rendering: optimizeLegibility;
+  font-variant: tabular-nums;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  font-weight: bold;
+  letter-spacing: 0.05rem;
+  color: colour.$button-font;
+  transition: background-color 125ms ease-in-out, border 125ms ease-in-out,
+    opacity 200ms ease-in-out;
+  cursor: pointer;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    &:hover {
+      border: 1px solid colour.$button-border;
+      background-color: colour.$button-background;
+    }
+  }
+  &:focus {
+    outline: 2px solid colour.$button-focus;
+  }
+  &:hover {
+    border: 1px solid colour.$button-border-hover;
+    background-color: colour.$button-background-hover;
+    color: colour.$button-font-hover;
+  }
+  &__loading {
+    position: absolute;
+    inset: 0;
+    height: inherit;
+    margin-inline: auto;
+    fill: colour.$font-light;
+  }
+  &__display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  &__icon {
+    aspect-ratio: 1/1;
+    width: 1rem;
+    margin-right: 0.25rem;
+    fill: colour.$font-light;
+  }
+}
+.transition-fade-opacity-enter-active,
+.transition-fade-opacity-leave-active {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 200ms ease, visibility 200ms ease;
+}
+
+.transition-fade-opacity-enter-from,
+.transition-fade-opacity-leave-to {
+  visibility: hidden;
+  opacity: 0;
+}
+</style>
+
+<script setup lang="ts">
+const props = defineProps({
+  data: {
+    type: Object as PropType<AppButtonPropData>,
+    required: true,
+  },
+  isLoading: {
+    type: Boolean as PropType<boolean>,
+    required: false,
+  },
+  isDisabled: {
+    type: Boolean as PropType<boolean>,
+    required: false,
+  },
+});
+
+const propData = {
+  loadingIndicator: {
+    type: "dots",
+  } as LoadingIndicatorData,
+};
+
+const buttonWidth: Ref<string> = ref("initial");
+
+const button: Ref<HTMLButtonElement | null> = ref(null);
+
+function getInitialWidth() {
+  if (!button.value) return;
+  buttonWidth.value = `${button.value.clientWidth}px`;
+}
+
+onMounted(() => {
+  getInitialWidth();
+});
+</script>
