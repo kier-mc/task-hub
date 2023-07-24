@@ -52,9 +52,11 @@
 </style>
 
 <script setup lang="ts">
+/* Reactive variables */
 const isExpanded: Ref<boolean> = ref(false);
 
-function closeMenuWithClickOutside(event: Event): void {
+/* Logic */
+function closeMenuWithInputOutside(event: Event): void {
   const target = event.target as Element;
   const isClickInside = target.closest("#app-navigation-button");
   if (!isClickInside) {
@@ -62,15 +64,16 @@ function closeMenuWithClickOutside(event: Event): void {
   }
 }
 
+/* Hooks */
 onMounted(() => {
-  document.addEventListener("click", (event: Event) => {
-    closeMenuWithClickOutside(event);
+  document.addEventListener("click", (event: MouseEvent) => {
+    closeMenuWithInputOutside(event);
   });
 });
 
 onUnmounted(() => {
-  document.removeEventListener("click", (event: Event) => {
-    closeMenuWithClickOutside(event);
+  document.removeEventListener("click", (event: MouseEvent) => {
+    closeMenuWithInputOutside(event);
   });
 });
 </script>
