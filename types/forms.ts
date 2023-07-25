@@ -54,7 +54,13 @@ export interface GenericFormPropData {
  * Specifically manages custom input component props.
  */
 export interface FormInputPropData extends GenericFormPropData {
+  /**
+   * Acts as an internal identifier in scenarios such as list rendering.
+   */
   type: "input";
+  /**
+   * A list of implemented HTML attributes that customise the input element's properties.
+   */
   attributes: GenericFormPropData["attributes"] & {
     /**
      * Controls how the user agent/browser handles automated assistance for the input form.
@@ -75,6 +81,9 @@ export interface FormInputPropData extends GenericFormPropData {
  * Specifically manages custom autocomplete element props.
  */
 export interface FormAutocompletePropData extends GenericFormPropData {
+  /**
+   * Acts as an internal identifier in scenarios such as list rendering.
+   */
   type: "autocomplete";
   /**
    * The options to provide to the autocomplete element. Mimics the structure of a &lt;select&gt; element and its children.
