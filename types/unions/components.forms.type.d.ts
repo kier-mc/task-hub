@@ -1,1 +1,0 @@
-type FormElementType = "input" | "autocomplete";
