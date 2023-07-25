@@ -1,3 +1,6 @@
+/**
+ * A complete, ordered list of country IDs that are used internally by the database.
+ */
 export type CountryID =
   | 1
   | 2
@@ -248,7 +251,10 @@ export type CountryID =
   | 247
   | 248
   | 249;
-
+/**
+ * A complete, ordered list of country names that are used internally by the database.
+ * In ISO 3166 English shorthand format.
+ */
 export type CountryName =
   | "Afghanistan"
   | "Åland Islands"
@@ -499,7 +505,10 @@ export type CountryName =
   | "Yemen"
   | "Zambia"
   | "Zimbabwe";
-
+/**
+ * A complete, ordered list of country names that are used internally by the database.
+ * In ISO 3166 alpha-2 code format.
+ */
 export type CountryISOCode =
   | "AF"
   | "AX"
