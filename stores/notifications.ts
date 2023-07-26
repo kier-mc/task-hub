@@ -14,16 +14,9 @@ export const useNotificationsStore = defineStore("notifications", {
      * @param message {string} - a message to be pushed to the user
      * @param type {string} - a type that best categorises the message, e.g. "error", "success"
      */
-    setMessage(message: string, type: string) {
+    push(message: string, type: string) {
       this.message = message;
       this.type = type;
-    },
-    /**
-     * Clears all data from the notification store by setting the values to null.
-     */
-    clearAll() {
-      this.message = null;
-      this.type = null;
     },
   },
 });
