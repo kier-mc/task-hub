@@ -4,8 +4,7 @@ import type {
   HTMLAutocompleteAttributeOptions,
   HTMLInputAttributeOptions,
 } from "./unions/forms.options";
-import type { CountryName } from "./unions/schema.country";
-import type { FrequencyRepetition } from "./unions/schema.frequency";
+import type { CountryDataPayload } from "./schema";
 
 /**
  * A baseline interface that other form component props inherit from.
@@ -88,7 +87,7 @@ export interface FormAutocompletePropData extends GenericFormPropData {
   /**
    * The options to provide to the autocomplete element. Mimics the structure of a &lt;select&gt; element and its children.
    */
-  options: AutocompleteEmitData[];
+  options: AutocompleteEmitData[] | AutocompleteEmitCountryData[];
 }
 /**
  * Specifically manages prop data for the create-account route.
@@ -110,28 +109,23 @@ export interface NewAccountSectionPropData {
 /**
  * A template interface that serves as a baseline for more complex emit types.
  */
-export interface AutocompleteEmitDataTemplate<TypeLabel, TypeValue> {
+interface AutocompleteEmitDataTemplate<DataType extends Object> {
   /**
-   * A label that represents the input field value and the string that the user sees as an option in the menu.
+   * A term to match when the user enters a predicate.
    */
-  label: TypeLabel | null;
+  term: string | null;
   /**
-   * A value that is associated with a label, but is not made inheritently visible to the user.
+   * An object containing data associated with the term.
    */
-  value: TypeValue | null;
+  data: DataType | null;
 }
 /**
- * A generic interface that allows any two strings as label/value pairs.
+ * A generic interface that accepts an object with any specified key/value pairs.
  */
 export interface AutocompleteEmitData
-  extends AutocompleteEmitDataTemplate<string, string> {}
+  extends AutocompleteEmitDataTemplate<Object> {}
 /**
- * An interface that specifically manages emit data where the value is a task frequency repetition union type.
- */
-export interface AutocompleteEmitTaskFrequencyData
-  extends AutocompleteEmitDataTemplate<string, FrequencyRepetition> {}
-/**
- * An interface that specifically manages emit data where the value is a country name union type.
+ * An interface that specifically manages country emit data.
  */
 export interface AutocompleteEmitCountryData
-  extends AutocompleteEmitDataTemplate<string, CountryName> {}
+  extends AutocompleteEmitDataTemplate<CountryDataPayload> {}
