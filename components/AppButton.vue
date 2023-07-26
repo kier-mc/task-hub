@@ -98,9 +98,13 @@
 </style>
 
 <script setup lang="ts">
+// Types
+import type { ButtonPropData, LoadingIndicatorPropData } from "types/app";
+
+// Prop definitions
 const props = defineProps({
   data: {
-    type: Object as PropType<AppButtonPropData>,
+    type: Object as PropType<ButtonPropData>,
     required: true,
   },
   isLoading: {
@@ -113,21 +117,26 @@ const props = defineProps({
   },
 });
 
+// Prop data
 const propData = {
   loadingIndicator: {
     type: "dots",
-  } as LoadingIndicatorData,
+  } as LoadingIndicatorPropData,
 };
 
+// Reactive variables
 const buttonWidth: Ref<string> = ref("initial");
 
+// Template refs
 const button: Ref<HTMLButtonElement | null> = ref(null);
 
+// Logic
 function getInitialWidth() {
   if (!button.value) return;
   buttonWidth.value = `${button.value.clientWidth}px`;
 }
 
+// Hooks
 onMounted(() => {
   getInitialWidth();
 });
