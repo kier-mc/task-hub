@@ -1,3 +1,5 @@
+import { AutocompleteEmitCountryData } from "types/forms";
+import { COUNTRY_DATA } from "./user.helper";
 /**
  * A helper function that iterates over an array of all countries (countriesHelper) and
  * adds the values to an object. The object mimics part of the prop data that would be
@@ -6,18 +8,22 @@
  * @returns {Array<CompFormOptionsObject>} An array containing individual options in a
  * format that is parsable by the FormHandler component.
  */
-export function generateCountryData(): Array<FormHandlerOptionsData> {
-  const payload = [];
-  for (let i = 0; i < countriesHelper.length; i++) {
-    const dataObject: FormHandlerOptionsData = {
-      value: "",
-      label: "",
+export function generateCountryData(): Array<AutocompleteEmitCountryData> {
+  const countries = [];
+  for (let i = 0; i < COUNTRY_DATA.length; i++) {
+    const item: AutocompleteEmitCountryData = {
+      term: null,
+      data: null,
     };
-    dataObject.value = countriesHelper[i];
-    dataObject.label = countriesHelper[i];
-    payload.push(dataObject);
+    item.term = COUNTRY_DATA[i].name;
+    item.data = {
+      country_id: COUNTRY_DATA[i].country_id,
+      name: COUNTRY_DATA[i].name,
+      iso_code: COUNTRY_DATA[i].iso_code,
+    };
+    countries.push(item);
   }
-  return payload;
+  return countries;
 }
 
 /**

@@ -5,7 +5,7 @@ import {
   CountryISOCode,
 } from "types/unions/schema.country";
 
-const countries: CountryData[] = [
+export const COUNTRY_DATA: CountryData[] = [
   { country_id: 1, name: "Afghanistan", iso_code: "AF" },
   { country_id: 2, name: "Åland Islands", iso_code: "AX" },
   { country_id: 3, name: "Albania", iso_code: "AL" },
@@ -295,15 +295,15 @@ export const countryData = {
    */
   searchByID: (predicate: CountryID) => {
     let start = 0;
-    let end = countries.length - 1;
+    let end = COUNTRY_DATA.length - 1;
     while (start <= end) {
       const mid = Math.floor((start + end) / 2);
-      if (countries[mid].country_id === predicate) {
+      if (COUNTRY_DATA[mid].country_id === predicate) {
         payload.country_id = predicate;
-        payload.name = countries[mid].name;
-        payload.iso_code = countries[mid].iso_code;
+        payload.name = COUNTRY_DATA[mid].name;
+        payload.iso_code = COUNTRY_DATA[mid].iso_code;
         return payload;
-      } else if (countries[mid].country_id < predicate) {
+      } else if (COUNTRY_DATA[mid].country_id < predicate) {
         start = mid + 1;
       } else {
         end = mid - 1;
@@ -318,15 +318,15 @@ export const countryData = {
    */
   searchByName: (predicate: CountryName) => {
     let start = 0;
-    let end = countries.length - 1;
+    let end = COUNTRY_DATA.length - 1;
     while (start <= end) {
       const mid = Math.floor((start + end) / 2);
-      if (countries[mid].name === predicate) {
-        payload.country_id = countries[mid].country_id;
+      if (COUNTRY_DATA[mid].name === predicate) {
+        payload.country_id = COUNTRY_DATA[mid].country_id;
         payload.name = predicate;
-        payload.iso_code = countries[mid].iso_code;
+        payload.iso_code = COUNTRY_DATA[mid].iso_code;
         return payload;
-      } else if (countries[mid].name < predicate) {
+      } else if (COUNTRY_DATA[mid].name < predicate) {
         start = mid + 1;
       } else {
         end = mid - 1;
@@ -342,8 +342,10 @@ export const countryData = {
    */
   searchByISOCode: (predicate: CountryISOCode) => {
     let start = 0;
-    let end = countries.length - 1;
-    const data = countries.sort((a, b) => a.iso_code.localeCompare(b.iso_code)); // ISO codes are non-alphabetical
+    let end = COUNTRY_DATA.length - 1;
+    const data = COUNTRY_DATA.sort((a, b) =>
+      a.iso_code.localeCompare(b.iso_code)
+    ); // ISO codes are non-alphabetical
     while (start <= end) {
       const mid = Math.floor((start + end) / 2);
       if (data[mid].iso_code === predicate) {
