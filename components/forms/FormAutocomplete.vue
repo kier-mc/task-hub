@@ -1,6 +1,7 @@
 <template>
   <div class="autocomplete-wrapper">
     <div
+      ref="autocompleteElement"
       :class="setParentClass"
       :id="props.data.attributes.id"
       @keyup.escape="isExpanded = false"
@@ -243,6 +244,12 @@
 </style>
 
 <script setup lang="ts">
+// Types
+import type {
+  AutocompleteEmitData,
+  FormAutocompletePropData,
+} from "types/forms";
+
 // Prop definitions
 const props = defineProps({
   data: {
@@ -280,10 +287,11 @@ let timeout: NodeJS.Timeout | undefined;
 
 // Reactive variables
 const isExpanded: Ref<boolean> = ref(false);
-const options: Ref<Array<EmitData>> = ref([]);
+const options: Ref<Array<AutocompleteEmitData>> = ref([]);
 const forceRefresh: Ref<number> = ref(0);
 
 // Template refs
+const autocompleteElement: Ref<HTMLDivElement | null> = ref(null);
 const inputElement: Ref<HTMLInputElement | null> = ref(null);
 const menuElement: Ref<HTMLUListElement | null> = ref(null);
 const listElements: Ref<Array<HTMLLIElement | null>> = ref([]);
@@ -403,7 +411,7 @@ function filterData(): void {
     for (let i = 0; i < props.data.options.length; i++) {
       const label = props.data.options[i].label;
       const value = props.data.options[i].value;
-      const result: EmitData = {
+      const result: AutocompleteEmitData = {
         label: null,
         value: null,
       };
@@ -440,7 +448,7 @@ async function clearInput() {
 
 async function selectFromList(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement | HTMLLIElement;
-  let { label, value } = <EmitData>{
+  let { label, value } = <AutocompleteEmitData>{
     label: null,
     value: null,
   };
@@ -457,28 +465,11 @@ async function selectFromList(event: Event): Promise<void> {
   filterData();
 }
 
-function closeMenuWithClickOutside(event: Event): void {
-  if (!isExpanded.value) return;
-  const target = event.target as Element;
-  const isClickInside = target.closest(`#${props.data.attributes.id}`);
-  if (!isClickInside) {
-    isExpanded.value = false;
-  }
-}
-
-onMounted(async () => {
-  // Attach event handlers
-  document.addEventListener("click", (event: Event) => {
-    closeMenuWithClickOutside(event);
-  });
-  // Populate local options with prop data
-  filterData();
+onClickOutside(autocompleteElement, () => {
+  isExpanded.value = false;
 });
 
-onUnmounted(() => {
-  // Destroy event handler
-  document.removeEventListener("click", (event: Event) => {
-    closeMenuWithClickOutside(event);
-  });
+onMounted(async () => {
+  filterData();
 });
 </script>
