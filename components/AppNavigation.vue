@@ -1,7 +1,7 @@
 <template>
   <nav ref="nav" class="nav" role="navigation">
     <ul class="nav__menu" :aria-expanded="props.isExpanded">
-      <template v-for="(option, index) in propData.navigation" :key="index">
+      <template v-for="option in propData.navigation" :key="option.index">
         <template v-if="user && option.requiresAuth === true">
           <li
             class="nav__option"
