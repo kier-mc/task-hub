@@ -1,15 +1,26 @@
 <template>
-  <nav class="nav" role="navigation">
+  <nav ref="nav" class="nav" role="navigation">
     <ul class="nav__menu" :aria-expanded="props.isExpanded">
       <template v-for="(option, index) in propData.navigation" :key="index">
         <template v-if="user && option.requiresAuth === true">
-          <li class="nav__option" @click="option.function">
+          <li
+            class="nav__option"
+            :tabindex="props.isExpanded ? 0 : -1"
+            @click="option.function"
+            @keyup.enter="option.function"
+          >
             <div class="option__label">{{ option.label }}</div>
             <component class="option__icon" :is="option.icon" />
           </li>
         </template>
         <template v-else-if="!user && option.requiresAuth === false">
-          <li class="nav__option" @click="option.function">
+          <li
+            ref="options"
+            class="nav__option"
+            :tabindex="props.isExpanded ? 0 : -1"
+            @click="option.function"
+            @keyup.enter="option.function"
+          >
             <div class="option__label">{{ option.label }}</div>
             <component class="option__icon" :is="option.icon" />
           </li>
@@ -48,8 +59,8 @@
       width: 100vw;
     }
     &[aria-expanded="true"] {
-      visibility: visible;
-      height: v-bind(menuHeight);      
+      visibility: visible;           
+      height: v-bind("menuHeight");      
     }
     &[aria-expanded="true"] .nav__option {
       opacity: 1;
@@ -74,6 +85,7 @@
     @media (max-width: layout.$breakpoint-medium) {
       width: calc(100% - 2rem);
     }
+    &:focus,
     &:hover {
       background-color: colour.$app-navigation-menu-hover;
     }
@@ -92,7 +104,11 @@
 </style>
 
 <script setup lang="ts">
-import { User } from "@supabase/supabase-js";
+// Types
+import type { User } from "@supabase/supabase-js";
+import type { NavigationPropData } from "types/app";
+
+// Components
 import {
   SVGHome,
   SVGCreateAccount,
@@ -101,53 +117,67 @@ import {
   SVGLogout,
 } from "#components";
 
+// Prop definitions
 const props = defineProps({
   isExpanded: { type: Boolean as PropType<boolean>, required: true },
 });
 
-const user: Ref<User | null> = useSupabaseUser();
-
+// Prop data
 const propData = {
   navigation: [
     {
+      index: 0,
       label: "Home",
       icon: SVGHome,
       function: () => navigateTo("/"),
       requiresAuth: false,
     },
     {
+      index: 1,
       label: "Hub",
       icon: SVGHome,
-      function: () => navigateTo("/hub"),
+      function: () => navigateTo("/new-hub"),
       requiresAuth: true,
     },
     {
+      index: 2,
       label: "Create Account",
       icon: SVGCreateAccount,
       function: () => navigateTo("/create-account"),
       requiresAuth: false,
     },
     {
+      index: 3,
       label: "Login",
       icon: SVGLogin,
       function: () => navigateTo("/login"),
       requiresAuth: false,
     },
     {
+      index: 4,
       label: "Settings",
       icon: SVGSettings,
       function: () => navigateTo("/settings"),
       requiresAuth: true,
     },
     {
+      index: 5,
       label: "Logout",
       icon: SVGLogout,
       function: () => logoutUser(),
       requiresAuth: true,
     },
-  ],
+  ] as NavigationPropData[],
 };
 
+// Reactive variables
+const user: Ref<User | null> = useSupabaseUser();
+
+// Template refs
+const options: Ref<Array<HTMLLIElement | null>> = ref([]);
+const nav: Ref<HTMLDivElement | null> = ref(null);
+
+// Logic
 const menuHeight: ComputedRef<string> = computed((): string => {
   const count = propData.navigation.reduce((accumulator, option) => {
     if ((user && option.requiresAuth) || (!user && !option.requiresAuth)) {
