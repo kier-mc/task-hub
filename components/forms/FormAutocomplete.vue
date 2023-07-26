@@ -15,7 +15,7 @@
           :class="setInputClass"
           :disabled="props.isDisabled"
           :placeholder="props.data.default"
-          :value="props.emitLabel"
+          :value="props.emitTerm"
           @click="isExpanded = true"
           @input="handleInput($event)"
           @keyup.enter="selectFromList($event)"
@@ -48,14 +48,13 @@
           v-for="(data, index) in options"
           ref="listElements"
           :key="index"
-          :data-value="data.value"
           :class="setOptionClass"
           :tabindex="isExpanded ? 0 : -1"
           @click="selectFromList($event)"
           @keyup.enter="selectFromList($event)"
           @keyup.space="selectFromList($event)"
         >
-          {{ data.label }}
+          {{ data.term }}
         </li>
       </ul>
     </div>
@@ -260,26 +259,26 @@ const props = defineProps({
     type: Boolean as PropType<boolean>,
     required: false,
   },
-  emitLabel: {
+  emitTerm: {
     type: [String, null] as PropType<string | null>,
     required: true,
   },
-  emitValue: {
-    type: [String, null] as PropType<string | null>,
+  emitData: {
+    type: [Object, null] as PropType<object | null>,
     required: true,
   },
 });
 
 // Emit definitions
 const emit = defineEmits<{
-  (event: "update:emit-label", data: string | null): void;
-  (event: "update:emit-value", data: string | null): void;
+  (event: "update:emit-term", data: string | null): void;
+  (event: "update:emit-data", data: Object | null): void;
 }>();
 
 // Emit handler
-function emitHandler(label: string | null, value: string | null): void {
-  emit("update:emit-label", label);
-  emit("update:emit-value", value);
+function emitHandler(term: string | null, data: Object | null): void {
+  emit("update:emit-term", term);
+  emit("update:emit-data", data);
 }
 
 // Nonreactive variables
@@ -375,20 +374,21 @@ function populateDefaultOptions() {
 }
 
 async function handleInput(event: Event): Promise<void> {
+  if (!props.data.options) return;
   const target = event.target as HTMLInputElement;
   const propOptions = props.data.options;
-  const label = target.value;
-  let value: string | null = null;
+  const searchValue = target.value;
+  let dataValue: Object | null = null;
   if (propOptions) {
     for (let i = 0; i < propOptions.length; i++) {
-      const option = propOptions[i];
-      if (label.toLocaleLowerCase() === option.label?.toLocaleLowerCase()) {
-        value = option.value;
+      const item = propOptions[i];
+      if (searchValue.toLocaleLowerCase() === item.term?.toLocaleLowerCase()) {
+        dataValue = item.data;
         break;
       }
     }
   }
-  emitHandler(label, value);
+  emitHandler(searchValue, dataValue);
   await nextTick();
   if (timeout) clearTimeout(timeout);
   timeout = setTimeout(filterData, 400);
@@ -405,30 +405,30 @@ function filterData(): void {
   const partialMatches = [];
   // Get search string
   const target = inputElement.value as HTMLInputElement;
-  const string = target.value;
+  const predicate = target.value;
   // Filter results by substring, or return default prop data if no matches detected
-  if (string) {
+  if (predicate) {
     for (let i = 0; i < props.data.options.length; i++) {
-      const label = props.data.options[i].label;
-      const value = props.data.options[i].value;
+      const term = props.data.options[i].term;
+      const data = props.data.options[i].data;
       const result: AutocompleteEmitData = {
-        label: null,
-        value: null,
+        term: null,
+        data: null,
       };
-      const regex = new RegExp(`^${string.toLocaleLowerCase()}`);
+      const regex = new RegExp(`^${predicate.toLocaleLowerCase()}`);
       // Matching the beginning of the string takes precedent
-      if (label) {
-        if (regex.test(label.toLocaleLowerCase())) {
-          result.label = label;
-          result.value = value;
+      if (term) {
+        if (regex.test(term.toLocaleLowerCase())) {
+          result.term = term;
+          result.data = data;
           options.value.push(result);
         }
         // Substrings are returned as partial matches at the end of the array
         else if (
-          label.toLocaleLowerCase().includes(string.toLocaleLowerCase())
+          term.toLocaleLowerCase().includes(predicate.toLocaleLowerCase())
         ) {
-          result.label = label;
-          result.value = value;
+          result.term = term;
+          result.data = data;
           partialMatches.push(result);
         }
       }
@@ -446,20 +446,51 @@ async function clearInput() {
   forceRefresh.value++;
 }
 
+function findOptionData(predicate: string): AutocompleteEmitData {
+  let start = 0;
+  let end = options.value.length - 1;
+  const payload = <AutocompleteEmitData>{
+    term: null,
+    data: null,
+  };
+  while (start <= end) {
+    const mid = Math.floor((start + end) / 2);
+    const normalisedTerm = options.value[mid].term // https://claritydev.net/blog/diacritic-insensitive-string-comparison-javascript
+      ?.normalize("NFD") // Convert to unicode
+      .replace(/[\u0300-\u036f]/g, "") // Remove all diacritic characters
+      .toLowerCase(); // Convert to lowercase
+    const normalisedPredicate = predicate
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+    if (normalisedTerm === normalisedPredicate) {
+      payload.term = options.value[mid].term;
+      payload.data = options.value[mid].data;
+      return payload;
+    } else if (normalisedTerm! < normalisedPredicate) {
+      start = mid + 1;
+    } else {
+      end = mid - 1;
+    }
+  }
+  return payload;
+}
+
 async function selectFromList(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement | HTMLLIElement;
-  let { label, value } = <AutocompleteEmitData>{
-    label: null,
-    value: null,
+  let { term, data } = <AutocompleteEmitData>{
+    term: null,
+    data: null,
   };
   if (target === inputElement.value) {
-    label = options.value[0].label;
-    value = options.value[0].value;
+    term = options.value[0].term;
+    data = options.value[0].data;
   } else if (listElements.value.includes(target as HTMLLIElement)) {
-    label = target.textContent;
-    value = target.getAttribute("data-value");
+    const option = findOptionData(target.textContent!);
+    term = option.term;
+    data = option.data;
   }
-  emitHandler(label, value);
+  emitHandler(term, data);
   await nextTick();
   isExpanded.value = false;
   filterData();
