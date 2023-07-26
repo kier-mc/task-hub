@@ -11,7 +11,7 @@
         :id="setIDAttribute"
         :name="setIDAttribute"
         :autocomplete="setAutocompleteAttribute"
-        :value="props.emitLabel"
+        :value="props.emitValue"
         :disabled="props.isDisabled"
         :aria-disabled="props.isDisabled"
         @input="emitEvent()"
@@ -93,6 +93,9 @@
 </style>
 
 <script setup lang="ts">
+// Types
+import type { FormInputPropData } from "types/forms";
+
 // Prop definitions
 const props = defineProps({
   data: {
@@ -103,22 +106,23 @@ const props = defineProps({
     type: Boolean as PropType<boolean>,
     required: false,
   },
-  emitLabel: {
-    type: [String, null] as PropType<String | null>,
+  emitValue: {
+    type: [String, null] as PropType<string | null>,
+    default: null,
     required: true,
   },
 });
 
 // Emit definitions
 const emit = defineEmits<{
-  (event: "update:emit-label", data: string | null): void;
+  (event: "update:emit-value", data: string | null): void;
 }>();
 
 // Emit handler
 function emitEvent(): void {
   if (!inputElement.value) return;
-  const label = inputElement.value.value;
-  emit("update:emit-label", label);
+  const value = inputElement.value.value;
+  emit("update:emit-value", value);
 }
 
 // Reactive variables
