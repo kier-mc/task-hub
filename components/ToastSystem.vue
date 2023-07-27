@@ -18,11 +18,15 @@
         <SVGXMark class="toast__icon" />
       </button>
     </div>
-    <div class="toast__message">
+    <div ref="messageElement" class="toast__message" tabindex="1">
       {{ notificationsStore.message }}
     </div>
 
-    <div ref="progressBarElement" class="toast__progress-bar"></div>
+    <div
+      ref="progressBarElement"
+      class="toast__progress-bar"
+      :data-active="notificationsStore.message ? true : false"
+    ></div>
   </section>
 </template>
 
@@ -80,6 +84,10 @@
     width: 2rem;
     margin-right: 0.5rem;
     cursor: pointer;
+    &:focus {
+      outline: 1px solid colour.$autocomplete-border-focus;
+      background-color: colour.$button-background-hover;
+    }
   }
   &__icon {
     pointer-events: none;
@@ -88,15 +96,16 @@
     fill: colour.$font-light;
   }
   &__progress-bar {
-    opacity: 1;
+    opacity: 0;
     position: absolute;
     bottom: 0;
     left: 0;
     height: 0.25rem;
     width: 100%;
     background: colour.$secondary;
-    transform: v-bind("progressBar.transform");
-    transition: v-bind("progressBar.transition");
+    &[data-active="true"] {
+      opacity: 1;
+    }
   }
 }
 </style>
@@ -107,43 +116,37 @@ const notificationsStore = useNotificationsStore();
 
 // Reactive variables
 const timeout: Ref<NodeJS.Timeout | null> = ref(null);
-const progressBar: Ref<Record<string, string>> = ref({
-  transform: "",
-  transition: "",
-});
 
 // Template refs
+const messageElement: Ref<HTMLDivElement | null> = ref(null);
 const progressBarElement: Ref<HTMLDivElement | null> = ref(null);
 
 // Watchers
 watch(
   notificationsStore.$state,
   () => {
-    const { transform, transition } = toRefs(progressBar.value);
-    const delay = 5500;
-    // Begin animation when change in state is detected
-    setTimeout(() => {
-      transform.value = "translate3D(-100%, 0, 0)";
-      transition.value = `transform ${delay}ms ease-out`;
-    }, 10);
-    // Reset timeout if another notification is pushed before the previous has expired
+    if (!progressBarElement.value) return;
+    const keyframes = <Keyframe[]>[
+      { transform: "translate3D(0, 0, 0)" },
+      { transform: "translate3D(-100%, 0, 0)" },
+    ];
+    const options = <KeyframeAnimationOptions>{
+      duration: 5000,
+      fill: "forwards",
+    };
+    // Focus the message
+    messageElement.value?.focus();
+    // Animate the progress bar when a message is detected
+    progressBarElement.value.animate(keyframes, options);
+    // If a timeout exists, play the animation again and clear the timeout so it can be reset
     if (timeout.value) {
-      transform.value = "translate3D(0, 0, 0)";
-      transition.value = "none";
-      setTimeout(() => {
-        transform.value = "translate3D(-100%, 0, 0)";
-        transition.value = `transform ${delay}ms ease-out`;
-      }, 10);
+      progressBarElement.value.animate(keyframes, options);
       window.clearTimeout(timeout.value);
     }
-    // Clear any notifications and nullify the timeout ref after a 5000ms delay
+    // After 5000ms, clear the timeout ref and reset the notifications store
     timeout.value = setTimeout(() => {
-      setTimeout(() => {
-        transform.value = "translate3D(-100%, 0, 0)";
-        transition.value = `transform ${delay}ms ease-out`;
-      }, 10);
-      notificationsStore.$reset();
       timeout.value = null;
+      notificationsStore.$reset();
     }, 5000);
   },
   { deep: true }
