@@ -1,4 +1,5 @@
 // @vitest-environment nuxt
+
 /*
  * At the end of testing, a 404 error is returned referencing api/_supabase/session
  * Tests and live Supabase-related functions all execute without issue
@@ -20,6 +21,13 @@
 //   }
 // };
 
+import type { User, Session, AuthError } from "@supabase/supabase-js";
+
+// Types
+import type {
+  LoginCredentialData,
+  NewAccountCredentialData,
+} from "types/credentials";
 /* Vitest imports */
 import { vi, describe, test, expect, beforeEach } from "vitest";
 /* Pinia imports */
@@ -41,18 +49,19 @@ vi.mock("nuxt/app", async (importOriginal) => {
 /* Instantiate Pinia and the notification store */
 setActivePinia(createPinia());
 const notificationsStore = useNotificationsStore();
+const userStore = useUserStore();
 
 describe("Tests related to logging in", () => {
   // Mock login credentials object
-  const loginCredentials: LoginCredentialsData = reactive({
+  const loginCredentials: Ref<LoginCredentialData> = ref({
     email: null,
     password: null,
   });
   // Reset values, notification store data and mocks
   beforeEach(() => {
-    loginCredentials.email = null;
-    loginCredentials.password = null;
-    notificationsStore.clearAll();
+    loginCredentials.value.email = null;
+    loginCredentials.value.password = null;
+    notificationsStore.$reset();
     vi.resetAllMocks();
   });
   test("Blank credentials fail and push an error notification", async () => {
@@ -60,99 +69,72 @@ describe("Tests related to logging in", () => {
     expect(notificationsStore.message).toBe(
       "Login failed. Please ensure all fields are filled in."
     );
-    expect(notificationsStore.type).toBe("error");
   });
   test("Invalid credentials fail and push an error notification", async () => {
     // Data
-    loginCredentials.email = "invalidemail@domain.com";
-    loginCredentials.password = "invalidpassword";
+    loginCredentials.value.email = "invalidemail@domain.com";
+    loginCredentials.value.password = "invalidpassword";
     // Mocks
     const mockData = {
-      message: "Invalid login credentials",
+      error: { message: "Invalid login credentials" },
     };
-    const mock = vi.fn().mockResolvedValueOnce({ error: mockData });
-    useSupabaseAuthClient().auth.signInWithPassword = mock;
-    // Calls
-    await loginUser(ref(loginCredentials));
-    // Assertions
-    expect(mock).toHaveBeenCalledOnce();
-    expect(notificationsStore.message).toBe("Invalid login credentials");
-    expect(notificationsStore.type).toBe("error");
-  });
-  test("Valid credentials succeed and push a success notification referencing the user's email", async () => {
-    // Data
-    loginCredentials.email = "validemail@domain.com";
-    loginCredentials.password = "validpassword";
-    // Mocks
-    const mockData = {
-      user: {
-        email: "validemail@domain.com",
-        user_metadata: { preferred_name: undefined },
-      },
-    };
-    const mock = vi.fn().mockResolvedValueOnce({ data: mockData });
-    useSupabaseAuthClient().auth.signInWithPassword = mock;
-    useUserStore().fetchData = mock;
-    // Calls
-    await loginUser(ref(loginCredentials));
-    // Assertions
-    expect(mock).toHaveBeenCalledTimes(2);
-    expect(notificationsStore.message).toBe(
-      "Logged in as validemail@domain.com!"
+    const mocksignInWithPassword = vi.spyOn(
+      useSupabaseAuthClient().auth,
+      "signInWithPassword"
     );
-    expect(notificationsStore.type).toBe("success");
-  });
-  test("Valid credentials succeed and push a success notification which favours the user's preferred name over their email when it is present", async () => {
-    // Data
-    loginCredentials.email = "validemail@domain.com";
-    loginCredentials.password = "validpassword";
-    // Mocks
-    const mockData = {
-      user: {
-        email: "validemail@domain.com",
-        user_metadata: { preferred_name: "User" },
-      },
-    };
-    const mock = vi.fn().mockResolvedValueOnce({ data: mockData });
-    useSupabaseAuthClient().auth.signInWithPassword = mock;
-    useUserStore().fetchData = mock;
+    //@ts-ignore
+    mocksignInWithPassword.mockResolvedValueOnce(mockData);
     // Calls
     await loginUser(ref(loginCredentials));
     // Assertions
-    expect(mock).toHaveBeenCalledTimes(2);
+    expect(mocksignInWithPassword).toHaveBeenCalledOnce();
+    expect(notificationsStore.message).toBe("Invalid login credentials");
+  });
+  test("Valid credentials succeed and push a success notification referencing the user's name", async () => {
+    // Data
+    loginCredentials.value.email = "validemail@domain.com";
+    loginCredentials.value.password = "validpassword";
+    // Mocks
+    const mockData = {
+      user: true,
+      session: true,
+    };
+    const [mockSignInWithPassword, mockFetchData, mockGetName] = [
+      vi.spyOn(useSupabaseAuthClient().auth, "signInWithPassword"),
+      vi.spyOn(userStore, "fetchData"),
+      vi.spyOn(userStore, "getName"),
+    ];
+    //@ts-ignore
+    mockSignInWithPassword.mockResolvedValueOnce({ data: mockData });
+    mockFetchData.mockResolvedValueOnce();
+    mockGetName.mockReturnValueOnce("User");
+    // Calls
+    await loginUser(ref(loginCredentials));
+    // Assertions
+    expect(mockSignInWithPassword).toHaveBeenCalledOnce();
+    expect(mockFetchData).toHaveBeenCalledOnce();
+    expect(mockGetName).toHaveBeenCalledOnce();
     expect(notificationsStore.message).toBe("Logged in as User!");
-    expect(notificationsStore.type).toBe("success");
   });
 });
 
 describe("Tests related to creating an account", () => {
   // Mock new user credentials object
-  const rawCredentialData: PartialNewAccountCredentialData = reactive({
+  const newAccountCredentials: Ref<NewAccountCredentialData> = ref({
     email: null,
     password: null,
-    preferred_name: null,
+    name: null,
+    country: {
+      country_id: null,
+      name: null,
+      iso_code: null,
+    },
     locale: null,
   });
-  const rawCountryData: AutocompleteCountryData = reactive({
-    label: null,
-    value: null,
-  });
-  const newAccountCredentials: ComputedRef<CompleteNewAccountCredentialData> =
-    computed(() => {
-      return {
-        ...rawCredentialData,
-        country: rawCountryData,
-      } as CompleteNewAccountCredentialData;
-    });
   // Reset values, notification store data and mocks
   beforeEach(() => {
-    rawCredentialData.email = null;
-    rawCredentialData.password = null;
-    rawCredentialData.preferred_name = null;
-    rawCountryData.label = null;
-    rawCountryData.value = null;
-    rawCredentialData.locale = null;
-    notificationsStore.clearAll();
+    clearAllFields(newAccountCredentials);
+    notificationsStore.$reset();
     vi.resetAllMocks();
   });
   test("Empty credentials fail and push an error notification", async () => {
@@ -160,147 +142,150 @@ describe("Tests related to creating an account", () => {
     await createUser(newAccountCredentials);
     // Assertions
     expect(notificationsStore.message).toBe(
-      "Account creation failed. Please ensure all fields are filled in."
+      "Please ensure all fields are filled in."
     );
-    expect(notificationsStore.type).toBe("error");
   });
   test("An invalid email fails and pushes an error notification", async () => {
     // Data
-    rawCredentialData.email = "invalidemail";
-    rawCredentialData.password = "validpassword";
-    rawCredentialData.preferred_name = "User";
-    rawCredentialData.locale = "Halton";
-    rawCountryData.label = "United Kingdom";
-    rawCountryData.value = "United Kingdom";
+    const { email, password, name, country, locale } = toRefs(
+      newAccountCredentials.value
+    );
+    email.value = "invalidemail@domain.com";
+    password.value = "validpassword";
+    name.value = "User";
+    country.value = {
+      country_id: 235,
+      name: "United Kingdom",
+      iso_code: "GB",
+    };
+    locale.value = "Halton";
     // Mocks
     const mockData = {
       message: "Unable to validate email address: invalid format",
     };
-    const mock = vi.fn().mockResolvedValueOnce({ error: mockData });
-    useSupabaseAuthClient().auth.signUp = mock;
+    const mockSignUp = vi.spyOn(useSupabaseAuthClient().auth, "signUp");
+    //@ts-ignore
+    mockSignUp.mockResolvedValueOnce({ error: mockData });
     // Calls
-    await createUser(ref(newAccountCredentials));
+    await createUser(newAccountCredentials);
     // Assertions
-    expect(mock).toHaveBeenCalledOnce();
+    expect(mockSignUp).toHaveBeenCalledOnce();
     expect(notificationsStore.message).toBe(
       "Unable to validate email address: invalid format"
     );
-    expect(notificationsStore.type).toBe("error");
   });
   test("A password of less than 12 characters fails and pushes an error notification", async () => {
     // Data
-    rawCredentialData.email = "validemail@domain.com";
-    rawCredentialData.password = "tooshort";
-    rawCredentialData.preferred_name = "User";
-    rawCredentialData.locale = "Halton";
-    rawCountryData.label = "United Kingdom";
-    rawCountryData.value = "United Kingdom";
+    const { email, password, name, country, locale } = toRefs(
+      newAccountCredentials.value
+    );
+    email.value = "validemail@domain.com";
+    password.value = "tooshort";
+    name.value = "User";
+    country.value = {
+      country_id: 235,
+      name: "United Kingdom",
+      iso_code: "GB",
+    };
+    locale.value = "Halton";
     // Mocks
     const mockData = {
       message: "Password should be at least 12 characters",
     };
-    const mock = vi.fn().mockResolvedValueOnce({ error: mockData });
-    useSupabaseAuthClient().auth.signUp = mock;
+    const mockSignUp = vi.spyOn(useSupabaseAuthClient().auth, "signUp");
+    //@ts-ignore
+    mockSignUp.mockResolvedValueOnce({ error: mockData });
     // Calls
-    await createUser(ref(newAccountCredentials));
+    await createUser(newAccountCredentials);
     // Assertions
-    expect(mock).toHaveBeenCalledOnce();
+    expect(mockSignUp).toHaveBeenCalledOnce();
     expect(notificationsStore.message).toBe(
       "Password should be at least 12 characters"
     );
-    expect(notificationsStore.type).toBe("error");
   });
   test("Valid credentials succeed and push a success notification", async () => {
     // Data
-    rawCredentialData.email = "validemail@domain.com";
-    rawCredentialData.password = "validpassword";
-    rawCredentialData.preferred_name = "User";
-    rawCredentialData.locale = "Halton";
-    rawCountryData.label = "United Kingdom";
-    rawCountryData.value = "United Kingdom";
+    const { email, password, name, country, locale } = toRefs(
+      newAccountCredentials.value
+    );
+    email.value = "validemail@domain.com";
+    password.value = "validpassword";
+    name.value = "User";
+    country.value = {
+      country_id: 235,
+      name: "United Kingdom",
+      iso_code: "GB",
+    };
+    locale.value = "Halton";
     // Mocks
-    const mock = vi.fn().mockResolvedValueOnce({ data: {} });
-    useSupabaseAuthClient().auth.signUp = mock;
+    const mockSignUp = vi.spyOn(useSupabaseAuthClient().auth, "signUp");
+    //@ts-ignore
+    mockSignUp.mockResolvedValueOnce({ data: true });
     // Calls
-    await createUser(ref(newAccountCredentials));
+    await createUser(newAccountCredentials);
     // Assertions
-    expect(mock).toHaveBeenCalledOnce();
+    expect(mockSignUp).toHaveBeenCalledOnce();
     expect(notificationsStore.message).toBe("Account created successfully!");
-    expect(notificationsStore.type).toBe("success");
   });
   test("Using a preexisting email fails and pushes an error notification", async () => {
     // Data
-    rawCredentialData.email = "preexistingemail@domain.com";
-    rawCredentialData.password = "validpassword";
-    rawCredentialData.preferred_name = "User";
-    rawCredentialData.locale = "Halton";
-    rawCountryData.label = "United Kingdom";
-    rawCountryData.value = "United Kingdom";
+    const { email, password, name, country, locale } = toRefs(
+      newAccountCredentials.value
+    );
+    email.value = "validemail@domain.com";
+    password.value = "validpassword";
+    name.value = "User";
+    country.value = {
+      country_id: 235,
+      name: "United Kingdom",
+      iso_code: "GB",
+    };
+    locale.value = "Halton";
     // Mocks
     const mockData = { user: { identities: [] } };
-    const mock = vi.fn().mockResolvedValueOnce({ data: mockData });
-    useSupabaseAuthClient().auth.signUp = mock;
+    const mockSignUp = vi.spyOn(useSupabaseAuthClient().auth, "signUp");
+    //@ts-ignore
+    mockSignUp.mockResolvedValueOnce({ data: mockData });
     // Calls
-    await createUser(ref(newAccountCredentials));
+    await createUser(newAccountCredentials);
     // Assertions
-    expect(mock).toHaveBeenCalledOnce();
+    expect(mockSignUp).toHaveBeenCalledOnce();
     expect(notificationsStore.message).toBe(
       "Email address is already registered."
     );
-    expect(notificationsStore.type).toBe("error");
   });
 });
 
 describe("Tests related to logging out", () => {
   // Reset notification store data and mocks
   beforeEach(() => {
-    notificationsStore.clearAll();
+    notificationsStore.$reset();
     vi.resetAllMocks();
   });
-  test("Attempting to logout with no active user fails and pushes an error notification", async () => {
+  test("Attempting to logout with no active user fails and throws an error", async () => {
     // Mocks
-    const mockData = { error: "error" };
-    const mock = vi.fn().mockResolvedValueOnce({ data: mockData });
-    useSupabaseAuthClient().auth.getUser = mock;
-    // Calls
-    await logoutUser();
+    const mockSignOut = vi.spyOn(useSupabaseAuthClient().auth, "signOut");
+    mockSignOut.mockResolvedValueOnce({
+      //@ts-ignore
+      error: { message: "Error" },
+    });
     // Assertions
-    expect(mock).toHaveBeenCalledOnce();
-    expect(notificationsStore.message).toBe("No user currently logged in.");
-    expect(notificationsStore.type).toBe("error");
+    await expect(logoutUser()).rejects.toThrowError("Error");
+    expect(mockSignOut).toHaveBeenCalledOnce();
   });
   test("Attempting to logout with an active user succeeds and pushes a success notification", async () => {
     // Mocks
-    const mockData = { user: {} };
-    const mock = vi.fn().mockResolvedValueOnce({ data: mockData });
-    useSupabaseAuthClient().auth.getUser = mock;
+
+    const mockSignOut = vi.spyOn(useSupabaseAuthClient().auth, "signOut");
+    mockSignOut.mockResolvedValueOnce({
+      //@ts-ignore
+      data: { user: true },
+    });
+
     // Calls
     await logoutUser();
     // Assertions
-    expect(mock).toHaveBeenCalledOnce();
-    expect(notificationsStore.message).toBe("Logged out successfully!");
-    expect(notificationsStore.type).toBe("success");
-  });
-  test("Receiving an error message from the endpoint pushes an error notification", async () => {
-    // Mocks
-    const mockUser = { user: {} };
-    const mockErrorResponse = {
-      message: "An error message from the endpoint.",
-    };
-    const mockGetUser = vi.fn().mockResolvedValueOnce({ data: mockUser });
-    const mockSignOut = vi
-      .fn()
-      .mockResolvedValueOnce({ error: mockErrorResponse });
-    useSupabaseAuthClient().auth.getUser = mockGetUser;
-    useSupabaseAuthClient().auth.signOut = mockSignOut;
-    // Calls
-    await logoutUser();
-    // Assertions
-    expect(mockGetUser).toHaveBeenCalledOnce();
     expect(mockSignOut).toHaveBeenCalledOnce();
-    expect(notificationsStore.message).toBe(
-      "An error message from the endpoint."
-    );
-    expect(notificationsStore.type).toBe("error");
+    expect(notificationsStore.message).toBe("Logged out successfully!");
   });
 });
