@@ -102,76 +102,50 @@
 </style>
 
 <script setup lang="ts">
-/* Reactive variables */
+// Pinia stores
 const notificationsStore = useNotificationsStore();
-const timeout: Ref<NodeJS.Timeout | null> = ref(null);
-/* Template refs */
-const progressBarElement: Ref<HTMLDivElement | null> = ref(null);
-/*
- * Watch the notifications store for updates via $subscribe
- * If updated, add a timeout for 5000ms so notifications can close automatically
- * Timeout state is tracked through a ref ("timeout")
- * This allows resetting the timeout if a new message is added before removing the prior
- * Ensures all notifications get the 5000ms timeout applied
- * CSS inline styles allow progression bar to visually synchronise with setTimeout
- * Needed for clarity when a notification is pushed before a previous one has expired
- */
-// notifications.$subscribe(async () => {
-//   if (!timer.value && !notifications.message) return;
-//   timer.value.style.transition = "transform 5250ms";
-//   timer.value!.style.transform = "translateX(-100%)";
-//   // Reset timeout if another notification is pushed before the previous has expired
-//   if (timeout.value) {
-//     timer.value.style.transition = "none";
-//     timer.value.style.transform = "translateX(0%)";
-//     // Small delay is required to register updates correctly
-//     setTimeout(() => {
-//       if (!timer.value) return;
-//       timer.value.style.transition = "transform 5250ms";
-//       timer.value.style.transform = "translateX(-100%)";
-//     }, 50);
-//     window.clearTimeout(timeout.value);
-//   }
-//   // Clear any notifications and clean up any inline styles after a 5000ms delay
-//   timeout.value = setTimeout(() => {
-//     if (!timer.value) return;
-//     timer.value.removeAttribute("style");
-//     notifications.$reset();
-//     timeout.value = null;
-//   }, 5000);
-// });
 
+// Reactive variables
+const timeout: Ref<NodeJS.Timeout | null> = ref(null);
 const progressBar: Ref<Record<string, string>> = ref({
   transform: "",
   transition: "",
 });
 
-notificationsStore.$subscribe(
-  async () => {
-    if (!progressBarElement.value) return;
-    console.log(timeout.value);
+// Template refs
+const progressBarElement: Ref<HTMLDivElement | null> = ref(null);
+
+// Watchers
+watch(
+  notificationsStore.$state,
+  () => {
     const { transform, transition } = toRefs(progressBar.value);
-    const delay = 5250;
-    transform.value = "translate3D(-100%, 0, 0)";
-    transition.value = `transform ${delay}ms ease-out`;
+    const delay = 5500;
+    // Begin animation when change in state is detected
+    setTimeout(() => {
+      transform.value = "translate3D(-100%, 0, 0)";
+      transition.value = `transform ${delay}ms ease-out`;
+    }, 10);
     // Reset timeout if another notification is pushed before the previous has expired
-    if (timeout.value !== null) {
+    if (timeout.value) {
       transform.value = "translate3D(0, 0, 0)";
       transition.value = "none";
-      // Small delay is required to register updates correctly
       setTimeout(() => {
         transform.value = "translate3D(-100%, 0, 0)";
         transition.value = `transform ${delay}ms ease-out`;
-      }, 50);
-      await nextTick();
+      }, 10);
       window.clearTimeout(timeout.value);
     }
     // Clear any notifications and nullify the timeout ref after a 5000ms delay
     timeout.value = setTimeout(() => {
+      setTimeout(() => {
+        transform.value = "translate3D(-100%, 0, 0)";
+        transition.value = `transform ${delay}ms ease-out`;
+      }, 10);
       notificationsStore.$reset();
       timeout.value = null;
     }, 5000);
   },
-  { detached: true }
+  { deep: true }
 );
 </script>
