@@ -6,17 +6,17 @@
 export const useNotificationsStore = defineStore("notifications", {
   state: () => ({
     message: null as string | null,
-    type: null as string | null,
+    title: null as string | null,
   }),
   actions: {
     /**
      * Pushes a message to the notification store.
-     * @param message {string} - a message to be pushed to the user
-     * @param type {string} - a type that best categorises the message, e.g. "error", "success"
+     * @param title {string} A title to help provide context to the message.
+     * @param message {string} A message to notify the user.
      */
-    push(message: string, type: string) {
-      this.message = message;
-      this.type = type;
+    push(title: string, message: string): void {
+      [this.title, this.message] = [null, null];
+      [this.title, this.message] = [title, message];
     },
   },
 });
