@@ -7,7 +7,7 @@
       <button
         class="button"
         type="button"
-        @click="notifications.setMessage('A message', 'dev')"
+        @click="notifications.push('Notification', 'A message')"
       >
         Trigger Notification
       </button>
@@ -16,7 +16,7 @@
       <button
         class="button"
         type="button"
-        @click="notifications.setMessage('Another message', 'dev')"
+        @click="notifications.push('Notification', 'Another message')"
       >
         Trigger Separate Notification
       </button>
