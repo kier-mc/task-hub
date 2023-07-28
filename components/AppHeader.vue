@@ -2,6 +2,7 @@
   <header class="header">
     <h1 class="header__title">Task Hub</h1>
     <button
+      ref="buttonElement"
       class="header__button"
       id="app-navigation-button"
       aria-controls="app-navigation-menu"
@@ -38,42 +39,33 @@
     aspect-ratio: 1/1;
     width: 3rem;
     cursor: pointer;
+    &:hover .header__icon {
+      fill: colour.$secondary;
+    }
   }
   &__icon {
     pointer-events: none;
     width: 1.5rem;
     fill: colour.$font-light;
-    transition: fill 125ms;
-    &:hover {
-      fill: hsl(0, 0%, 90%);
-    }
+    transition: fill 150ms;
   }
 }
 </style>
 
 <script setup lang="ts">
-/* Reactive variables */
+// Reactive variables
 const isExpanded: Ref<boolean> = ref(false);
 
-/* Logic */
-function closeMenuWithInputOutside(event: Event): void {
-  const target = event.target as Element;
-  const isClickInside = target.closest("#app-navigation-button");
-  if (!isClickInside) {
-    isExpanded.value = false;
-  }
-}
+// Template refs
+const buttonElement: Ref<HTMLButtonElement | null> = ref(null);
 
-/* Hooks */
-onMounted(() => {
-  document.addEventListener("click", (event: MouseEvent) => {
-    closeMenuWithInputOutside(event);
-  });
+// Event handlers
+onClickOutside(buttonElement, () => {
+  isExpanded.value = false;
 });
 
-onUnmounted(() => {
-  document.removeEventListener("click", (event: MouseEvent) => {
-    closeMenuWithInputOutside(event);
-  });
+onKeyStroke("Escape", (event) => {
+  event.preventDefault();
+  isExpanded.value = false;
 });
 </script>
