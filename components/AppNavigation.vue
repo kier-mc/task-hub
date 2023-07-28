@@ -4,6 +4,7 @@
       <template v-for="option in propData.navigation" :key="option.index">
         <template v-if="user && option.requiresAuth === true">
           <li
+            ref="options"
             class="nav__option"
             :tabindex="props.isExpanded ? 0 : -1"
             @click="option.function"
@@ -187,4 +188,43 @@ const menuHeight: ComputedRef<string> = computed((): string => {
   }, 0);
   return `${count * 3}rem`;
 });
+
+// Event handlers
+onKeyStroke("ArrowUp", (event) => {
+  event.preventDefault();
+  for (let i = 0; i < options.value.length; i++) {
+    const option = options.value[i];
+    if (document.activeElement === option) {
+      if (options.value.indexOf(option) === 0) {
+        return;
+      }
+      useFocus(options.value[i - 1], { initialValue: true });
+      return;
+    }
+  }
+});
+
+onKeyStroke("ArrowDown", (event) => {
+  event.preventDefault();
+  for (let i = 0; i < options.value.length; i++) {
+    const option = options.value[i];
+    if (document.activeElement === option) {
+      if (options.value.indexOf(option) === options.value.length - 1) {
+        return;
+      }
+      useFocus(options.value[i + 1], { initialValue: true });
+      return;
+    }
+  }
+});
+
+// Watchers
+watch(
+  () => props.isExpanded,
+  () => {
+    if (props.isExpanded === false && document.activeElement) {
+      (document.activeElement as HTMLElement).blur();
+    }
+  }
+);
 </script>
