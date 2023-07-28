@@ -6,23 +6,23 @@
     <form class="login" @keyup.enter="loginWrapper(ref(credentials))">
       <FormInput
         class="login__input"
-        :data="propData.formHandler[0]"
-        :is-disabled="isLoading"
-        :aria-disabled="isLoading"
-        v-model:emit-label="credentials.email"
+        :data="propData.data.form[0]"
+        :is-disabled="state.is_disabled"
+        :aria-disabled="state.is_disabled"
+        v-model:emit-value="credentials.email"
       />
       <FormInput
         class="login__input"
-        :data="propData.formHandler[1]"
-        :is-disabled="isLoading"
-        :aria-disabled="isLoading"
-        v-model:emit-label="credentials.password"
+        :data="propData.data.form[1]"
+        :is-disabled="state.is_disabled"
+        :aria-disabled="state.is_disabled"
+        v-model:emit-value="credentials.password"
       />
-      <FormButton
+      <AppButton
         class="login__button"
-        :data="propData.buttonData"
-        :is-disabled="isLoading"
-        :is-loading="isLoading"
+        :data="propData.data.button"
+        :is-disabled="state.is_disabled"
+        :is-loading="state.is_loading"
       />
     </form>
   </section>
@@ -70,54 +70,72 @@
 </style>
 
 <script setup lang="ts">
+// Types
+import type { FormInputPropData } from "types/forms";
+import type { ButtonPropData } from "types/app";
+import type { LoginCredentialData } from "types/credentials";
+
+// Components
 import { SVGLogin } from "#components";
-/* Prop data */
+
+// Props
 const propData = {
-  formHandler: [
-    {
-      index: 0,
-      type: "input",
-      label: "Email",
-      attributes: {
-        autocomplete: "email",
-        id: "email",
-        type: "email",
+  data: {
+    form: <FormInputPropData[]>[
+      {
+        index: 0,
+        type: "input",
+        label: "Email",
+        attributes: {
+          autocomplete: "email",
+          id: "email",
+          type: "email",
+        },
       },
-    } as FormHandlerData,
-    {
-      index: 1,
-      type: "input",
-      label: "Password",
-      attributes: {
-        autocomplete: "current-password",
-        id: "password",
-        type: "password",
+      {
+        index: 1,
+        type: "input",
+        label: "Password",
+        attributes: {
+          autocomplete: "current-password",
+          id: "password",
+          type: "password",
+        },
       },
-    } as FormHandlerData,
-  ],
-  buttonData: {
-    function: () => loginWrapper(ref(credentials)),
-    label: "Login",
-    icon: SVGLogin,
-    attributes: {
-      type: "button",
+    ],
+    button: <ButtonPropData>{
+      function: () => loginWrapper(credentials),
+      label: "Login",
+      icon: SVGLogin,
+      attributes: {
+        type: "button",
+      },
     },
-  } as FormButtonData,
-  loadingIndicator: {
-    type: "dots",
-  } as LoadingIndicatorData,
+  },
 };
 
-const credentials: LoginCredentialsData = reactive({
+// Reactive variables
+const state: Ref<Record<string, boolean>> = ref({
+  is_loading: false,
+  is_disabled: false,
+});
+const credentials: Ref<LoginCredentialData> = ref({
   email: null,
   password: null,
 });
 
-const isLoading: Ref<boolean> = ref(false);
-
-async function loginWrapper(credentials: Ref<LoginCredentialsData>) {
-  isLoading.value = true;
-  await loginUser(credentials);
-  isLoading.value = false;
+// Logic
+async function loginWrapper(
+  credentials: Ref<LoginCredentialData>
+): Promise<void> {
+  state.value.is_loading = true;
+  state.value.is_disabled = true;
+  const attempt = await loginUser(credentials);
+  if (attempt) {
+    state.value.is_loading = false;
+    return;
+  }
+  state.value.is_loading = false;
+  state.value.is_disabled = false;
 }
 </script>
