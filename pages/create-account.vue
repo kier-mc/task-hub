@@ -6,11 +6,11 @@
     <ol class="timeline">
       <li
         class="timeline__step"
-        v-for="(section, index) in propData.data.form"
-        :key="index"
-        :data-active="index === stepper.slide.active"
+        v-for="step in propData.data.form"
+        :key="step.index"
+        :data-active="step.index === stepper.slide.active"
       >
-        {{ section.label }}
+        {{ step.label }}
       </li>
     </ol>
     <form ref="form" class="create-account">
@@ -18,31 +18,27 @@
         <section
           class="create-account__step"
           v-for="(section, index) in propData.data.form"
-          :key="index"
+          :key="section.index"
           :data-active="stepper.slide.active === index"
         >
           <template v-for="data in section.data">
             <template v-if="data.type === 'input'">
               <FormInput
+                :key="data.index"
                 class="create-account__input"
                 :data="data"
                 :is-disabled="data.section !== stepper.slide.active"
-                v-model:emit-label="credentials[data.attributes.id]"
+                v-model:emit-value="credentials[data.attributes.id]"
               />
             </template>
             <template v-else-if="data.type === 'autocomplete'">
               <FormAutocomplete
+                :key="data.index"
                 class="create-account__autocomplete"
                 :data="data"
                 :is-disabled="data.section !== stepper.slide.active"
-                :emit-label="credentials.country.label"
-                :emit-value="credentials.country.value"
-                @update:emit-label="
-                  (label) => (credentials.country.label = label)
-                "
-                @update:emit-value="
-                  (value) => (credentials.country.value = value)
-                "
+                v-model:emit-term="receiver.term"
+                v-model:emit-data="receiver.data"
               />
             </template>
           </template>
@@ -176,18 +172,28 @@
 </style>
 
 <script setup lang="ts">
-/* Component imports */
+// Types
+import type {
+  FormInputPropData,
+  NewAccountSectionPropData,
+  FormAutocompletePropData,
+} from "types/forms";
+import type { ButtonPropData, LoadingIndicatorPropData } from "types/app";
+import type { NewAccountCredentialData } from "types/credentials";
+import type { AutocompleteEmitCountryData } from "types/forms";
+
+// Components
 import { SVGLogin } from "#components";
 
-/* Prop data */
+// Props
 const propData = {
   data: {
-    form: [
+    form: <NewAccountSectionPropData[]>[
       {
         index: 0,
         label: "Basic Information",
         data: [
-          {
+          <FormInputPropData>{
             index: 0,
             section: 0,
             type: "input",
@@ -198,8 +204,8 @@ const propData = {
               id: "email",
               type: "email",
             },
-          } as FormInputPropData,
-          {
+          },
+          <FormInputPropData>{
             index: 1,
             section: 0,
             type: "input",
@@ -210,15 +216,15 @@ const propData = {
               id: "password",
               type: "password",
             },
-          } as FormInputPropData,
+          },
         ],
-      } as NewAccountSectionPropData,
+      },
       {
         index: 1,
         label: "Personalisation",
         data: [
-          {
-            index: 0,
+          <FormInputPropData>{
+            index: 2,
             section: 1,
             type: "input",
             label: "Preferred name",
@@ -228,9 +234,9 @@ const propData = {
               id: "name",
               type: "text",
             },
-          } as FormInputPropData,
-          {
-            index: 1,
+          },
+          <FormAutocompletePropData>{
+            index: 3,
             section: 1,
             type: "autocomplete",
             label: "Country",
@@ -239,9 +245,9 @@ const propData = {
               id: "country",
             },
             options: generateCountryData(),
-          } as FormAutocompletePropData,
-          {
-            index: 2,
+          },
+          <FormInputPropData>{
+            index: 4,
             section: 1,
             type: "input",
             label: "City/Town",
@@ -251,84 +257,91 @@ const propData = {
               id: "locale",
               type: "text",
             },
-          } as FormInputPropData,
+          },
         ],
-      } as NewAccountSectionPropData,
+      },
     ],
-    button: [
+    button: <ButtonPropData[]>[
       {
         function: () => prevStep(),
         label: "Previous",
         attributes: {
           type: "button",
         },
-      } as AppButtonPropData,
+      },
       {
         function: () => nextStep(),
         label: "Next",
         attributes: {
           type: "button",
         },
-      } as AppButtonPropData,
+      },
       {
-        function: () => createUserWrapper(credentials),
+        function: () => createUserWrapper(credentials.value),
         label: "Submit",
         icon: SVGLogin,
         attributes: {
           type: "button",
         },
-      } as AppButtonPropData,
+      },
     ],
   },
-  loadingIndicator: {
-    type: "dots",
-  } as LoadingIndicatorData,
 };
 
-/* Reactive variables */
+// Reactive variables
 const isLoading: Ref<boolean> = ref(false);
 const timeout: Ref<NodeJS.Timeout | null> = ref(null);
-const stepper = reactive({
+const stepper = ref({
   size: 0,
   translation: 0,
   slide: {
     active: 0,
   },
 });
-const credentials: NewAccountCredentialData = reactive({
+const receiver: Ref<AutocompleteEmitCountryData> = ref({
+  term: null,
+  data: {
+    country_id: null,
+    name: null,
+    iso_code: null,
+  },
+});
+const credentials: Ref<NewAccountCredentialData> = ref({
   email: null,
   password: null,
   name: null,
-  country: {
-    label: null,
-    value: null,
-  },
+  country: null,
   locale: null,
 });
 
-/* Template refs */
+// Watchers
+watch(receiver.value, () => {
+  credentials.value.country = receiver.value.data;
+});
+
+// Template refs
 const form: Ref<HTMLFormElement | null> = ref(null);
 
-/* Computed properties */
+// Computed properties
 const translation = computed(() => {
-  return `translateX(${stepper.translation * -1}px)`;
+  return `translateX(${stepper.value.translation * -1}px)`;
 });
 
 const setSubmitDisabledState = computed(() => {
   return !allFieldsArePopulated(ref(credentials));
 });
 
-/* Logic */
+// Logic
 function prevStep(): void {
-  if (stepper.slide.active >= 1) {
-    stepper.slide.active -= 1;
-    stepper.translation -= stepper.size;
+  if (stepper.value.slide.active >= 1) {
+    stepper.value.slide.active -= 1;
+    stepper.value.translation -= stepper.value.size;
   }
 }
 function nextStep(): void {
-  if (stepper.slide.active < propData.data.form.length - 1) {
-    stepper.slide.active += 1;
-    stepper.translation += stepper.size;
+  if (stepper.value.slide.active < propData.data.form.length - 1) {
+    stepper.value.slide.active += 1;
+    stepper.value.translation += stepper.value.size;
   }
 }
 
@@ -340,7 +353,7 @@ function getWidth(): number {
 function updateWidth(): void {
   if (timeout.value) clearTimeout(timeout.value);
   timeout.value = setTimeout(() => {
-    stepper.size = getWidth();
+    stepper.value.size = getWidth();
   }, 100);
 }
 
@@ -350,13 +363,11 @@ function createUserWrapper(credentials: NewAccountCredentialData): void {
   isLoading.value = false;
 }
 
-/* Hooks */
+// Hooks
 onMounted(() => {
-  window.addEventListener("resize", updateWidth);
-  stepper.size = getWidth();
-});
-
-onUnmounted(() => {
-  window.removeEventListener("resize", updateWidth);
+  stepper.value.size = getWidth();
+  useEventListener(document, "resize", () => {
+    updateWidth();
+  });
 });
 </script>
