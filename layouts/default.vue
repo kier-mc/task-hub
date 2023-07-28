@@ -1,5 +1,5 @@
 <template>
-  <ToastSystem />
+  <AppToast />
   <div class="container-header">
     <AppHeader />
   </div>
