@@ -27,6 +27,7 @@
 
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
+@use "../assets/scss/data/sizing";
 .input {
   position: relative;
   transition: opacity 200ms ease-in-out;
@@ -54,7 +55,7 @@
     left: 0rem;
     z-index: 10;
     padding-inline: 0.75rem;
-    font-size: 0.875rem;
+    font-size: sizing.$font-regular-smaller;
     user-select: none;
     color: colour.$input-label;
     cursor: text;
@@ -74,6 +75,7 @@
     padding-top: 1rem;
     padding-inline: 0.5rem;
     border: 1px solid colour.$input-border;
+    font-size: sizing.$font-regular-small;
     background-color: colour.$input-background;
     cursor: text;
     &:disabled {
@@ -86,7 +88,7 @@
     height: 1rem;
     padding-inline: 0.25rem;
     margin-top: 0.125rem;
-    font-size: 0.75rem;
+    font-size: sizing.$font-regular-smallest;
     color: colour.$font-dark-translucent;
   }
 }
