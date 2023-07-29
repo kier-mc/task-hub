@@ -4,7 +4,7 @@
       ref="autocompleteElement"
       :class="setParentClass"
       :id="props.data.attributes.id"
-      @keyup.escape="isExpanded = false"
+      @keyup.escape="handleEscape()"
     >
       <div :class="setControlsClass">
         <label :class="setLabelClass" :for="props.data.attributes.id">
@@ -18,7 +18,9 @@
           :value="props.emitTerm"
           @click="isExpanded = true"
           @input="handleInput($event)"
-          @keyup.enter="selectFromList($event)"
+          @keyup.enter="
+            isExpanded ? selectFromList($event) : (isExpanded = true)
+          "
           @focus="isExpanded = true"
         />
         <button
@@ -67,6 +69,7 @@
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/effect";
+@use "../assets/scss/data/sizing";
 .autocomplete {
   position: relative;
   background-color: colour.$autocomplete-background;
@@ -93,7 +96,7 @@
     right: 0rem;
     left: 0rem;
     padding-inline: 0.75rem;
-    font-size: 0.875rem;
+    font-size: sizing.$font-regular-smaller;
     color: colour.$autocomplete-label;
     transform: translateY(-50%);
     transition: top 125ms, transform 125ms;
@@ -128,6 +131,7 @@
     padding-inline: 0.5rem;
     padding-top: 1rem;
     margin-right: 1px;
+    font-size: sizing.$font-regular-small;
     &--mini {
       padding: 0.25rem;
       height: 1.25rem;
@@ -217,6 +221,7 @@
     padding-inline: calc(0.5rem - 2px);
     border: 2px solid transparent;
     background-color: colour.$autocomplete-option-background-a;
+    font-size: sizing.$font-regular-small;
     cursor: pointer;
     transition: background-color 100ms ease-in-out, opacity 150ms ease-in-out;
     &:nth-child(even) {
@@ -236,7 +241,7 @@
     height: 1rem;
     padding-inline: 0.25rem;
     margin-top: 0.125rem;
-    font-size: 0.75rem;
+    font-size: sizing.$font-regular-smallest;
     color: colour.$font-dark-translucent;
   }
 }
@@ -314,7 +319,11 @@ const setLabelClass = computed((): string | void => {
   const element = inputElement.value;
   const input = element.value;
   let result = false;
-  if (isExpanded.value || input.length > 0) {
+  if (
+    isExpanded.value ||
+    input.length > 0 ||
+    document.activeElement === element
+  ) {
     result = true;
   }
   if (props.data.style) {
@@ -396,7 +405,7 @@ async function handleInput(event: Event): Promise<void> {
 
 function filterData(): void {
   if (!props.data.options) {
-    console.warn("No options provided to autocomplete component!");
+    console.warn("No options provided to autocomplete component");
     return;
   }
   // Reset current options list
@@ -415,18 +424,24 @@ function filterData(): void {
         term: null,
         data: null,
       };
-      const regex = new RegExp(`^${predicate.toLocaleLowerCase()}`);
+      const normalisedPredicate = predicate // https://claritydev.net/blog/diacritic-insensitive-string-comparison-javascript
+        .normalize("NFD") // Convert to unicode
+        .replace(/[\u0300-\u036f]/g, "") // Remove all diacritic characters
+        .toLowerCase(); // Convert to lowercase
+      const regex = new RegExp(`^${normalisedPredicate}`);
       // Matching the beginning of the string takes precedent
       if (term) {
-        if (regex.test(term.toLocaleLowerCase())) {
+        const normalisedTerm = term
+          ?.normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+        if (regex.test(normalisedTerm)) {
           result.term = term;
           result.data = data;
           options.value.push(result);
         }
         // Substrings are returned as partial matches at the end of the array
-        else if (
-          term.toLocaleLowerCase().includes(predicate.toLocaleLowerCase())
-        ) {
+        else if (normalisedTerm.includes(normalisedPredicate)) {
           result.term = term;
           result.data = data;
           partialMatches.push(result);
@@ -446,7 +461,7 @@ async function clearInput() {
   forceRefresh.value++;
 }
 
-function findOptionData(predicate: string): AutocompleteEmitData {
+function matchData(predicate: string): AutocompleteEmitData {
   let start = 0;
   let end = options.value.length - 1;
   const payload = <AutocompleteEmitData>{
@@ -486,7 +501,7 @@ async function selectFromList(event: Event): Promise<void> {
     term = options.value[0].term;
     data = options.value[0].data;
   } else if (listElements.value.includes(target as HTMLLIElement)) {
-    const option = findOptionData(target.textContent!);
+    const option = matchData(target.textContent!);
     term = option.term;
     data = option.data;
   }
@@ -496,8 +511,45 @@ async function selectFromList(event: Event): Promise<void> {
   filterData();
 }
 
-onClickOutside(autocompleteElement, () => {
+function handleEscape(): void {
   isExpanded.value = false;
+  useFocus(inputElement, { initialValue: true });
+}
+
+const { focused } = useFocusWithin(autocompleteElement);
+
+watch(focused, (isFocused) => {
+  if (!isFocused) {
+    isExpanded.value = false;
+  }
+});
+
+onKeyStroke("ArrowUp", (event) => {
+  event.preventDefault();
+  for (let i = 0; i < listElements.value.length; i++) {
+    const option = listElements.value[i];
+    if (document.activeElement === option) {
+      if (listElements.value.indexOf(option) === 0) {
+        return;
+      }
+      useFocus(listElements.value[i - 1], { initialValue: true });
+      return;
+    }
+  }
+});
+
+onKeyStroke("ArrowDown", (event) => {
+  event.preventDefault();
+  for (let i = 0; i < listElements.value.length; i++) {
+    const option = listElements.value[i];
+    if (document.activeElement === option) {
+      if (listElements.value.indexOf(option) === options.value.length - 1) {
+        return;
+      }
+      useFocus(listElements.value[i + 1], { initialValue: true });
+      return;
+    }
+  }
 });
 
 onMounted(async () => {
