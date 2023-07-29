@@ -135,7 +135,7 @@ const inputElement: Ref<HTMLInputElement | null> = ref(null);
 
 // Computed properties
 const setLabelClass = computed((): string | void => {
-  if (!inputElement.value) return;
+  if (!inputElement.value) return "input__label";
   let result = false;
   const value = inputElement.value.value;
   if (isFocused.value || value.length > 0) {
@@ -143,7 +143,6 @@ const setLabelClass = computed((): string | void => {
   }
   return result ? "input__label input__label--focused" : "input__label";
 });
-
 const setTypeAttribute = computed(() => {
   return props.data.attributes.type ? props.data.attributes.type : "text";
 });
