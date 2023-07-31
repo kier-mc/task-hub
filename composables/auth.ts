@@ -35,7 +35,7 @@ export async function loginUser(
   }
   if (data.user) {
     await userStore.fetchData();
-    notificationsStore.push("Success", `Logged in as ${userStore.getName()}!`);
+    notificationsStore.push("Success", `Logged in as ${userStore.getName}!`);
     clearAllFields(credentials);
     return true;
   }
@@ -92,4 +92,5 @@ export async function logoutUser(): Promise<void> {
   if (error) throw new Error(error.message);
   userStore.$reset();
   notificationsStore.push("Success", "Logged out successfully!");
+  await navigateTo("/");
 }
