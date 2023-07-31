@@ -56,9 +56,13 @@
 <style scoped lang="scss"></style>
 
 <script setup lang="ts">
+// Types
+import type { LoadingIndicatorPropData } from "types/components/app";
+
+// Prop definitions
 const props = defineProps({
   options: {
-    type: Object as PropType<LoadingIndicatorData>,
+    type: Object as PropType<LoadingIndicatorPropData>,
     required: true,
   },
 });
