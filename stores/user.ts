@@ -1,6 +1,6 @@
 /* Type imports */
-import type { UserStoreState } from "types/store.user";
-import type { Database, AppUserMetadata } from "types/schema";
+import type { UserStoreState, UserStoreResponseData } from "types/store.user";
+import type { Database } from "types/schema";
 import type { TemperatureUnitsShort } from "types/unions/generic.units";
 import type {
   CountryID,
@@ -15,6 +15,7 @@ export const useUserStore = defineStore("user", {
   state: (): UserStoreState => ({
     data: null,
     name: null,
+    email: null,
     country: {
       country_id: null,
       name: null,
@@ -22,6 +23,9 @@ export const useUserStore = defineStore("user", {
       locale: null,
     },
     preferences: {
+      region: {
+        locale_formatting: null,
+      },
       units: {
         temperature: null ?? "c",
       },
@@ -42,68 +46,61 @@ export const useUserStore = defineStore("user", {
         .select(
           `
           preferred_name,
+          email,
           country_id,
           locale,
-          preferences_units,
-          preferences_app
+          preferences_app,
+          preferences_region,
+          preferences_units
           `
         );
       if (error) {
         throw new Error(error.message);
       }
       if (data) {
-        const response: AppUserMetadata = data[0];
+        const response: UserStoreResponseData = data[0];
         [
           this.name,
+          this.email,
           this.country.country_id,
           this.country.name,
           this.country.iso_code,
           this.country.locale,
+          this.preferences.region.locale_formatting,
           this.preferences.units.temperature,
         ] = [
           response.preferred_name,
+          response.email,
           response.country_id,
-          countryData.searchByID(response.country_id).name,
-          countryData.searchByID(response.country_id).iso_code,
+          countries.searchByID(response.country_id).name,
+          countries.searchByID(response.country_id).iso_code,
           response.locale,
+          response.preferences_region.locale_formatting,
           response.preferences_units.temperature,
         ];
       }
     },
+  },
+  getters: {
     getName(): string | null {
-      if (!this.data) {
-        throw new Error("No local user data available");
-      }
       return this.name;
     },
     getCountryID(): CountryID | null {
-      if (!this.data) {
-        throw new Error("No local user data available");
-      }
       return this.country.country_id;
     },
     getCountryName(): CountryName | null {
-      if (!this.data) {
-        throw new Error("No local user data available");
-      }
       return this.country.name;
     },
     getCountryISOCode(): CountryISOCode | null {
-      if (!this.data) {
-        throw new Error("No local user data available");
-      }
       return this.country.iso_code;
     },
     getLocale(): string | null {
-      if (!this.data) {
-        throw new Error("No local user data available");
-      }
       return this.country.locale;
     },
+    getPreferredLocaleFormatting(): CountryISOCode | null {
+      return this.preferences.region.locale_formatting;
+    },
     getPreferredUnit(): TemperatureUnitsShort | null {
-      if (!this.data) {
-        throw new Error("No local user data available");
-      }
       return this.preferences.units.temperature;
     },
   },
