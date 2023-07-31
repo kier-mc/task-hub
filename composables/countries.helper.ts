@@ -1,3 +1,4 @@
+import { AutocompleteEmitCountryData } from "types/components/forms";
 import { CountryData, CountryDataPayload } from "types/schema";
 import {
   CountryID,
@@ -5,7 +6,8 @@ import {
   CountryISOCode,
 } from "types/unions/schema.country";
 
-export const COUNTRY_DATA: CountryData[] = [
+/* prettier-ignore */
+const COUNTRY_DATA: CountryData[] = [
   { country_id: 1, name: "Afghanistan", iso_code: "AF" },
   { country_id: 2, name: "Åland Islands", iso_code: "AX" },
   { country_id: 3, name: "Albania", iso_code: "AL" },
@@ -57,11 +59,7 @@ export const COUNTRY_DATA: CountryData[] = [
   { country_id: 49, name: "Colombia", iso_code: "CO" },
   { country_id: 50, name: "Comoros", iso_code: "KM" },
   { country_id: 51, name: "Congo", iso_code: "CG" },
-  {
-    country_id: 52,
-    name: "Congo, the Democratic Republic of the",
-    iso_code: "CD",
-  },
+  { country_id: 52, name: "Congo, the Democratic Republic of the", iso_code: "CD" },
   { country_id: 53, name: "Cook Islands", iso_code: "CK" },
   { country_id: 54, name: "Costa Rica", iso_code: "CR" },
   { country_id: 55, name: "Cote DIvoire", iso_code: "CI" },
@@ -127,11 +125,7 @@ export const COUNTRY_DATA: CountryData[] = [
   { country_id: 115, name: "Kazakhstan", iso_code: "KZ" },
   { country_id: 116, name: "Kenya", iso_code: "KE" },
   { country_id: 117, name: "Kiribati", iso_code: "KI" },
-  {
-    country_id: 118,
-    name: "Korea, Democratic People's Republic of",
-    iso_code: "KP",
-  },
+  { country_id: 118, name: "Korea, Democratic People's Republic of", iso_code: "KP" },
   { country_id: 119, name: "Korea, Republic of", iso_code: "KR" },
   { country_id: 120, name: "Kuwait", iso_code: "KW" },
   { country_id: 121, name: "Kyrgyzstan", iso_code: "KG" },
@@ -145,11 +139,7 @@ export const COUNTRY_DATA: CountryData[] = [
   { country_id: 129, name: "Lithuania", iso_code: "LT" },
   { country_id: 130, name: "Luxembourg", iso_code: "LU" },
   { country_id: 131, name: "Macao", iso_code: "MO" },
-  {
-    country_id: 132,
-    name: "Macedonia, the Former Yugoslav Republic of",
-    iso_code: "MK",
-  },
+  { country_id: 132, name: "Macedonia, the Former Yugoslav Republic of", iso_code: "MK" },
   { country_id: 133, name: "Madagascar", iso_code: "MG" },
   { country_id: 134, name: "Malawi", iso_code: "MW" },
   { country_id: 135, name: "Malaysia", iso_code: "MY" },
@@ -203,11 +193,7 @@ export const COUNTRY_DATA: CountryData[] = [
   { country_id: 183, name: "Russian Federation", iso_code: "RU" },
   { country_id: 184, name: "Rwanda", iso_code: "RW" },
   { country_id: 185, name: "Saint Barthélemy", iso_code: "BL" },
-  {
-    country_id: 186,
-    name: "Saint Helena, Ascension and Tristan da Cunha",
-    iso_code: "SH",
-  },
+  { country_id: 186, name: "Saint Helena, Ascension and Tristan da Cunha", iso_code: "SH" },
   { country_id: 187, name: "Saint Kitts and Nevis", iso_code: "KN" },
   { country_id: 188, name: "Saint Lucia", iso_code: "LC" },
   { country_id: 189, name: "Saint Martin (French part)", iso_code: "MF" },
@@ -228,11 +214,7 @@ export const COUNTRY_DATA: CountryData[] = [
   { country_id: 204, name: "Solomon Islands", iso_code: "SB" },
   { country_id: 205, name: "Somalia", iso_code: "SO" },
   { country_id: 206, name: "South Africa", iso_code: "ZA" },
-  {
-    country_id: 207,
-    name: "South Georgia and the South Sandwich Islands",
-    iso_code: "GS",
-  },
+  { country_id: 207, name: "South Georgia and the South Sandwich Islands", iso_code: "GS" },
   { country_id: 208, name: "South Sudan", iso_code: "SS" },
   { country_id: 209, name: "Spain", iso_code: "ES" },
   { country_id: 210, name: "Sri Lanka", iso_code: "LK" },
@@ -262,11 +244,7 @@ export const COUNTRY_DATA: CountryData[] = [
   { country_id: 234, name: "United Arab Emirates", iso_code: "AE" },
   { country_id: 235, name: "United Kingdom", iso_code: "GB" },
   { country_id: 236, name: "United States", iso_code: "US" },
-  {
-    country_id: 237,
-    name: "United States Minor Outlying Islands",
-    iso_code: "UM",
-  },
+  { country_id: 237, name: "United States Minor Outlying Islands", iso_code: "UM" },
   { country_id: 238, name: "Uruguay", iso_code: "UY" },
   { country_id: 239, name: "Uzbekistan", iso_code: "UZ" },
   { country_id: 240, name: "Vanuatu", iso_code: "VU" },
@@ -287,7 +265,7 @@ const payload: CountryDataPayload = {
   iso_code: null,
 };
 
-export const countryData = {
+export const countries = {
   /**
    * Searches through all countries by their numerical index.
    * @param predicate {CountryID} A numerical value between 1 and 249 to search with.
@@ -360,5 +338,54 @@ export const countryData = {
       }
     }
     return payload;
+  },
+  /**
+   * Generates an array of objects suitable for use with the Autocomplete form component.
+   * The country name is used as the predicate term and the complete data set is returned as data.
+   * @returns {AutocompleteEmitCountryData[]}
+   * An array of objects suitable for use with the Autocomplete form component.
+   */
+  generateAutocompleteData(): AutocompleteEmitCountryData[] {
+    const payload = [];
+    for (let i = 0; i < COUNTRY_DATA.length; i++) {
+      const item: AutocompleteEmitCountryData = {
+        term: null,
+        data: null,
+      };
+      item.term = COUNTRY_DATA[i].name;
+      item.data = {
+        country_id: COUNTRY_DATA[i].country_id,
+        name: COUNTRY_DATA[i].name,
+        iso_code: COUNTRY_DATA[i].iso_code,
+      };
+      payload.push(item);
+    }
+    return payload;
+  },
+  /**
+   * Returns an array of all available country data.
+   */
+  get getData() {
+    return COUNTRY_DATA;
+  },
+  /**
+   * Returns an array of all country IDs in ascending order.
+   */
+  get getIDs() {
+    return COUNTRY_DATA.map((country) => country.country_id);
+  },
+  /**
+   * Returns an array of all country names in alphabetical order.
+   */
+  get getNames() {
+    return COUNTRY_DATA.map((country) => country.name);
+  },
+  /**
+   * Returns an array of all country ISO codes.
+   * The array is ordered by the alphabetical order of the associated country name,
+   * not the ISO code itself.
+   */
+  get getISOCodes() {
+    return COUNTRY_DATA.map((country) => country.iso_code);
   },
 };

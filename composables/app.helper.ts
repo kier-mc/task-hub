@@ -1,31 +1,3 @@
-import { AutocompleteEmitCountryData } from "types/forms";
-import { COUNTRY_DATA } from "./user.helper";
-/**
- * A helper function that iterates over an array of all countries (countriesHelper) and
- * adds the values to an object. The object mimics part of the prop data that would be
- * supplied to the FormHandler component to generate either a select element (with the
- * countries as option elements), or to generate an autocomplete custom element.
- * @returns {Array<CompFormOptionsObject>} An array containing individual options in a
- * format that is parsable by the FormHandler component.
- */
-export function generateCountryData(): Array<AutocompleteEmitCountryData> {
-  const countries = [];
-  for (let i = 0; i < COUNTRY_DATA.length; i++) {
-    const item: AutocompleteEmitCountryData = {
-      term: null,
-      data: null,
-    };
-    item.term = COUNTRY_DATA[i].name;
-    item.data = {
-      country_id: COUNTRY_DATA[i].country_id,
-      name: COUNTRY_DATA[i].name,
-      iso_code: COUNTRY_DATA[i].iso_code,
-    };
-    countries.push(item);
-  }
-  return countries;
-}
-
 /**
  * Auth helper function that iterates through all values of an object and ensures
  * that the value is not falsy. If any value is falsy, it has not been populated
