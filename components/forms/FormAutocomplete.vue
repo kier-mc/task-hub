@@ -69,7 +69,7 @@
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/effect";
-@use "../assets/scss/data/sizing";
+@use "../assets/scss/data/font";
 .autocomplete {
   position: relative;
   background-color: colour.$autocomplete-background;
@@ -96,7 +96,7 @@
     right: 0rem;
     left: 0rem;
     padding-inline: 0.75rem;
-    font-size: sizing.$font-regular-smaller;
+    font-size: font.$regular-smaller;
     color: colour.$autocomplete-label;
     transform: translateY(-50%);
     transition: top 125ms, transform 125ms;
@@ -131,7 +131,7 @@
     padding-inline: 0.5rem;
     padding-top: 1rem;
     margin-right: 1px;
-    font-size: sizing.$font-regular-small;
+    font-size: font.$regular-small;
     &--mini {
       padding: 0.25rem;
       height: 1.25rem;
@@ -221,7 +221,7 @@
     padding-inline: calc(0.5rem - 2px);
     border: 2px solid transparent;
     background-color: colour.$autocomplete-option-background-a;
-    font-size: sizing.$font-regular-small;
+    font-size: font.$regular-small;
     cursor: pointer;
     transition: background-color 100ms ease-in-out, opacity 150ms ease-in-out;
     &:nth-child(even) {
@@ -241,7 +241,7 @@
     height: 1rem;
     padding-inline: 0.25rem;
     margin-top: 0.125rem;
-    font-size: sizing.$font-regular-smallest;
+    font-size: font.$regular-smallest;
     color: colour.$font-dark-translucent;
   }
 }
