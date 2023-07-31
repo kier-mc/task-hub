@@ -99,7 +99,10 @@
 
 <script setup lang="ts">
 // Types
-import type { ButtonPropData, LoadingIndicatorPropData } from "types/app";
+import type {
+  ButtonPropData,
+  LoadingIndicatorPropData,
+} from "types/components/app";
 
 // Prop definitions
 const props = defineProps({
@@ -124,20 +127,11 @@ const propData = {
   } as LoadingIndicatorPropData,
 };
 
-// Reactive variables
-const buttonWidth: Ref<string> = ref("initial");
-
 // Template refs
 const button: Ref<HTMLButtonElement | null> = ref(null);
 
-// Logic
-function getInitialWidth() {
-  if (!button.value) return;
-  buttonWidth.value = `${button.value.clientWidth}px`;
-}
-
-// Hooks
-onMounted(() => {
-  getInitialWidth();
+// Computed properties
+const buttonWidth = computed(() => {
+  return button.value ? `${button.value.clientWidth}px` : "auto";
 });
 </script>
