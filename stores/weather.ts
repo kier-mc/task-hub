@@ -1,10 +1,16 @@
-import { useNotificationsStore } from "./notifications";
-import { setActivePinia, createPinia } from "pinia";
-
-setActivePinia(createPinia());
-const notificationsStore = useNotificationsStore();
-const userStore = useUserStore();
-
+// Types
+import type {
+  WeatherStoreState,
+  WeatherStoreLocationData,
+  WeatherStoreTemperatureData,
+  WeatherStoreWindData,
+  OpenWeatherMapResponse,
+} from "types/store.weather";
+import type {
+  CountryID,
+  CountryISOCode,
+  CountryName,
+} from "types/unions/schema.country";
 /**
  * An internal function used to call the OpenWeatherMap endpoint.
  * Requires a key and a location to be supplied in order to function.
@@ -21,68 +27,21 @@ const userStore = useUserStore();
 async function fetchFromEndpoint(
   location: string
 ): Promise<OpenWeatherMapResponse | void> {
+  const notificationsStore = useNotificationsStore();
   const config = useRuntimeConfig();
   const key = config.public.openWeatherKey;
   const endpoint = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${key}`;
   const response = await fetch(endpoint);
   if (Math.floor((response.status % 1000) / 100) != 2) {
-    notificationsStore.setMessage(
-      "An error occurred whilst attempting to retrieve weather data",
-      "error"
+    notificationsStore.push(
+      "Error",
+      "An error occurred whilst attempting to retrieve weather data"
     );
     return;
   }
+  localStorage.setItem("weatherData", JSON.stringify(response));
   const data = await response.json();
   return data as OpenWeatherMapResponse;
-}
-/**
- * An internal function that converts a temperature value in Kelvin to either Celsius or Fahrenheit.
- * Contains a nested function that rounds the given value to a single decimal place.
- * This function maintains this decimal place even if the number is an integer for formatting reasons, thus 20 is returned as "20.0".
- *
- * @param temperature {number} - The temperature (in Kelvin) to be converted.
- * @param {ConvertTemperatureFromKelvinOptions} [options]  - Optional options object for modifying the function's behaviour.
- * @param options.unit {"celsius"|"kelvin"|"fahrenheit"|undefined} - Specifies the unit that the temperature will be returned in.
- * If no value is specified, will default to Kelvin.
- * @param options.locale {string} - Specifies the locale, which alters the formatting of the returned string to the specified
- * regional standard. Passed to [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat)
- * internally. If no value is specified, will default to "GB".
- * @example
- * // Assuming an input temperature of 283.15K, returns "10.0"
- * getTemperature({locale: "GB"})
- * // Assuming an input temperature of 283.15K, returns "10,0"
- * getTemperature({locale: "SE"})
- * @returns {string} The converted value as a string in the specified unit, rounded to a single decimal place.
- */
-function convertTemperatureFromKelvin(
-  temperature: number,
-  options?: {
-    unit?: "celsius" | "kelvin" | "fahrenheit" | undefined;
-    locale?: string | undefined;
-  }
-): string {
-  const { unit, locale = "GB" } = options || {};
-  function toOneDecimalPlace(input: number): string {
-    return new Intl.NumberFormat(locale, {
-      maximumFractionDigits: 1,
-      minimumFractionDigits: 1,
-    }).format(input);
-  }
-  switch (unit) {
-    case "celsius": {
-      const baselineConversion = temperature - 273.15;
-      return toOneDecimalPlace(baselineConversion);
-    }
-    case "kelvin": {
-      return toOneDecimalPlace(temperature);
-    }
-    case "fahrenheit": {
-      const baselineConversion = 1.8 * (temperature - 273) + 32;
-      return toOneDecimalPlace(baselineConversion);
-    }
-    default:
-      return toOneDecimalPlace(temperature);
-  }
 }
 /**
  * A Pinia store for managing weather data.
@@ -91,142 +50,213 @@ function convertTemperatureFromKelvin(
  * this behaviour is explicitly specified.
  */
 export const useWeatherStore = defineStore("weather", {
-  state: () => ({
-    data: null as null | OpenWeatherMapResponse,
+  state: (): WeatherStoreState => ({
+    response: null,
+    location: {
+      country_id: null,
+      country_name: null,
+      iso_code: null,
+      locale: null,
+      coordinates: {
+        longitude: null,
+        latitude: null,
+      },
+    },
+    temperature: {
+      average: null,
+      minimum: null,
+      maximum: null,
+      feels_like: null,
+    },
+    wind: {
+      speed: null,
+    },
   }),
   actions: {
     /**
      * Checks the store of the presence of any weather data and returns it.
      * If there is no weather data present, will call the API endpoint via {@link fetchFromEndpoint()} and populate it.
-     * If the fetch response is anything other than a 2xx HTTP status code,
-     * a generic error message will be passed to the user and the function will return void.
-     * @param location {string} - A string to be parsed by the API as a location.
-     * Ideally, it will be passed as a place name followed by an ISO 3166 country code,
-     * e.g. "Halton, GB", although this isn't strictly necessary for the lookup to function.
-     * It will be passed internally to {@link fetchFromEndpoint()}.
-     * @param {WeatherStoreGetWeatherOptions} [options] - Optional options object for controlling the behaviour.
-     * @param options.forceUpdate {boolean} - If set to true, the function will fetch data from the API endpoint,
+     * If the fetch response is anything other than a 2xx HTTP status code, a generic error message
+     * will be passed to the user and the function will return void.
+     * @param location {string}
+     * A string to be parsed by the API as a location. Should ideally be passed as a place name
+     * followed by an ISO 3166 country code, e.g. "Halton, GB".
+     * @param forceUpdate {boolean}
+     * If set to true, the function will fetch data from the API endpoint,
      * even if local data is available. The default value is false.
-     * @returns {(Promise<OpenWeatherMapResponse|void>)} An object containing data regarding weather
-     * for the location that was passed as a parameter. If the location is invalid or the call
-     * fails for any other reason, the function returns void and pushes a generic error notification
-     * to the user. This behaviour is handled by {@link fetchFromEndpoint()}.
+     * @returns {(Promise<OpenWeatherMapResponse|void>)}
+     * An object containing data regarding weather for the location that was passed as a parameter.
+     *
      */
-    /* 
-    TODO:
-    1) Remove stdout statements when satisfied
-    2) Changing location will not trigger an immediate update if it is within ten minutes
-       of the last localStorage write. Needs a clause for this in the conditional, but it
-       has to be considerate of how the user specifies the location. Consequently, it will
-       probably be best to implement this after a system and interface has been built that
-       allows the user to change their location, as checks can be enforced more accurately.
-    */
-    async getWeather(
-      location: string,
-      options?: WeatherStoreGetWeatherOptions
-    ): Promise<OpenWeatherMapResponse | void> {
-      // If data is found in localStorage
+    async fetchData(location: string, forceUpdate?: boolean): Promise<void> {
+      const userStore = useUserStore();
+      if (!userStore.response) await userStore.fetchData();
+      /**
+       * Helper function to assign response values to designated store keys.
+       * Accepts an API response object to determine which values to use,
+       * which is passed back unmodified as a return value once the function
+       * is complete so that the response can be assigned to the store afterwards.
+       * @param response
+       * The JSONified response received from the API.
+       * @returns {OpenWeatherMapResponse}
+       * The unmodified initial response.
+       */
+      const assignValues = (response: OpenWeatherMapResponse) => {
+        const unit = userStore.getPreferredUnit ?? "c";
+        const countryID = countries.searchByISOCode(
+          response.sys.country
+        ).country_id;
+        [
+          this.location.country_id,
+          this.location.country_name,
+          this.location.iso_code,
+          this.location.locale,
+          this.location.coordinates.latitude,
+          this.location.coordinates.longitude,
+          this.temperature.average,
+          this.temperature.minimum,
+          this.temperature.maximum,
+          this.temperature.feels_like,
+          this.wind.speed,
+        ] = [
+          countryID,
+          countries.searchByID(countryID!).country_name,
+          countries.searchByID(countryID!).iso_code,
+          response.name,
+          response.coord.lat,
+          response.coord.lon,
+          temperature.format(response.main.temp, unit),
+          temperature.format(response.main.temp_min, unit),
+          temperature.format(response.main.temp_max, unit),
+          temperature.format(response.main.feels_like, unit),
+          response.wind.speed,
+        ];
+        return response;
+      };
+      // If pre-existing weather data is found in localStorage
       if (localStorage.getItem("weatherData")) {
-        console.log("Data found in localStorage. Comparing to stored data...");
-        await userStore.fetchData();
-        const parsedLocalWeatherData: OpenWeatherMapResponse = JSON.parse(
-          localStorage.getItem("weatherData") as string
-        );
-        const currentDateTime = Math.floor(new Date().getTime() / 1000);
-        const lastCallDateTime = parsedLocalWeatherData.dt;
-        if (userStore.getLocale() !== parsedLocalWeatherData.name) {
-          console.log(
-            "New location detected. Fetching and returning new data..."
-          );
+        const local = localStorage.getItem("weatherData");
+        const data: OpenWeatherMapResponse = JSON.parse(local!);
+        const currentTime = Math.floor(new Date().getTime() / 1000);
+        const lastCallTime = data.dt;
+        // Ignore local copy and fetch new data if the user has changed location
+        if (userStore.getLocale !== data.name) {
           const response = await fetchFromEndpoint(location);
           if (!response) return;
-          localStorage.setItem("weatherData", JSON.stringify(response));
-          this.data = response;
-          return this.data;
+          this.response = assignValues(response);
+          return;
         }
-        if (currentDateTime - lastCallDateTime > 600 || options?.forceUpdate) {
-          console.log(
-            `Data in localStorage is out of date by ${
-              currentDateTime - 600 - lastCallDateTime
-            } seconds. Fetching and returning new data...`
-          );
+        // Fetch new data if the time difference is greater than ten minutes
+        if (currentTime - lastCallTime > 600 || forceUpdate) {
           const response = await fetchFromEndpoint(location);
           if (!response) return;
-          localStorage.setItem("weatherData", JSON.stringify(response));
-          this.data = response;
-          return this.data;
+          this.response = assignValues(response);
+          return;
         }
-        console.log(
-          "Current time is within ten minutes of localStorage data. Returning local data..."
-        );
-        return (this.data = parsedLocalWeatherData);
+        // Otherwise, return the local copy
+        this.response = assignValues(data);
+        return;
       }
-      // If no data is present in the store or the function is called with forceUpdate=true
-      if (!this.data || options?.forceUpdate) {
-        console.log(
-          "No Pinia store data found. Fetching and returning new data..."
-        );
+      // If no previous response was found or forceUpdate=true, fetch data
+      if (!this.response || forceUpdate) {
         const response = await fetchFromEndpoint(location);
         if (!response) return;
-        localStorage.setItem("weatherData", JSON.stringify(response));
-        this.data = response;
-        return this.data;
+        this.response = assignValues(response);
+        return;
       }
-      console.log(
-        "Data already present or parameter explicitly denies remote fetch. Returning local data..."
-      );
-      return this.data as OpenWeatherMapResponse;
+    },
+  },
+  getters: {
+    /**
+     * @returns {WeatherStoreLocationData}
+     * An object containing assorted data related to the call location.
+     */
+    getLocation(): WeatherStoreLocationData | null {
+      return this.location;
     },
     /**
-     * Retrieves the temperature from the data object and returns it as a string.
-     * Leverages {@link convertTemperatureFromKelvin()} internally to perform conversions.
-     * Accepts optional options object that modify the specifics as to precisely what is returned.
-     * @param {WeatherStoreGetTemperatureOptions} [options]  - Optional options object for modifying the function's behaviour.
-     * @param options.type {"average"|"feels_like"|"max"|"min"|undefined} - Specifies the exact temperature type
-     * to be returned. If no value is specified, will default to the average temperature.
-     * @param options.unit {"celsius"|"fahrenheit"|undefined} - Specifies the unit that the temperature will be returned in.
-     * Passed to {@link convertTemperatureFromKelvin()} internally. If no value is specified, will default to Kelvin.
-     * @param options.locale {string} - Specifies the locale, which alters the formatting of the returned string to the specified
-     * regional standard. Passed to [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat)
-     * internally, via {@link convertTemperatureFromKelvin()}. If no value is specified, will default to "GB".
-     * @example
-     * // Assuming an input temperature of 283.15K, returns "10.0"
-     * getTemperature({locale: "GB"})
-     * // Assuming an input temperature of 283.15K, returns "10,0"
-     * getTemperature({locale: "SE"})
-     * @returns {(string|void)} A string representing the temperature as specified via the parameters.
-     * Will return void if no data is present in the store.
+     * @returns {CountryID}
+     * The country's numerical ID.
      */
-    getTemperature(options?: WeatherStoreGetTemperatureOptions): string | void {
-      if (!this.data) return;
-      let temperature = this.data.main.temp;
-      const { type, unit, locale } = options || {};
-      switch (type) {
-        case "average": {
-          temperature = this.data.main.temp;
-          break;
-        }
-        case "feels_like": {
-          temperature = this.data.main.feels_like;
-          break;
-        }
-        case "max": {
-          temperature = this.data.main.temp_max;
-          break;
-        }
-        case "min": {
-          temperature = this.data.main.temp_min;
-          break;
-        }
-        default: {
-          temperature = this.data.main.temp;
-          break;
-        }
-      }
-      return convertTemperatureFromKelvin(
-        temperature,
-        (options = { unit: unit, locale: locale })
-      );
+    getCountryID(): CountryID | null {
+      return this.location.country_id;
+    },
+    /**
+     * @returns {CountryName}
+     * The name of the country the location is located within.
+     */
+    getCountryName(): CountryName | null {
+      return this.location.country_name;
+    },
+    /**
+     * @returns {CountryISOCode}
+     * The ISO 3166 alpha-2 country code.
+     */
+    getCountryISOCode(): CountryISOCode | null {
+      return this.location.iso_code;
+    },
+    /**
+     * @returns {string}
+     * The locale used in the call.
+     */
+    getLocale(): string | null {
+      return this.location.locale;
+    },
+    /**
+     * @returns {WeatherStoreLocationData["coordinates"]}
+     * An object containing the latitude and longitude of the data sampling site.
+     */
+    getCoordinates(): WeatherStoreLocationData["coordinates"] | null {
+      return this.location.coordinates;
+    },
+    /**
+     * @returns {number}
+     * The latitude of the data sampling site.
+     */
+    getLatitude(): number | null {
+      return this.location.coordinates.latitude;
+    },
+    /**
+     * @returns {number}
+     * The longitude of the data sampling site.
+     */
+    getLongitude(): number | null {
+      return this.location.coordinates.longitude;
+    },
+    /**
+     * @returns {WeatherStoreTemperatureData}
+     * An object containing various temperature measurements.
+     */
+    getTemperature(): WeatherStoreTemperatureData | null {
+      return this.temperature;
+    },
+    /**
+     * @returns {string}
+     * The average temperature for the location.
+     */
+    getAverageTemperature(): string | null {
+      return this.temperature.average;
+    },
+    /**
+     * @returns {string}
+     * The minimum temperature for the location.
+     */
+    getMinimumTemperature(): string | null {
+      return this.temperature.minimum;
+    },
+    /**
+     * @returns {string}
+     * The maximum temperature for the location.
+     */
+    getMaximumTemperature(): string | null {
+      return this.temperature.maximum;
+    },
+    /**
+     * @returns {string}
+     * The "feels like" temperature for the location.
+     */
+    getFeelsLikeTemperature(): string | null {
+      return this.temperature.feels_like;
     },
   },
 });
