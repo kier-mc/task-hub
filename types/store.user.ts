@@ -14,7 +14,7 @@ export interface UserStoreState {
   /**
    * The complete response received from the Supabase User object when data is fetched.
    */
-  data: User | null;
+  response: User | null;
   /**
    * The user's preferred name, as specified by them.
    */
@@ -26,7 +26,7 @@ export interface UserStoreState {
   /**
    * Groups information related to the user's country data.
    */
-  country: UserStoreCountryData;
+  location: UserStoreCountryData;
   /**
    * Groups information related to the user's app preferences.
    */
