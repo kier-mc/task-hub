@@ -92,5 +92,6 @@ export async function logoutUser(): Promise<void> {
   if (error) throw new Error(error.message);
   userStore.$reset();
   notificationsStore.push("Success", "Logged out successfully!");
+  await nextTick();
   await navigateTo("/");
 }
