@@ -11,7 +11,7 @@
       <AppLoadingIndicator
         v-if="isLoading"
         class="button__loading"
-        :options="propData.loadingIndicator"
+        display="dots"
       />
       <div v-else class="button__display">
         <component :is="data.icon" class="button__icon" />
@@ -119,13 +119,6 @@ const props = defineProps({
     required: false,
   },
 });
-
-// Prop data
-const propData = {
-  loadingIndicator: {
-    type: "dots",
-  } as LoadingIndicatorPropData,
-};
 
 // Template refs
 const button: Ref<HTMLButtonElement | null> = ref(null);
