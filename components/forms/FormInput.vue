@@ -96,7 +96,7 @@
 
 <script setup lang="ts">
 // Types
-import type { FormInputPropData } from "types/forms";
+import type { FormInputPropData } from "types/components/forms";
 
 // Prop definitions
 const props = defineProps({
