@@ -13,12 +13,12 @@ import type {
  */
 export const useUserStore = defineStore("user", {
   state: (): UserStoreState => ({
-    data: null,
+    response: null,
     name: null,
     email: null,
-    country: {
+    location: {
       country_id: null,
-      name: null,
+      country_name: null,
       iso_code: null,
       locale: null,
     },
@@ -27,20 +27,22 @@ export const useUserStore = defineStore("user", {
         locale_formatting: null,
       },
       units: {
-        temperature: null ?? "c",
+        temperature: null,
       },
     },
   }),
   actions: {
     async fetchData(force?: boolean): Promise<void> {
-      if (!force && this.data) return;
+      if (!force && this.response) return;
       const request = await useSupabaseAuthClient().auth.getUser();
       if (!request.data.user) {
         throw new Error(
           "Unable to fetch data from remote server. Check your connection and ensure that you are logged in"
         );
       }
-      this.data = request.data.user;
+      // Copy the initial response to the store
+      this.response = request.data.user;
+      // Query the database for the required data
       const { data, error } = await useSupabaseClient<Database>()
         .from("users")
         .select(
@@ -57,22 +59,23 @@ export const useUserStore = defineStore("user", {
       if (error) {
         throw new Error(error.message);
       }
+      // Assign the received data to the store
       if (data) {
         const response: UserStoreResponseData = data[0];
         [
           this.name,
           this.email,
-          this.country.country_id,
-          this.country.name,
-          this.country.iso_code,
-          this.country.locale,
+          this.location.country_id,
+          this.location.country_name,
+          this.location.iso_code,
+          this.location.locale,
           this.preferences.region.locale_formatting,
           this.preferences.units.temperature,
         ] = [
           response.preferred_name,
           response.email,
           response.country_id,
-          countries.searchByID(response.country_id).name,
+          countries.searchByID(response.country_id).country_name,
           countries.searchByID(response.country_id).iso_code,
           response.locale,
           response.preferences_region.locale_formatting,
@@ -86,16 +89,16 @@ export const useUserStore = defineStore("user", {
       return this.name;
     },
     getCountryID(): CountryID | null {
-      return this.country.country_id;
+      return this.location.country_id;
     },
     getCountryName(): CountryName | null {
-      return this.country.name;
+      return this.location.country_name;
     },
     getCountryISOCode(): CountryISOCode | null {
-      return this.country.iso_code;
+      return this.location.iso_code;
     },
     getLocale(): string | null {
-      return this.country.locale;
+      return this.location.locale;
     },
     getPreferredLocaleFormatting(): CountryISOCode | null {
       return this.preferences.region.locale_formatting;
