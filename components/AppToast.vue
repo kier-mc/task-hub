@@ -84,6 +84,9 @@
     padding: 1rem;
     padding-bottom: 1.25rem; // Adjust for progress bar height
     font-size: 0.925rem;
+    &:focus {
+      outline: none;
+    }
   }
   &__close-button {
     all: unset;
@@ -146,9 +149,11 @@ watch(
       duration: DURATION,
       fill: "forwards",
     };
-    // Make the message focusable and switch focus to it
-    isFocusable.value = true;
-    useFocus(messageElement, { initialValue: true });
+    // If the store contains a message, enable focus and switch to it
+    if (notificationsStore.message) {
+      isFocusable.value = true;
+      useFocus(messageElement, { initialValue: true });
+    }
     // Animate the progress bar when a message is detected
     progressBarElement.value.animate(keyframes, options);
     // If a timeout exists, play the animation again and clear the timeout so it can be reset
