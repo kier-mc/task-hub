@@ -1,4 +1,7 @@
 <template>
+  <KeepAlive>
+    <AppToast />
+  </KeepAlive>
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
