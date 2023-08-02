@@ -34,7 +34,7 @@ export const useUserStore = defineStore("user", {
   actions: {
     async fetchData(force?: boolean): Promise<void> {
       if (!force && this.response) return;
-      const request = await useSupabaseAuthClient().auth.getUser();
+      const request = await useSupabaseClient().auth.getUser();
       if (!request.data.user) {
         throw new Error(
           "Unable to fetch data from remote server. Check your connection and ensure that you are logged in"

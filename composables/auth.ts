@@ -23,12 +23,10 @@ export async function loginUser(
     return false;
   }
   const userStore = useUserStore();
-  const { data, error } = await useSupabaseAuthClient().auth.signInWithPassword(
-    {
-      email: credentials.value.email!,
-      password: credentials.value.password!,
-    }
-  );
+  const { data, error } = await useSupabaseClient().auth.signInWithPassword({
+    email: credentials.value.email!,
+    password: credentials.value.password!,
+  });
   if (error) {
     notificationsStore.push("Error", error.message);
     return false;
@@ -57,7 +55,7 @@ export async function createUser(
     notificationsStore.push("Error", "Please ensure all fields are filled in.");
     return false;
   }
-  const { data, error } = await useSupabaseAuthClient().auth.signUp({
+  const { data, error } = await useSupabaseClient().auth.signUp({
     email: credentials.value.email!,
     password: credentials.value.password!,
     options: {
@@ -88,7 +86,7 @@ export async function createUser(
 export async function logoutUser(): Promise<void> {
   const notificationsStore = useNotificationsStore();
   const userStore = useUserStore();
-  const { error } = await useSupabaseAuthClient().auth.signOut();
+  const { error } = await useSupabaseClient().auth.signOut();
   if (error) throw new Error(error.message);
   userStore.$reset();
   notificationsStore.push("Success", "Logged out successfully!");
