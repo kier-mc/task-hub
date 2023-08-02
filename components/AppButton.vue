@@ -24,6 +24,7 @@
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/effect";
+@use "../assets/scss/data/font";
 .button {
   all: unset;
   position: relative;
@@ -36,12 +37,12 @@
   border: 1px solid colour.$button-border;
   border-radius: 4px;
   background-color: colour.$button-background;
-  box-shadow: effect.$drop-shadow-1-lighter;
+  box-shadow: effect.$drop-shadow-sm;
   user-select: none;
   text-rendering: optimizeLegibility;
   font-variant: tabular-nums;
+  font-size: font.$regular-sm;
   text-transform: uppercase;
-  font-size: 0.95rem;
   font-weight: bold;
   letter-spacing: 0.05rem;
   color: colour.$button-font;
