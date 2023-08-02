@@ -15,6 +15,14 @@ import { loginUser, createUser, logoutUser } from "~/composables/auth";
 
 /* Module/function mocking */
 vi.mock("@nuxtjs/supabase");
+vi.mock("nuxt/app", async (importOriginal) => {
+  const copy = await importOriginal();
+  return {
+    ...(copy as any),
+    // TODO: figure out how to test the route
+    navigateTo: vi.fn(),
+  };
+});
 
 // Pinia test environment and instantiations
 setActivePinia(createPinia());
