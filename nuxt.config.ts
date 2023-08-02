@@ -24,4 +24,7 @@ export default defineNuxtConfig({
       openWeatherKey: process.env.OPENWEATHER_KEY,
     },
   },
+  supabase: {
+    redirect: false,
+  },
 });
