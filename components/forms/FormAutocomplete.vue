@@ -37,7 +37,14 @@
           @click="isExpanded = !isExpanded"
           type="button"
         >
-          <SVGExpandMore class="autocomplete__icon" />
+          <Transition name="v-transition-fade" mode="out-in">
+            <AppLoadingIndicator
+              v-if="isSearching"
+              display="circle"
+              class="autocomplete__icon"
+            />
+            <SVGExpandMore v-else class="autocomplete__icon" />
+          </Transition>
         </button>
       </div>
       <ul
@@ -73,6 +80,7 @@
 .autocomplete {
   position: relative;
   background-color: colour.$autocomplete-background;
+  box-shadow: effect.$drop-shadow-xs;
   &:focus-within {
     &::before {
       opacity: 1;
@@ -96,7 +104,7 @@
     right: 0rem;
     left: 0rem;
     padding-inline: 0.75rem;
-    font-size: font.$regular-smaller;
+    font-size: font.$regular-xs;
     color: colour.$autocomplete-label;
     transform: translateY(-50%);
     transition: top 125ms, transform 125ms;
@@ -131,7 +139,7 @@
     padding-inline: 0.5rem;
     padding-top: 1rem;
     margin-right: 1px;
-    font-size: font.$regular-small;
+    font-size: font.$regular-sm;
     &--mini {
       padding: 0.25rem;
       height: 1.25rem;
@@ -196,14 +204,15 @@
     border-bottom: 1px solid transparent;
     margin-top: 1px;
     background-color: colour.$autocomplete-options-background;
-    box-shadow: effect.$drop-shadow-2;
+    box-shadow: effect.$drop-shadow-sm;
     font-size: 0.925rem;
-    transition: height 175ms ease-in-out, visibility 200ms;
+    transition: height 175ms ease-in-out, visibility 200ms, box-shadow 500ms;
     &[aria-expanded="true"] {
       visibility: visible;
       height: min(v-bind(optionsMinimumHeight), 11rem);
-      border-bottom: 1px solid colour.$autocomplete-border;
       z-index: 100;
+      border-bottom: 1px solid colour.$autocomplete-border;
+      box-shadow: effect.$drop-shadow-md;
       .autocomplete::before {
         opacity: 1;
       }
@@ -221,7 +230,7 @@
     padding-inline: calc(0.5rem - 2px);
     border: 2px solid transparent;
     background-color: colour.$autocomplete-option-background-a;
-    font-size: font.$regular-small;
+    font-size: font.$regular-sm;
     cursor: pointer;
     transition: background-color 100ms ease-in-out, opacity 150ms ease-in-out;
     &:nth-child(even) {
@@ -241,9 +250,21 @@
     height: 1rem;
     padding-inline: 0.25rem;
     margin-top: 0.125rem;
-    font-size: font.$regular-smallest;
+    font-size: font.$regular-2xs;
     color: colour.$font-dark-translucent;
   }
+}
+.v-transition-fade-enter-active,
+.v-transition-fade-leave-active {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 125ms ease, visibility 125ms ease;
+}
+
+.v-transition-fade-enter-from,
+.v-transition-fade-leave-to {
+  visibility: hidden;
+  opacity: 0;
 }
 </style>
 
@@ -291,6 +312,7 @@ let timeout: NodeJS.Timeout | undefined;
 
 // Reactive variables
 const isExpanded: Ref<boolean> = ref(false);
+const isSearching: Ref<boolean> = ref(false);
 const options: Ref<Array<AutocompleteEmitData>> = ref([]);
 const forceRefresh: Ref<number> = ref(0);
 
@@ -384,6 +406,7 @@ function populateDefaultOptions() {
 
 async function handleInput(event: Event): Promise<void> {
   if (!props.data.options) return;
+  isSearching.value = true;
   const target = event.target as HTMLInputElement;
   const propOptions = props.data.options;
   const searchValue = target.value;
@@ -452,6 +475,7 @@ function filterData(): void {
     populateDefaultOptions();
   }
   options.value = [...options.value, ...partialMatches];
+  isSearching.value = false;
 }
 
 async function clearInput() {
