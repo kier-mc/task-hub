@@ -1,22 +1,23 @@
 @use "sass:color";
-@import "./colour";
+@use "./colour";
 
-$drop-shadow-1:
-  0 1px 3px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.88),
-  0 1px 2px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.76);
-$drop-shadow-2:
-  0 3px 6px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.84),
-  0 3px 6px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.76);
-$drop-shadow-3:
-  0 10px 20px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.8),
-  0 6px 6px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.76);
+$tint: color.adjust(colour.$dark, $saturation: +10%); // Tint for shadows
 
-$drop-shadow-1-lighter:
-  0 1px 3px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.94),
-  0 1px 2px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.88);
-$drop-shadow-2-lighter:
-  0 3px 6px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.92),
-  0 3px 6px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.88);
-$drop-shadow-3-lighter:
-  0 10px 20px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.9),
-  0 6px 6px color.adjust($neutral, $saturation: -5%, $lightness: -5%, $alpha: -0.88);
+$drop-shadow-xs:
+  0 1px 3px color.change($tint, $alpha: 0.12),
+  0 1px 2px color.change($tint, $alpha: 0.24);
+$drop-shadow-sm:
+  0 3px 6px color.change($tint, $alpha: 0.16),
+  0 3px 6px color.change($tint, $alpha: 0.24);
+$drop-shadow-md:
+  0 10px 20px color.change($tint, $alpha: 0.20),
+  0 6px 6px color.change($tint, $alpha: 0.24);
+$drop-shadow-lg:
+  0 14px 28px color.change($tint, $alpha: 0.24),
+  0 10px 10px color.change($tint, $alpha: 0.22);
+$drop-shadow-xl:
+  0 19px 38px color.change($tint, $alpha: 0.32),
+  0 15px 12px color.change($tint, $alpha: 0.24);
+$drop-shadow-2xl:
+  0 29px 52px color.change($tint, $alpha: 0.40),
+  0 25px 16px color.change($tint, $alpha: 0.20);
