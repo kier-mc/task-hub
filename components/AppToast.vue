@@ -37,6 +37,7 @@
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/effect";
+@use "../assets/scss/data/font";
 /* prettier-ignore */
 .toast {
   opacity: 0;
@@ -51,7 +52,7 @@
   max-width: 40ch;
   margin-inline: auto;
   background-color: colour.$window-body;
-  box-shadow: effect.$drop-shadow-3;
+  box-shadow: effect.$drop-shadow-lg;
   cursor: default;
   transform: translate3d(0, 100%, 0);
   filter: blur(0.25rem);
@@ -77,13 +78,13 @@
   &__title {
     all: unset;
     padding-inline: 1rem;
-    font-size: 1.025rem;
+    font-size: font.$regular-lg;
     font-weight: bold;
   }
   &__message {
     padding: 1rem;
     padding-bottom: 1.25rem; // Adjust for progress bar height
-    font-size: 0.925rem;
+    font-size: font.$regular-sm;
     &:focus {
       outline: none;
     }
@@ -141,11 +142,11 @@ watch(
   () => {
     if (!progressBarElement.value) return;
     const DURATION = 5000;
-    const keyframes = <Keyframe[]>[
+    const keyframes: Keyframe[] = [
       { transform: "translate3D(0, 0, 0)" },
       { transform: "translate3D(-100%, 0, 0)" },
     ];
-    const options = <KeyframeAnimationOptions>{
+    const options: KeyframeAnimationOptions = {
       duration: DURATION,
       fill: "forwards",
     };
