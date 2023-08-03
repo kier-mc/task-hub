@@ -11,6 +11,7 @@ import type {
   CountryISOCode,
   CountryName,
 } from "types/unions/schema.country";
+import type { OpenWeatherMapIconCode } from "types/unions/weather.icons";
 /**
  * An internal function used to call the OpenWeatherMap endpoint.
  * Requires a key and a location to be supplied in order to function.
@@ -52,6 +53,8 @@ async function fetchFromEndpoint(
 export const useWeatherStore = defineStore("weather", {
   state: (): WeatherStoreState => ({
     response: null,
+    description: null,
+    icon_code: null,
     location: {
       country_id: null,
       country_name: null,
@@ -107,6 +110,8 @@ export const useWeatherStore = defineStore("weather", {
           response.sys.country
         ).country_id;
         [
+          this.description,
+          this.icon_code,
           this.location.country_id,
           this.location.country_name,
           this.location.iso_code,
@@ -119,6 +124,8 @@ export const useWeatherStore = defineStore("weather", {
           this.temperature.feels_like,
           this.wind.speed,
         ] = [
+          response.weather[0].description,
+          response.weather[0].icon,
           countryID,
           countries.searchByID(countryID!).country_name,
           countries.searchByID(countryID!).iso_code,
@@ -167,6 +174,20 @@ export const useWeatherStore = defineStore("weather", {
     },
   },
   getters: {
+    /**
+     * @returns {string | null}
+     * A description of the current weather conditions.
+     */
+    getDescription(): string | null {
+      return this.description;
+    },
+    /**
+     * @returns {OpenWeatherMapIconCode | null}
+     * The icon code associated with the current weather conditions and time of day.
+     */
+    getIconCode(): OpenWeatherMapIconCode | null {
+      return this.icon_code;
+    },
     /**
      * @returns {WeatherStoreLocationData}
      * An object containing assorted data related to the call location.
