@@ -9,10 +9,12 @@
 
 <style scoped lang="scss">
 @use "../assets/scss/data/colour.scss";
+@use "../assets/scss/data/effect.scss";
 @use "../assets/scss/data/layout.scss";
 .container-header {
   height: 3rem;
   background-image: colour.$app-header;
+  box-shadow: effect.$drop-shadow-sm;
 }
 .container-main {
   max-width: layout.$breakpoint-largest;
