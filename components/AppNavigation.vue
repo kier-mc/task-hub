@@ -1,5 +1,5 @@
 <template>
-  <nav ref="nav" class="nav" role="navigation">
+  <nav class="nav" role="navigation">
     <ul class="nav__menu" :aria-expanded="props.isExpanded">
       <template v-for="option in propData.navigation" :key="option.index">
         <template v-if="user && option.requiresAuth === true">
@@ -33,6 +33,7 @@
 
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
+@use "../assets/scss/data/easing";
 @use "../assets/scss/data/effect";
 @use "../assets/scss/data/layout";
 .nav {
@@ -49,19 +50,20 @@
     position: absolute;
     top: 0;
     right: 0;
-    z-index: 990; 
-    box-shadow: effect.$drop-shadow-3-lighter;
+    z-index: 990;
     color: colour.$font-light;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(0.25rem);
     transition:
-      visibility 200ms ease-in-out,
-      height 175ms ease-in-out;
+      visibility 150ms ease-in-out,
+      height 275ms easing.$ease-out-quart;
+      box-shadow: 300ms easing.$ease-out-quart;
     @media (max-width: layout.$breakpoint-medium) {
       width: 100vw;
     }
     &[aria-expanded="true"] {
       visibility: visible;           
-      height: v-bind("menuHeight");      
+      height: v-bind("menuHeight");   
+      box-shadow: effect.$drop-shadow-sm;   
     }
     &[aria-expanded="true"] .nav__option {
       opacity: 1;
@@ -81,8 +83,8 @@
     background-color: colour.$app-navigation-menu;
     cursor: pointer;
     transition:
-      background-color 125ms ease-in-out,
-      opacity 150ms ease-in-out;
+      background-color 500ms easing.$ease-out-quart,
+      opacity 150ms easing.$ease-out-quart;
     @media (max-width: layout.$breakpoint-medium) {
       width: calc(100% - 2rem);
     }
@@ -107,7 +109,7 @@
 <script setup lang="ts">
 // Types
 import type { User } from "@supabase/supabase-js";
-import type { NavigationPropData } from "types/app";
+import type { NavigationPropData } from "types/components/app";
 
 // Components
 import {
@@ -137,7 +139,7 @@ const propData = {
       index: 1,
       label: "Hub",
       icon: SVGHome,
-      function: () => navigateTo("/new-hub"),
+      function: () => navigateTo("/hub"),
       requiresAuth: true,
     },
     {
@@ -176,7 +178,6 @@ const user: Ref<User | null> = useSupabaseUser();
 
 // Template refs
 const options: Ref<Array<HTMLLIElement | null>> = ref([]);
-const nav: Ref<HTMLDivElement | null> = ref(null);
 
 // Logic
 const menuHeight: ComputedRef<string> = computed((): string => {
