@@ -16,6 +16,7 @@
 
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
+@use "../assets/scss/data/easing";
 @use "../assets/scss/data/layout";
 .header {
   display: flex;
@@ -47,7 +48,7 @@
     pointer-events: none;
     width: 1.5rem;
     fill: colour.$font-light;
-    transition: fill 150ms;
+    transition: fill 500ms easing.$ease-out-quart;
   }
 }
 </style>
