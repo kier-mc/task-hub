@@ -35,6 +35,7 @@ export async function loginUser(
     await userStore.fetchData();
     notificationsStore.push("Success", `Logged in as ${userStore.getName}!`);
     clearAllFields(credentials);
+    await navigateTo("/hub");
     return true;
   }
   return false;
