@@ -73,6 +73,7 @@ export const useWeatherStore = defineStore("weather", {
     },
     wind: {
       speed: null,
+      direction: null,
     },
   }),
   actions: {
@@ -123,6 +124,7 @@ export const useWeatherStore = defineStore("weather", {
           this.temperature.maximum,
           this.temperature.feels_like,
           this.wind.speed,
+          this.wind.direction,
         ] = [
           response.weather[0].description,
           response.weather[0].icon,
@@ -137,6 +139,7 @@ export const useWeatherStore = defineStore("weather", {
           temperature.format(response.main.temp_max, unit),
           temperature.format(response.main.feels_like, unit),
           response.wind.speed,
+          response.wind.deg,
         ];
         return response;
       };
@@ -189,95 +192,123 @@ export const useWeatherStore = defineStore("weather", {
       return this.icon_code;
     },
     /**
-     * @returns {WeatherStoreLocationData}
+     * @returns {WeatherStoreLocationData | null}
      * An object containing assorted data related to the call location.
      */
-    getLocation(): WeatherStoreLocationData | null {
+    getLocationData(): WeatherStoreLocationData | null {
       return this.location;
     },
     /**
-     * @returns {CountryID}
+     * @returns {CountryID | null}
      * The country's numerical ID.
      */
     getCountryID(): CountryID | null {
       return this.location.country_id;
     },
     /**
-     * @returns {CountryName}
+     * @returns {CountryName | null}
      * The name of the country the location is located within.
      */
     getCountryName(): CountryName | null {
       return this.location.country_name;
     },
     /**
-     * @returns {CountryISOCode}
+     * @returns {CountryISOCode | null}
      * The ISO 3166 alpha-2 country code.
      */
     getCountryISOCode(): CountryISOCode | null {
       return this.location.iso_code;
     },
     /**
-     * @returns {string}
+     * @returns {string | null}
      * The locale used in the call.
      */
     getLocale(): string | null {
       return this.location.locale;
     },
     /**
-     * @returns {WeatherStoreLocationData["coordinates"]}
+     * @returns {WeatherStoreLocationData["coordinates"]  | null}
      * An object containing the latitude and longitude of the data sampling site.
      */
     getCoordinates(): WeatherStoreLocationData["coordinates"] | null {
       return this.location.coordinates;
     },
     /**
-     * @returns {number}
+     * @returns {number | null}
      * The latitude of the data sampling site.
      */
     getLatitude(): number | null {
       return this.location.coordinates.latitude;
     },
     /**
-     * @returns {number}
+     * @returns {number | null}
      * The longitude of the data sampling site.
      */
     getLongitude(): number | null {
       return this.location.coordinates.longitude;
     },
     /**
-     * @returns {WeatherStoreTemperatureData}
+     * @returns {WeatherStoreTemperatureData | null}
      * An object containing various temperature measurements.
      */
-    getTemperature(): WeatherStoreTemperatureData | null {
+    getTemperatureData(): WeatherStoreTemperatureData | null {
       return this.temperature;
     },
     /**
-     * @returns {string}
+     * @returns {string | null}
      * The average temperature for the location.
      */
     getAverageTemperature(): string | null {
       return this.temperature.average;
     },
     /**
-     * @returns {string}
+     * @returns {string | null}
      * The minimum temperature for the location.
      */
     getMinimumTemperature(): string | null {
       return this.temperature.minimum;
     },
     /**
-     * @returns {string}
+     * @returns {string | null}
      * The maximum temperature for the location.
      */
     getMaximumTemperature(): string | null {
       return this.temperature.maximum;
     },
     /**
-     * @returns {string}
+     * @returns {string | null}
      * The "feels like" temperature for the location.
      */
     getFeelsLikeTemperature(): string | null {
       return this.temperature.feels_like;
+    },
+    /**
+     * @returns {WeatherStoreWindData | null}
+     * An object containing various wind data.
+     */
+    getWindData(): WeatherStoreWindData | null {
+      return this.wind;
+    },
+    /**
+     * @returns {number | null}
+     * The current wind speed, in metres per second.
+     */
+    getWindSpeed(): number | null {
+      return this.wind.speed;
+    },
+    /**
+     * @returns {number | null}
+     * The current wind direction, expressed in meteorological degrees (°).
+     * The values are measured clockwise from true north.
+     * 360 (or 0) represents true north,
+     * 90 represents east,
+     * 180 represents south
+     * and 270 represents west.
+     * For example, a value of 180 represents wind that eminates from the south
+     * and blows toward the north.
+     */
+    getWindDirection(): number | null {
+      return this.wind.direction;
     },
   },
 });

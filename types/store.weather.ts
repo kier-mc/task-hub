@@ -101,6 +101,17 @@ export interface WeatherStoreWindData {
    * The current average wind speed, expressed in meters per second (m/s).
    */
   speed: number | null;
+  /**
+   * The current wind direction, expressed in meteorological degrees (°).
+   * The values are measured clockwise from true north.
+   * 360 (or 0) represents true north,
+   * 90 represents east,
+   * 180 represents south
+   * and 270 represents west.
+   * For example, a value of 180 represents wind that eminates from the south
+   * and blows toward the north.
+   */
+  direction: number | null;
 }
 
 /**
