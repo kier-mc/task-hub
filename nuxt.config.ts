@@ -1,5 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  devServer: {
+    https: {
+      key: "localhost-key.pem",
+      cert: "localhost.pem",
+    },
+  },
   modules: ["@pinia/nuxt", "nuxt-vitest", "@nuxtjs/supabase", "@vueuse/nuxt"],
   pinia: {
     autoImports: ["defineStore", "useStore"],
