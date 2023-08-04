@@ -13,3 +13,6 @@ dist
 __test__/coverage
 scripts/input
 scripts/output
+
+localhost-key.pem
+localhost.pem
