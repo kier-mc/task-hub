@@ -53,6 +53,7 @@ async function fetchFromEndpoint(
 export const useWeatherStore = defineStore("weather", {
   state: (): WeatherStoreState => ({
     response: null,
+    timestamp: null,
     description: null,
     icon_code: null,
     location: {
@@ -111,6 +112,7 @@ export const useWeatherStore = defineStore("weather", {
           response.sys.country
         ).country_id;
         [
+          this.timestamp,
           this.description,
           this.icon_code,
           this.location.country_id,
@@ -126,6 +128,7 @@ export const useWeatherStore = defineStore("weather", {
           this.wind.speed,
           this.wind.direction,
         ] = [
+          response.dt,
           response.weather[0].description,
           response.weather[0].icon,
           countryID,
@@ -177,6 +180,13 @@ export const useWeatherStore = defineStore("weather", {
     },
   },
   getters: {
+    /**
+     * @returns {number | null}
+     * The time the call was made, in Unix seconds.
+     */
+    getTimestamp(): number | null {
+      return this.timestamp;
+    },
     /**
      * @returns {string | null}
      * A description of the current weather conditions.

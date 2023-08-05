@@ -14,6 +14,10 @@ export interface WeatherStoreState {
    */
   response: OpenWeatherMapResponse | null;
   /**
+   * The time (in Unix seconds) that the last call was made at.
+   */
+  timestamp: number | null;
+  /**
    * A description of the current weather.
    */
   description: string | null;
@@ -139,7 +143,7 @@ export interface OpenWeatherMapResponse {
   /**
    * An array containing an object with data about the current weather conditions.
    */
-  weather: OpenWeatherMapWeatherObject[];
+  weather: OpenWeatherMapWeatherData[];
   /** Internal parameter. */
   base: string;
   /**
@@ -292,7 +296,7 @@ export interface OpenWeatherMapResponse {
   /** HTTP response code. */
   cod: number;
 }
-interface OpenWeatherMapWeatherObject {
+interface OpenWeatherMapWeatherData {
   /** Weather condition ID. */
   id: number;
   /** Primary category for weather conditions (rain, cloud etc) */
