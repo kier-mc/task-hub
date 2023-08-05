@@ -101,17 +101,23 @@ export const useWeatherStore = defineStore("weather", {
        * Accepts an API response object to determine which values to use,
        * which is passed back unmodified as a return value once the function
        * is complete so that the response can be assigned to the store afterwards.
-       * @param response
+       * @param response {OpenWeatherMapResponse}
        * The JSONified response received from the API.
+       * @param setLocal {boolean}
+       * If true, will create a copy of the data in the local storage as well.
        * @returns {OpenWeatherMapResponse}
        * The unmodified initial response.
        */
-      const assignValues = (response: OpenWeatherMapResponse) => {
+      const assignValues = (
+        response: OpenWeatherMapResponse,
+        setLocal?: boolean
+      ) => {
         const unit = userStore.getPreferredUnit ?? "c";
         const countryID = countries.searchByISOCode(
           response.sys.country
         ).country_id;
         [
+          // Assign store values
           this.timestamp,
           this.description,
           this.icon_code,
@@ -144,9 +150,13 @@ export const useWeatherStore = defineStore("weather", {
           response.wind.speed,
           response.wind.deg,
         ];
+        if (setLocal) {
+          // Create a local storage copy of the response
+          localStorage.setItem("weatherData", JSON.stringify(response));
+        }
         return response;
       };
-      // If pre-existing weather data is found in localStorage
+      // If pre-existing weather data is found in local storage
       if (localStorage.getItem("weatherData")) {
         const local = localStorage.getItem("weatherData");
         const data: OpenWeatherMapResponse = JSON.parse(local!);
@@ -156,14 +166,14 @@ export const useWeatherStore = defineStore("weather", {
         if (userStore.getLocale !== data.name) {
           const response = await fetchFromEndpoint(location);
           if (!response) return;
-          this.response = assignValues(response);
+          this.response = assignValues(response, true);
           return;
         }
         // Fetch new data if the time difference is greater than ten minutes
         if (currentTime - lastCallTime > 600 || forceUpdate) {
           const response = await fetchFromEndpoint(location);
           if (!response) return;
-          this.response = assignValues(response);
+          this.response = assignValues(response, true);
           return;
         }
         // Otherwise, return the local copy
@@ -174,7 +184,7 @@ export const useWeatherStore = defineStore("weather", {
       if (!this.response || forceUpdate) {
         const response = await fetchFromEndpoint(location);
         if (!response) return;
-        this.response = assignValues(response);
+        this.response = assignValues(response, true);
         return;
       }
     },
