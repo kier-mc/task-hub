@@ -24,7 +24,7 @@
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/effect";
-@use "../assets/scss/data/font";
+@use "../assets/scss/data/fontsize";
 .button {
   all: unset;
   position: relative;
@@ -41,7 +41,7 @@
   user-select: none;
   text-rendering: optimizeLegibility;
   font-variant: tabular-nums;
-  font-size: font.$regular-sm;
+  font-size: fontsize.$sm;
   text-transform: uppercase;
   font-weight: bold;
   letter-spacing: 0.05rem;

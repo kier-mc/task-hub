@@ -37,7 +37,7 @@
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/effect";
-@use "../assets/scss/data/font";
+@use "../assets/scss/data/fontsize";
 /* prettier-ignore */
 .toast {
   opacity: 0;
@@ -78,13 +78,13 @@
   &__title {
     all: unset;
     padding-inline: 1rem;
-    font-size: font.$regular-lg;
+    font-size: fontsize.$lg;
     font-weight: bold;
   }
   &__message {
     padding: 1rem;
     padding-bottom: 1.25rem; // Adjust for progress bar height
-    font-size: font.$regular-sm;
+    font-size: fontsize.$sm;
     &:focus {
       outline: none;
     }
