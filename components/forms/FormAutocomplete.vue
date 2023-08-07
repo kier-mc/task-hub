@@ -38,12 +38,14 @@
           type="button"
         >
           <Transition name="v-transition-fade" mode="out-in">
-            <AppLoadingIndicator
-              v-if="isSearching"
-              display="circle"
-              class="autocomplete__icon"
-            />
-            <SVGExpandMore v-else class="autocomplete__icon" />
+            <KeepAlive>
+              <AppLoadingIndicator
+                v-if="isSearching"
+                display="circle"
+                class="autocomplete__icon"
+              />
+              <SVGExpandMore v-else class="autocomplete__icon" />
+            </KeepAlive>
           </Transition>
         </button>
       </div>
@@ -75,8 +77,9 @@
 
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
+@use "../assets/scss/data/easing";
 @use "../assets/scss/data/effect";
-@use "../assets/scss/data/font";
+@use "../assets/scss/data/fontsize";
 .autocomplete {
   position: relative;
   background-color: colour.$autocomplete-background;
@@ -104,7 +107,7 @@
     right: 0rem;
     left: 0rem;
     padding-inline: 0.75rem;
-    font-size: font.$regular-xs;
+    font-size: fontsize.$xs;
     color: colour.$autocomplete-label;
     transform: translateY(-50%);
     transition: top 125ms, transform 125ms;
@@ -139,7 +142,7 @@
     padding-inline: 0.5rem;
     padding-top: 1rem;
     margin-right: 1px;
-    font-size: font.$regular-sm;
+    font-size: fontsize.$sm;
     &--mini {
       padding: 0.25rem;
       height: 1.25rem;
@@ -189,9 +192,11 @@
       fill: colour.$button-font;
     }
   }
+  /* prettier-ignore */
   &__options {
     all: unset;
     visibility: hidden;
+    opacity: 0;
     overflow-y: scroll;
     text-overflow: ellipsis;
     position: absolute;
@@ -204,11 +209,15 @@
     border-bottom: 1px solid transparent;
     margin-top: 1px;
     background-color: colour.$autocomplete-options-background;
-    box-shadow: effect.$drop-shadow-sm;
-    font-size: 0.925rem;
-    transition: height 175ms ease-in-out, visibility 200ms, box-shadow 500ms;
+    font-size: fontsize.$sm;
+    transition:
+      visibility 350ms,
+      height 350ms easing.$ease-out-quart,
+      opacity 275ms easing.$ease-out-cubic,
+      box-shadow 500ms easing.$ease-out-cubic;
     &[aria-expanded="true"] {
       visibility: visible;
+      opacity: 1;
       height: min(v-bind(optionsMinimumHeight), 11rem);
       z-index: 100;
       border-bottom: 1px solid colour.$autocomplete-border;
@@ -230,7 +239,7 @@
     padding-inline: calc(0.5rem - 2px);
     border: 2px solid transparent;
     background-color: colour.$autocomplete-option-background-a;
-    font-size: font.$regular-sm;
+    font-size: fontsize.$sm;
     cursor: pointer;
     transition: background-color 100ms ease-in-out, opacity 150ms ease-in-out;
     &:nth-child(even) {
@@ -250,7 +259,7 @@
     height: 1rem;
     padding-inline: 0.25rem;
     margin-top: 0.125rem;
-    font-size: font.$regular-2xs;
+    font-size: fontsize.$xxs;
     color: colour.$font-dark-translucent;
   }
 }
@@ -406,6 +415,7 @@ function populateDefaultOptions() {
 
 async function handleInput(event: Event): Promise<void> {
   if (!props.data.options) return;
+  isExpanded.value = true;
   isSearching.value = true;
   const target = event.target as HTMLInputElement;
   const propOptions = props.data.options;
@@ -423,7 +433,7 @@ async function handleInput(event: Event): Promise<void> {
   emitHandler(searchValue, dataValue);
   await nextTick();
   if (timeout) clearTimeout(timeout);
-  timeout = setTimeout(filterData, 400);
+  timeout = setTimeout(filterData, 500);
 }
 
 function filterData(): void {
@@ -564,6 +574,9 @@ onKeyStroke("ArrowUp", (event) => {
 
 onKeyStroke("ArrowDown", (event) => {
   event.preventDefault();
+  if (event.target === inputElement.value) {
+    return useFocus(listElements.value[0], { initialValue: true });
+  }
   for (let i = 0; i < listElements.value.length; i++) {
     const option = listElements.value[i];
     if (document.activeElement === option) {
