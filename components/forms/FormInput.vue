@@ -28,7 +28,7 @@
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/effect";
-@use "../assets/scss/data/font";
+@use "../assets/scss/data/fontsize";
 .input {
   position: relative;
   box-shadow: effect.$drop-shadow-xs;
@@ -57,9 +57,9 @@
     left: 0rem;
     z-index: 10;
     padding-inline: 0.75rem;
-    font-size: font.$regular-xs;
+    font-size: fontsize.$xs;
     user-select: none;
-    color: colour.$input-label;
+    color: colour.$font-dark;
     cursor: text;
     transform: translateY(-50%);
     transform-origin: top left;
@@ -77,7 +77,7 @@
     padding-top: 1rem;
     padding-inline: 0.5rem;
     border: 1px solid colour.$input-border;
-    font-size: font.$regular-sm;
+    font-size: fontsize.$sm;
     background-color: colour.$input-background;
     cursor: text;
     &:disabled {
@@ -90,7 +90,7 @@
     height: 1rem;
     padding-inline: 0.25rem;
     margin-top: 0.125rem;
-    font-size: font.$regular-2xs;
+    font-size: fontsize.$xxs;
     color: colour.$font-dark-translucent;
   }
 }
