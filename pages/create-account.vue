@@ -79,7 +79,7 @@
   margin-inline: auto;
   margin-top: 2rem;
   background-color: colour.$window-body;
-  box-shadow: effect.$drop-shadow-2;
+  box-shadow: effect.$drop-shadow-md;
   @media (max-width: layout.$breakpoint-small) {
     max-width: calc(100% - 2rem);
   }
@@ -177,11 +177,10 @@ import type {
   FormInputPropData,
   NewAccountSectionPropData,
   FormAutocompletePropData,
-} from "types/forms";
-import type { ButtonPropData, LoadingIndicatorPropData } from "types/app";
+} from "types/components/forms";
+import type { ButtonPropData } from "types/components/app";
 import type { NewAccountCredentialData } from "types/credentials";
-import type { AutocompleteEmitCountryData } from "types/forms";
-
+import type { AutocompleteEmitCountryData } from "types/components/forms";
 // Components
 import { SVGLogin } from "#components";
 
@@ -244,7 +243,7 @@ const propData = {
             attributes: {
               id: "country",
             },
-            options: generateCountryData(),
+            options: $countries.generateAutocompleteData(),
           },
           <FormInputPropData>{
             index: 4,
@@ -302,7 +301,7 @@ const receiver: Ref<AutocompleteEmitCountryData> = ref({
   term: null,
   data: {
     country_id: null,
-    name: null,
+    country_name: null,
     iso_code: null,
   },
 });
@@ -310,13 +309,13 @@ const credentials: Ref<NewAccountCredentialData> = ref({
   email: null,
   password: null,
   name: null,
-  country: null,
+  location: null,
   locale: null,
 });
 
 // Watchers
 watch(receiver.value, () => {
-  credentials.value.country = receiver.value.data;
+  credentials.value.location = receiver.value.data;
 });
 
 // Template refs
@@ -363,7 +362,7 @@ function createUserWrapper(credentials: NewAccountCredentialData): void {
   isLoading.value = false;
 }
 
-// Hooks
+//Hooks
 onMounted(() => {
   stepper.value.size = getWidth();
   useEventListener(document, "resize", () => {
