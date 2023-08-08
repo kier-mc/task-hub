@@ -1,5 +1,6 @@
 // Types
 import type { TemperatureUnitsShort } from "types/unions/generic.units";
+
 /**
  * Converts a given temperature to the specified unit, truncates the result
  * and returns it as a number. Accepts an optional options object that can be passed
@@ -57,7 +58,7 @@ function convertTemperature(
  * A helper object containing methods for handling temperature such as conversions
  * and formatting.
  */
-export const temperature = {
+export const $temperature = {
   /**
    * Takes an input number (specified in Kelvin), converts it to the specified
    * scale and returns a formatted string that includes the unit symbol.
@@ -92,9 +93,9 @@ export const temperature = {
   ): string => {
     const userStore = useUserStore();
     const map: Record<TemperatureUnitsShort, string> = {
-      c: "°C",
-      f: "°F",
-      k: "K",
+      c: " °C",
+      f: " °F",
+      k: " K",
     };
     const locale = userStore.getPreferredLocaleFormatting ?? undefined;
     const output = new Intl.NumberFormat(locale, {

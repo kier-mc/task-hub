@@ -265,7 +265,7 @@ const payload: CountryDataPayload = {
   iso_code: null,
 };
 
-export const countries = {
+export const $countries = {
   /**
    * Searches through all countries by their numerical index.
    * @param predicate {CountryID} A numerical value between 1 and 249 to search with.
