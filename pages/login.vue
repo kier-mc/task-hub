@@ -36,7 +36,7 @@
   max-width: 40ch;
   margin-inline: auto;
   margin-top: 2rem;
-  box-shadow: effect.$drop-shadow-2;
+  box-shadow: effect.$drop-shadow-md;
   @media (max-width: layout.$breakpoint-medium) {
     max-width: calc(100% - 2rem);
   }
@@ -71,12 +71,15 @@
 
 <script setup lang="ts">
 // Types
-import type { FormInputPropData } from "types/forms";
-import type { ButtonPropData } from "types/app";
+import type { ButtonPropData } from "types/components/app";
+import type { FormInputPropData } from "types/components/forms";
 import type { LoginCredentialData } from "types/credentials";
 
 // Components
 import { SVGLogin } from "#components";
+
+// Meta
+definePageMeta({ middleware: "public-only" });
 
 // Props
 const propData = {
