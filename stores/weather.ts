@@ -108,7 +108,7 @@ export const useWeatherStore = defineStore("weather", {
        */
       const assignValues = (response: OpenWeatherMapResponse) => {
         const unit = userStore.getPreferredUnit ?? "c";
-        const countryID = countries.searchByISOCode(
+        const countryID = $countries.searchByISOCode(
           response.sys.country
         ).country_id;
         [
@@ -133,15 +133,15 @@ export const useWeatherStore = defineStore("weather", {
           response.weather[0].description,
           response.weather[0].icon,
           countryID,
-          countries.searchByID(countryID!).country_name,
-          countries.searchByID(countryID!).iso_code,
+          $countries.searchByID(countryID!).country_name,
+          $countries.searchByID(countryID!).iso_code,
           response.name,
           response.coord.lat,
           response.coord.lon,
-          temperature.format(response.main.temp, unit),
-          temperature.format(response.main.temp_min, unit),
-          temperature.format(response.main.temp_max, unit),
-          temperature.format(response.main.feels_like, unit),
+          $temperature.format(response.main.temp, unit),
+          $temperature.format(response.main.temp_min, unit),
+          $temperature.format(response.main.temp_max, unit),
+          $temperature.format(response.main.feels_like, unit),
           response.wind.speed,
           response.wind.deg,
         ];

@@ -1,4 +1,4 @@
-/* Type imports */
+// Types
 import type { UserStoreState, UserStoreResponseData } from "types/store.user";
 import type { Database } from "types/schema";
 import type { TemperatureUnitsShort } from "types/unions/generic.units";
@@ -75,8 +75,8 @@ export const useUserStore = defineStore("user", {
           response.preferred_name,
           response.email,
           response.country_id,
-          countries.searchByID(response.country_id).country_name,
-          countries.searchByID(response.country_id).iso_code,
+          $countries.searchByID(response.country_id).country_name,
+          $countries.searchByID(response.country_id).iso_code,
           response.locale,
           response.preferences_region.locale_formatting,
           response.preferences_units.temperature,
