@@ -38,7 +38,7 @@
 @use "../assets/scss/data/layout";
 .nav {
   position: relative;
-  max-width: layout.$breakpoint-largest;
+  max-width: layout.$breakpoint-xl;
   margin: 0 auto;
   user-select: none;
   /* prettier-ignore */
@@ -57,7 +57,7 @@
       visibility 150ms ease-in-out,
       height 275ms easing.$ease-out-quart;
       box-shadow: 300ms easing.$ease-out-quart;
-    @media (max-width: layout.$breakpoint-medium) {
+    @media (max-width: layout.$breakpoint-md) {
       width: 100vw;
     }
     &[aria-expanded="true"] {
@@ -85,7 +85,7 @@
     transition:
       background-color 500ms easing.$ease-out-quart,
       opacity 150ms easing.$ease-out-quart;
-    @media (max-width: layout.$breakpoint-medium) {
+    @media (max-width: layout.$breakpoint-md) {
       width: calc(100% - 2rem);
     }
     &:focus,
