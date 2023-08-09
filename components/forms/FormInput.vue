@@ -90,7 +90,7 @@
     height: 1rem;
     padding-inline: 0.25rem;
     margin-top: 0.125rem;
-    font-size: fontsize.$xxs;
+    font-size: fontsize.$xxxs;
     color: colour.$font-dark-translucent;
   }
 }
