@@ -80,7 +80,7 @@
   margin-top: 2rem;
   background-color: colour.$window-body;
   box-shadow: effect.$drop-shadow-md;
-  @media (max-width: layout.$breakpoint-small) {
+  @media (max-width: layout.$breakpoint-sm) {
     max-width: calc(100% - 2rem);
   }
 }
@@ -147,7 +147,7 @@
     display: flex;
     flex-direction: column;
     min-width: calc(37ch - 2px);
-    @media (max-width: layout.$breakpoint-small) {
+    @media (max-width: layout.$breakpoint-sm) {
       min-width: calc(100%);
     }
   }
