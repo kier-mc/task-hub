@@ -8,9 +8,9 @@
 $primary: hsl(210, 15%, 15%);
 $secondary: hsl(345, 85%, 60%);
 $tertiary: hsl(165, 95%, 40%);
-$dark: hsl(210, 10%, 10%);
-$neutral: hsl(210, 10%, 50%);
-$light: hsl(210, 10%, 90%);
+$dark: hsl(210, 15%, 10%);
+$neutral: hsl(210, 15%, 50%);
+$light: hsl(210, 15%, 90%);
 
 // Gradients
 $gradient-app-background: linear-gradient(
@@ -43,6 +43,12 @@ $gradient-button-background: linear-gradient(
   color.adjust($primary, $lightness: +5%) 0%,
   color.adjust($primary, $lightness: +7.5%) 100%
 );
+$gradient-hub-header-background: linear-gradient(
+  5deg,
+  hsl(210, 15%, 35%) 0%,
+  hsl(212, 20%, 20%) 75%
+);
+
 
 // Fonts
 $font-light: color.adjust($neutral, $saturation: -5%, $lightness: +40%);
@@ -50,6 +56,14 @@ $font-dark: color.adjust($neutral, $saturation: -5%, $lightness: -30%);
 $font-light-translucent: color.adjust($font-light, $alpha: -0.2);
 $font-dark-translucent: color.adjust($font-dark, $alpha: -0.2);
 $font-accent-primary: color.adjust($primary, $saturation: -5%, $lightness: +10%);
+
+// Icons
+$icon-light: color.adjust($neutral, $saturation: -5%, $lightness: +40%);
+$icon-dark: color.adjust($neutral, $saturation: -5%, $lightness: -30%);
+$icon-light-translucent: color.adjust($icon-light, $saturation: +30%, $alpha: -0.2);
+$icon-dark-translucent: color.adjust($icon-dark, $saturation: +30%, $alpha: -0.2);
+$icon-light-disabled: color.adjust($icon-light, $saturation: +80%, $alpha: -0.6);
+$icon-dark-disabled: color.adjust($icon-dark, $saturation: +80%, $alpha: -0.6);
 
 /*
  *
@@ -81,7 +95,6 @@ $input-label: $font-accent-primary;
 $input-border: color.adjust($primary, $lightness: +45%);
 $input-border-focus: color.adjust($input-border, $lightness: -10%);
 
-
 // Autocomplete
 $autocomplete-background: color.adjust($neutral, $lightness: +47.5%);
 $autocomplete-label: $font-accent-primary;
@@ -91,3 +104,8 @@ $autocomplete-options-background: color.adjust($neutral, $lightness: +50%);
 $autocomplete-option-background-a: color.adjust($neutral, $lightness: +40%);
 $autocomplete-option-background-b: color.adjust($neutral, $lightness: +47.5%);
 $autocomplete-option-background-hover: color.adjust($primary, $lightness: +55%);
+
+// Hub
+$hub-header-background: $gradient-hub-header-background;
+$hub-header-border: color.adjust($primary, $lightness: +45%, $alpha: -0.6);
+$hub-data-border: color.adjust($primary, $lightness: +45%, $alpha: -0.5);
