@@ -37,7 +37,7 @@
   margin-inline: auto;
   margin-top: 2rem;
   box-shadow: effect.$drop-shadow-md;
-  @media (max-width: layout.$breakpoint-medium) {
+  @media (max-width: layout.$breakpoint-md) {
     max-width: calc(100% - 2rem);
   }
 }

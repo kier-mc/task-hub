@@ -22,7 +22,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: layout.$breakpoint-largest;
+  max-width: layout.$breakpoint-xl;
   height: inherit;
   padding-inline: 1rem;
   margin-inline: auto;

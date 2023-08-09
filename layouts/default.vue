@@ -17,7 +17,7 @@
   box-shadow: effect.$drop-shadow-sm;
 }
 .container-main {
-  max-width: layout.$breakpoint-largest;
+  max-width: layout.$breakpoint-xl;
   margin: 0 auto;
 }
 </style>
