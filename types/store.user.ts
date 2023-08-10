@@ -5,7 +5,10 @@ import type {
   DatabaseRegionPreferences,
   DatabaseUnitPreferences,
 } from "./schema";
-import type { TemperatureUnitsShort } from "./unions/generic.units";
+import type {
+  SpeedUnitsShort,
+  TemperatureUnitsShort,
+} from "./unions/generic.units";
 import { CountryID, CountryISOCode } from "./unions/schema.country";
 /**
  * Specifically manages the Pinia user store.
@@ -44,7 +47,7 @@ interface UserStoreCountryData extends CountryDataPayload {
 /**
  * Contains the user's app preferences.
  */
-interface UserStoreStatePreferences {
+export interface UserStoreStatePreferences {
   /**
    * Groups information related to the user's regional preferences.
    * For example, locale formatting options.
@@ -67,6 +70,10 @@ interface UserStoreStatePreferences {
    * For example, temperature and distance measurements.
    */
   units: {
+    /**
+     * The user's preferred speed measurement unit.
+     */
+    speed: SpeedUnitsShort | null;
     /**
      * The user's preferred temperature unit.
      */

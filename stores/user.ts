@@ -1,7 +1,14 @@
 // Types
-import type { UserStoreState, UserStoreResponseData } from "types/store.user";
+import type {
+  UserStoreState,
+  UserStoreResponseData,
+  UserStoreStatePreferences,
+} from "types/store.user";
 import type { Database } from "types/schema";
-import type { TemperatureUnitsShort } from "types/unions/generic.units";
+import type {
+  TemperatureUnitsShort,
+  SpeedUnitsShort,
+} from "types/unions/generic.units";
 import type {
   CountryID,
   CountryName,
@@ -27,6 +34,7 @@ export const useUserStore = defineStore("user", {
         locale_formatting: null,
       },
       units: {
+        speed: null,
         temperature: null,
       },
     },
@@ -70,6 +78,7 @@ export const useUserStore = defineStore("user", {
           this.location.iso_code,
           this.location.locale,
           this.preferences.region.locale_formatting,
+          this.preferences.units.speed,
           this.preferences.units.temperature,
         ] = [
           response.preferred_name,
@@ -79,6 +88,7 @@ export const useUserStore = defineStore("user", {
           $countries.searchByID(response.country_id).iso_code,
           response.locale,
           response.preferences_region.locale_formatting,
+          response.preferences_units.speed,
           response.preferences_units.temperature,
         ];
       }
@@ -103,8 +113,14 @@ export const useUserStore = defineStore("user", {
     getPreferredLocaleFormatting(): CountryISOCode | null {
       return this.preferences.region.locale_formatting;
     },
-    getPreferredUnit(): TemperatureUnitsShort | null {
+    getPreferredUnits(): UserStoreStatePreferences["units"] | null {
+      return this.preferences.units;
+    },
+    getPreferredTemperatureUnit(): TemperatureUnitsShort | null {
       return this.preferences.units.temperature;
+    },
+    getPreferredSpeedUnit(): SpeedUnitsShort | null {
+      return this.preferences.units.speed;
     },
   },
 });
