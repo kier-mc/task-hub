@@ -56,6 +56,10 @@ export const useWeatherStore = defineStore("weather", {
     timestamp: null,
     description: null,
     icon_code: null,
+    atmosphere: {
+      humidity: null,
+      pressure: null,
+    },
     location: {
       country_id: null,
       country_name: null,
@@ -74,7 +78,7 @@ export const useWeatherStore = defineStore("weather", {
     },
     wind: {
       speed: null,
-      direction: null,
+      angle: null,
     },
   }),
   actions: {
@@ -116,6 +120,8 @@ export const useWeatherStore = defineStore("weather", {
           this.timestamp,
           this.description,
           this.icon_code,
+          this.atmosphere.humidity,
+          this.atmosphere.pressure,
           this.location.country_id,
           this.location.country_name,
           this.location.iso_code,
@@ -127,11 +133,13 @@ export const useWeatherStore = defineStore("weather", {
           this.temperature.maximum,
           this.temperature.feels_like,
           this.wind.speed,
-          this.wind.direction,
+          this.wind.angle,
         ] = [
           response.dt,
           response.weather[0].description,
           response.weather[0].icon,
+          response.main.humidity,
+          response.main.pressure,
           countryID,
           $countries.searchByID(countryID!).country_name,
           $countries.searchByID(countryID!).iso_code,
@@ -185,133 +193,132 @@ export const useWeatherStore = defineStore("weather", {
   },
   getters: {
     /**
-     * @returns {number | null}
      * The time the call was made, in Unix seconds.
+     * @returns {number | null}
      */
     getTimestamp(): number | null {
       return this.timestamp;
     },
     /**
-     * @returns {string | null}
      * A description of the current weather conditions.
+     * @returns {string | null}
      */
     getDescription(): string | null {
       return this.description;
     },
     /**
-     * @returns {OpenWeatherMapIconCode | null}
      * The icon code associated with the current weather conditions and time of day.
+     * @returns {OpenWeatherMapIconCode | null}
      */
     getIconCode(): OpenWeatherMapIconCode | null {
       return this.icon_code;
     },
     /**
-     * @returns {WeatherStoreLocationData | null}
      * An object containing assorted data related to the call location.
+     * @returns {WeatherStoreLocationData | null}
      */
     getLocationData(): WeatherStoreLocationData | null {
       return this.location;
     },
     /**
-     * @returns {CountryID | null}
      * The country's numerical ID.
+     * @returns {CountryID | null}
      */
     getCountryID(): CountryID | null {
       return this.location.country_id;
     },
     /**
-     * @returns {CountryName | null}
      * The name of the country the location is located within.
+     * @returns {CountryName | null}
      */
     getCountryName(): CountryName | null {
       return this.location.country_name;
     },
     /**
-     * @returns {CountryISOCode | null}
      * The ISO 3166 alpha-2 country code.
+     * @returns {CountryISOCode | null}
      */
     getCountryISOCode(): CountryISOCode | null {
       return this.location.iso_code;
     },
     /**
-     * @returns {string | null}
      * The locale used in the call.
+     * @returns {string | null}
      */
     getLocale(): string | null {
       return this.location.locale;
     },
     /**
-     * @returns {WeatherStoreLocationData["coordinates"]  | null}
      * An object containing the latitude and longitude of the data sampling site.
+     * @returns {WeatherStoreLocationData["coordinates"]  | null}
      */
     getCoordinates(): WeatherStoreLocationData["coordinates"] | null {
       return this.location.coordinates;
     },
     /**
-     * @returns {number | null}
      * The latitude of the data sampling site.
+     * @returns {number | null}
      */
     getLatitude(): number | null {
       return this.location.coordinates.latitude;
     },
     /**
-     * @returns {number | null}
      * The longitude of the data sampling site.
+     * @returns {number | null}
      */
     getLongitude(): number | null {
       return this.location.coordinates.longitude;
     },
     /**
-     * @returns {WeatherStoreTemperatureData | null}
      * An object containing various temperature measurements.
+     * @returns {WeatherStoreTemperatureData | null}
      */
     getTemperatureData(): WeatherStoreTemperatureData | null {
       return this.temperature;
     },
     /**
-     * @returns {string | null}
      * The average temperature for the location.
+     * @returns {string | null}
      */
     getAverageTemperature(): string | null {
       return this.temperature.average;
     },
     /**
-     * @returns {string | null}
      * The minimum temperature for the location.
+     * @returns {string | null}
      */
     getMinimumTemperature(): string | null {
       return this.temperature.minimum;
     },
     /**
-     * @returns {string | null}
      * The maximum temperature for the location.
+     * @returns {string | null}
      */
     getMaximumTemperature(): string | null {
       return this.temperature.maximum;
     },
     /**
-     * @returns {string | null}
      * The "feels like" temperature for the location.
+     * @returns {string | null}
      */
     getFeelsLikeTemperature(): string | null {
       return this.temperature.feels_like;
     },
     /**
-     * @returns {WeatherStoreWindData | null}
      * An object containing various wind data.
+     * @returns {WeatherStoreWindData | null}
      */
     getWindData(): WeatherStoreWindData | null {
       return this.wind;
     },
     /**
-     * @returns {number | null}
      * The current wind speed, in metres per second.
+     * @returns {number | null}
      */
     getWindSpeed(): number | null {
       return this.wind.speed;
     },
     /**
-     * @returns {number | null}
      * The current wind direction, expressed in meteorological degrees (°).
      * The values are measured clockwise from true north.
      * 360 (or 0) represents true north,
@@ -320,9 +327,32 @@ export const useWeatherStore = defineStore("weather", {
      * and 270 represents west.
      * For example, a value of 180 represents wind that eminates from the south
      * and blows toward the north.
+     * @returns {number | null}
      */
-    getWindDirection(): number | null {
-      return this.wind.direction;
+    getWindAngle(): number | null {
+      return this.wind.angle;
+    },
+    /**
+     * The current wind direction, expressed as one of sixteen possible string positions
+     * e.g. "N", "NW", "NWW" etc.
+     * @returns {string | null}
+     */
+    getWindDirection(): string | null {
+      if (!this.wind.angle) return null;
+      const angle = this.wind.angle;
+      /* prettier-ignore */
+      const directions = [ // Start from South to get direction wind blows to, not from
+        "S", "SSW", "SW", "SWW", "W", "NWW", "NW", "NNW",
+        "N", "NNE", "NE", "NEE", "E", "SEE", "SE", "SSE"
+      ];
+      return directions[Math.round(angle / 22.5)];
+    },
+    /**
+     * The current humidity, expressed as a percentage.
+     * @returns {number | null}
+     */
+    getHumidity(): string | null {
+      return `${this.atmosphere.humidity}%`;
     },
   },
 });

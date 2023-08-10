@@ -37,6 +37,10 @@ export interface WeatherStoreState {
    * An object containing wind-related data.
    */
   wind: WeatherStoreWindData;
+  /**
+   * An object containing atmosphere-related data.
+   */
+  atmosphere: WeatherStoreAtmosphereData;
 }
 /**
  * An object containing temperature-related data.
@@ -115,9 +119,21 @@ export interface WeatherStoreWindData {
    * For example, a value of 180 represents wind that eminates from the south
    * and blows toward the north.
    */
-  direction: number | null;
+  angle: number | null;
 }
-
+/**
+ * An object containing atmosphere-related data.
+ */
+export interface WeatherStoreAtmosphereData {
+  /**
+   * Humidity, expressed as a percentage (%).
+   */
+  humidity: number | null;
+  /**
+   * Atmospheric pressure, expressed in hectopascals (hPa).
+   */
+  pressure: number | null;
+}
 /**
  * The response expected from OpenWeatherMap's weather API.
  * Populated from the site
@@ -172,14 +188,11 @@ export interface OpenWeatherMapResponse {
      * Refers to sea level, if sea_level and grnd_level parameters are absent.
      */
     pressure: number;
-    /** Humidity, expressed as a percentage (%).
-     */
+    /** Humidity, expressed as a percentage (%). */
     humidity: number;
-    /** Atmospheric pressure at sea level, expressed in hectopascals (hPa).
-     */
+    /** Atmospheric pressure at sea level, expressed in hectopascals (hPa). */
     sea_level?: number;
-    /** Atmospheric pressure at ground level, expressed in hectopascals (hPa).
-     */
+    /** Atmospheric pressure at ground level, expressed in hectopascals (hPa). */
     grnd_level?: number;
   };
   /** Total visibility, expressed in metres (m).
