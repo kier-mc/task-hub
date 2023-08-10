@@ -7,7 +7,10 @@ import type {
   FrequencyID,
   FrequencyRepetition,
 } from "./unions/schema.frequency";
-import type { TemperatureUnitsShort } from "./unions/generic.units";
+import type {
+  SpeedUnitsShort,
+  TemperatureUnitsShort,
+} from "./unions/generic.units";
 
 export interface Database {
   users: {
@@ -40,13 +43,13 @@ export interface Database {
 
 export interface CountryData {
   country_id: CountryID;
-  name: CountryName;
+  country_name: CountryName;
   iso_code: CountryISOCode;
 }
 
 export interface CountryDataPayload {
   country_id: CountryID | null;
-  name: CountryName | null;
+  country_name: CountryName | null;
   iso_code: CountryISOCode | null;
 }
 
@@ -54,6 +57,7 @@ export interface DatabaseAppPreferences {}
 
 export interface DatabaseUnitPreferences {
   temperature: TemperatureUnitsShort;
+  speed: SpeedUnitsShort;
 }
 
 export interface DatabaseRegionPreferences {
