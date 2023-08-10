@@ -108,7 +108,7 @@ export interface WeatherStoreWindData {
   /**
    * The current average wind speed, expressed in meters per second (m/s).
    */
-  speed: number | null;
+  speed: string | null;
   /**
    * The current wind direction, expressed in meteorological degrees (°).
    * The values are measured clockwise from true north.

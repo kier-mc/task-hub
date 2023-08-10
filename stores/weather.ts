@@ -111,7 +111,10 @@ export const useWeatherStore = defineStore("weather", {
        * The unmodified initial response.
        */
       const assignValues = (response: OpenWeatherMapResponse) => {
-        const unit = userStore.getPreferredUnit ?? "c";
+        const units = {
+          temp: userStore.getPreferredTemperatureUnit ?? "c",
+          speed: userStore.getPreferredSpeedUnit ?? "ms",
+        };
         const countryID = $countries.searchByISOCode(
           response.sys.country
         ).country_id;
@@ -146,11 +149,11 @@ export const useWeatherStore = defineStore("weather", {
           response.name,
           response.coord.lat,
           response.coord.lon,
-          $temperature.format(response.main.temp, unit),
-          $temperature.format(response.main.temp_min, unit),
-          $temperature.format(response.main.temp_max, unit),
-          $temperature.format(response.main.feels_like, unit),
-          response.wind.speed,
+          $units.temperature.format(response.main.temp, units.temp),
+          $units.temperature.format(response.main.temp_min, units.temp),
+          $units.temperature.format(response.main.temp_max, units.temp),
+          $units.temperature.format(response.main.feels_like, units.temp),
+          $units.speed.format(response.wind.speed, units.speed),
           response.wind.deg,
         ];
         return response;
@@ -312,10 +315,10 @@ export const useWeatherStore = defineStore("weather", {
       return this.wind;
     },
     /**
-     * The current wind speed, in metres per second.
-     * @returns {number | null}
+     * The current wind speed.
+     * @returns {string | null}
      */
-    getWindSpeed(): number | null {
+    getWindSpeed(): string | null {
       return this.wind.speed;
     },
     /**
