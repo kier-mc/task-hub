@@ -1,80 +1,72 @@
 <template>
-  <div class="hub-container">
-    <div class="welcome">
-      <span v-if="userStore.data" class="welcome__username"
-        >Welcome
-        {{
-          userStore.data.user_metadata.preferred_name.length > 0
-            ? userStore.data.user_metadata.preferred_name
-            : userStore.data.email
-        }}
-      </span>
-    </div>
-    <div class="weather">
-      <WeatherDisplay />
-    </div>
-    <div class="tasks">
-      <TaskCreate class="tasks__create" />
-      <TaskList class="tasks__list" />
-    </div>
+  <div class="container-info">
+    <section class="info">
+      <ClientOnly>
+        <div class="info__datetime">
+          <div class="info__date">
+            <HubDate />
+          </div>
+          <div class="info__time">
+            <HubTime />
+          </div>
+        </div>
+      </ClientOnly>
+      <div class="info__weather">
+        <HubWeather />
+      </div>
+    </section>
   </div>
 </template>
 
 <style scoped lang="scss">
-.hub-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-top: 1rem;
+@use "../assets/scss/data/colour";
+@use "../assets/scss/data/layout";
+.container-info {
+  position: relative;
+  background-image: colour.$hub-header-background;
 }
-// SHARED PROPERTIES FOR EACH SECTION
-.welcome,
-.weather {
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background-color: hsla(0, 0%, 12.5%, 80%);
-}
-.welcome {
-  grid-column: 1;
-  &__username {
-    font-size: 2rem;
+.info {
+  display: flex;
+  align-items: flex-end;
+  max-width: layout.$breakpoint-xl;
+  margin-inline: auto;
+  color: hsl(210, 5%, 90%);
+  &__datetime {
+    min-width: 30ch;
+    border-right: 1px solid colour.$hub-header-border;
   }
-}
-.weather {
-  grid-column: 2 / 4;
-}
-.tasks {
-  grid-column: 1 / 4;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  border-radius: 0.5rem;
-  background-color: hsla(0, 0%, 12.5%, 80%);
-  &__create,
-  &__list {
-    padding: 1rem;
+  &__date,
+  &__time {
+    display: flex;
+    align-items: center;
+    text-rendering: optimizeLegibility;
+    font-variant: tabular-nums;
   }
-  &__create {
-    grid-column: 1;
+  &__date {
+    height: 4rem;
+    padding-inline: 1rem;
+    border-bottom: 1px solid colour.$hub-header-border;
   }
-  &__list {
-    grid-column: 2 / 4;
+  &__time {
+    height: 2rem;
+    padding-inline: 1rem;
+  }
+  &__weather {
+    flex-grow: 1;
+    margin-block: auto;
   }
 }
 </style>
 
 <script setup lang="ts">
-definePageMeta({ middleware: "auth-mw" });
+// Meta
+definePageMeta({ layout: "hub", middleware: "auth-only" });
+
+// Pinia stores
 const userStore = useUserStore();
-onMounted(async () => {
-  if (!userStore.data) await userStore.fetchData();
-  const userMetaData = {
-    preferred_name: "Kieran",
-    country_id: convertCountry("United Kingdom"),
-    locale: "Halton",
-  };
-  // const { data, error } = await useSupabaseAuthClient().auth.updateUser({
-  //   data: userMetaData,
-  // });
+
+// Hooks
+onMounted(() => {
+  if (!userStore.response) userStore.fetchData();
 });
 </script>
