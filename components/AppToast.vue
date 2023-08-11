@@ -166,6 +166,7 @@ watch(
     timeout.value = setTimeout(() => {
       timeout.value = null;
       notificationsStore.$reset();
+      isFocusable.value = false;
     }, DURATION);
   },
   { deep: true }
