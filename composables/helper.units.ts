@@ -12,10 +12,7 @@ import type {
  * and maximum fraction digits.
  * @returns {number} The truncated input number.
  */
-const truncate = (
-  input: number,
-  options?: Intl.NumberFormatOptions
-): number => {
+function truncate(input: number, options?: Intl.NumberFormatOptions): number {
   const { minimumFractionDigits = 1, maximumFractionDigits = 1 } =
     options || {};
   return parseFloat(
@@ -24,8 +21,22 @@ const truncate = (
       maximumFractionDigits: maximumFractionDigits,
     }).format(input)
   );
-};
-
+}
+/**
+ * Converts a given speed to the specified unit, truncates the result and returns
+ * it as a number. Accepts an optional options object that can be passed
+ * to manipulate the return value. If no options object is provided, the return
+ * will be truncated to one decimal place.
+ * @param speed {number}
+ * The speed (in metres per second) to be converted.
+ * @param unit {SpeedUnitsShort}
+ * The measurement to convert to.
+ * @param options
+ * An optional object that can be passed to manipulate the return value.
+ * Parsed parameters are minimumFractionDigits and maximumFractionDigits.
+ * @returns {number}
+ * The final value, converted and truncated to the specified precision.
+ */
 function convertSpeed(
   speed: number,
   unit: SpeedUnitsShort,
@@ -47,11 +58,10 @@ function convertSpeed(
   };
   return truncate(map[unit](), options);
 }
-
 /**
  * Converts a given temperature to the specified unit, truncates the result
  * and returns it as a number. Accepts an optional options object that can be passed
- * to manipulated the return value. If no options object is provided, the return
+ * to manipulate the return value. If no options object is provided, the return
  * will be truncated to one decimal place.
  * @param temperature {number}
  * The temperature (in Kelvin) to be converted and formatted.
@@ -60,7 +70,8 @@ function convertSpeed(
  * @param options {Intl.NumberFormatOptions}
  * An optional object that can be passed to manipulate the return value.
  * Parsed parameters are minimumFractionDigits and maximumFractionDigits.
- * @returns
+ * @returns {number}
+ * The final value, converted and truncated to the specified precision.
  */
 function convertTemperature(
   temperature: number,
@@ -81,11 +92,38 @@ function convertTemperature(
   return truncate(map[unit](), options);
 }
 /**
- * A helper object containing methods for handling temperature such as conversions
- * and formatting.
+ * A helper object containing methods for handling units such as speed and
+ * temperature.
  */
 export const $units = {
   speed: {
+    /**
+     * Takes an input number (specified in metres per second), converts it to the specified
+     * unit and returns a formatted string that includes the shorthand designation.
+     * Accepts an optional options object that can be passed to manipulated the
+     * return value. If no options object is provided, the return will be truncated
+     * to one decimal place. If the data is available, the user's preferred locale
+     * formatting options will be considered in the formatting. If this data cannot
+     * be found, it will determine the formatting from the system locale.
+     * @param speed {number}
+     * The temperature (in Kelvin) to be converted and formatted.
+     * @param unit {SpeedUnitsShort}
+     * The scale to convert to.
+     * @param options {Intl.NumberFormatOptions}
+     * An optional object that can be passed to manipulate the return value.
+     * Parsed parameters are minimumFractionDigits and maximumFractionDigits.
+     * @returns {string}
+     * A string that includes the converted temperature and the appropriate unit.
+     * It will be formatted to either one decimal place and the user's locale
+     * formatting preference, or to a single decimal place and the system locale.
+     * @example
+     * // Returns "15°C"
+     * temperature.format(288.15, "c")
+     * // Returns "17.5°C"
+     * temperature.format(290.65, "c")
+     * // Returns 20.25°C"
+     * temperature.format(293.4, "c", {minimumFractionDigits: 2, maximumFractionDigits: 2})
+     */
     format: (
       speed: number,
       unit: SpeedUnitsShort,
