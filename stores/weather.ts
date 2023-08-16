@@ -12,6 +12,7 @@ import type {
   CountryName,
 } from "types/unions/schema.country";
 import type { OpenWeatherMapIconCode } from "types/unions/weather.icons";
+
 /**
  * An internal function used to call the OpenWeatherMap endpoint.
  * Requires a key and a location to be supplied in order to function.
@@ -93,7 +94,7 @@ export const useWeatherStore = defineStore("weather", {
      * @param forceUpdate {boolean}
      * If set to true, the function will fetch data from the API endpoint,
      * even if local data is available. The default value is false.
-     * @returns {(Promise<OpenWeatherMapResponse|void>)}
+     * @returns {Promise<OpenWeatherMapResponse|void>}
      * An object containing data regarding weather for the location that was passed as a parameter.
      *
      */
@@ -110,7 +111,9 @@ export const useWeatherStore = defineStore("weather", {
        * @returns {OpenWeatherMapResponse}
        * The unmodified initial response.
        */
-      const assignValues = (response: OpenWeatherMapResponse) => {
+      const assignValues = (
+        response: OpenWeatherMapResponse
+      ): OpenWeatherMapResponse => {
         const units = {
           temp: userStore.getPreferredTemperatureUnit ?? "c",
           speed: userStore.getPreferredSpeedUnit ?? "ms",
@@ -180,7 +183,7 @@ export const useWeatherStore = defineStore("weather", {
           localStorage.setItem("weatherData", JSON.stringify(response));
           return;
         }
-        // Otherwise, return the local copy
+        // Otherwise, use the local copy
         this.response = assignValues(data);
         return;
       }
