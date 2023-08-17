@@ -14,7 +14,7 @@
         :value="props.emitValue"
         :disabled="props.isDisabled"
         :aria-disabled="props.isDisabled"
-        @input="emitEvent()"
+        @input="emitHandler()"
         @focus="isFocused = true"
         @blur="isFocused = false"
       />
@@ -123,7 +123,7 @@ const emit = defineEmits<{
 }>();
 
 // Emit handler
-function emitEvent(): void {
+function emitHandler(): void {
   if (!inputElement.value) return;
   const value = inputElement.value.value;
   emit("update:emit-value", value);
