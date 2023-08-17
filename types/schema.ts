@@ -62,22 +62,9 @@ export interface TagsTable {
   type: string;
 }
 
-/**
- * Need to resolve the multiple sources of truth present here for country data
- * and find a better overall solution.
- */
-
-export interface CountryData {
-  country_id: CountryID;
-  country_name: CountryName;
-  iso_code: CountryISOCode;
-}
-
-export interface CountryDataPayload {
-  country_id: CountryID | null;
-  country_name: CountryName | null;
-  iso_code: CountryISOCode | null;
-}
+export type CountryData = {
+  [K in keyof CountriesTable]: CountriesTable[K] | null;
+};
 
 export interface DatabaseAppPreferences {}
 
