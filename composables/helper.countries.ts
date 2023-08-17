@@ -1,5 +1,5 @@
 import { AutocompleteEmitCountryData } from "types/components/forms";
-import { CountryData, CountryDataPayload } from "types/schema";
+import { CountriesTable, CountryData } from "types/schema";
 import {
   CountryID,
   CountryName,
@@ -7,7 +7,7 @@ import {
 } from "types/unions/schema.country";
 
 /* prettier-ignore */
-const COUNTRY_DATA: CountryData[] = [
+const COUNTRY_DATA: CountriesTable[] = [
   { country_id: 1, country_name: "Afghanistan", iso_code: "AF" },
   { country_id: 2, country_name: "Åland Islands", iso_code: "AX" },
   { country_id: 3, country_name: "Albania", iso_code: "AL" },
@@ -259,7 +259,7 @@ const COUNTRY_DATA: CountryData[] = [
   { country_id: 249, country_name: "Zimbabwe", iso_code: "ZW" },
 ];
 
-const payload: CountryDataPayload = {
+const payload: CountryData = {
   country_id: null,
   country_name: null,
   iso_code: null,
