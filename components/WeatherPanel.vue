@@ -29,20 +29,18 @@
   width: 100%;
   table-layout: fixed;
   user-select: none;
+  & tr {
+    height: 1rem;
+  }
   &__label {
     width: 55%;
-    height: 1rem;
     border-right: 1px solid colour.$hub-data-border;
-    vertical-align: middle;
   }
   &__value {
-    height: 1rem;
     padding-left: 0.5rem;
-    font-size: fontsize.$xl;
-    vertical-align: middle;
     text-rendering: optimizeLegibility;
     font-variant: tabular-nums;
-    letter-spacing: -0.1rem;
+    letter-spacing: -0.05rem;
   }
 }
 </style>
