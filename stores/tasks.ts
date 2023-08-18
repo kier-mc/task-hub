@@ -1,6 +1,7 @@
 // Types
 import type { Database, TasksTable } from "types/schema";
 import type { TaskStoreState } from "types/store.tasks";
+import type { NewTask } from "types/components/tasks";
 
 // Pinia stores
 import { useNotificationsStore } from "./notifications";
@@ -100,6 +101,51 @@ export const useTaskStore = defineStore("tasks", {
         if (!response) return;
         this.tasks = response;
       }
+    },
+    async createTask(taskData: NewTask) {
+      const request = await useSupabaseClient().auth.getUser();
+      if (!request.data.user) {
+        throw new Error("Unable to find user. Check that you are logged in.");
+      }
+      const [task, description, frequency_id, tags] = [
+        taskData.label,
+        taskData.description,
+        taskData.frequency,
+        taskData.tags,
+      ];
+      const { data, error } = await useSupabaseClient<Database>()
+        .from("tasks")
+        .insert({
+          author_id: request.data.user.id,
+          task: task,
+          description: description,
+          frequency_id: frequency_id,
+        })
+        .select();
+      if (error) {
+        notificationsStore.push(
+          "Error",
+          "An error occurred whilst creating the task"
+        );
+        return;
+      }
+      if (data) {
+        if (tags) {
+          const id = data[0].task_id;
+          const { error } = await useSupabaseClient<Database>()
+            .from("tasks_tags")
+            .insert($tasks.tags.prepareInsert(id, tags));
+          if (error) {
+            notificationsStore.push(
+              "Error",
+              "An error occurred whilst setting the tags"
+            );
+            return;
+          }
+        }
+        notificationsStore.push("Success", "Task created successfully");
+      }
+      return;
     },
   },
   getters: {
