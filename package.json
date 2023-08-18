@@ -22,7 +22,7 @@
     "@vueuse/nuxt": "^10.3.0",
     "nuxt": "^3.6.5",
     "nuxt-vitest": "^0.10.2",
-    "sass": "^1.65.1",
+    "sass": "^1.66.0",
     "sass-loader": "^13.3.2",
     "typescript": "^5.1.6"
   },
