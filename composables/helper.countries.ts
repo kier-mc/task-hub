@@ -271,7 +271,7 @@ export const $countries = {
    * @param predicate {CountryID} A numerical value between 1 and 249 to search with.
    * @returns {CountryDataPayload} An object containing the complete data set, including the predicate.
    */
-  searchByID: (predicate: CountryID) => {
+  searchByID: (predicate: CountryID): CountryData => {
     let start = 0;
     let end = COUNTRY_DATA.length - 1;
     while (start <= end) {
@@ -294,7 +294,7 @@ export const $countries = {
    * @param predicate {CountryName} The ISO 3166 English short name to search with.
    * @returns {CountryDataPayload} An object containing the complete data set, including the predicate.
    */
-  searchBycountry_name: (predicate: CountryName) => {
+  searchByCountryName: (predicate: CountryName): CountryData => {
     let start = 0;
     let end = COUNTRY_DATA.length - 1;
     while (start <= end) {
@@ -318,10 +318,10 @@ export const $countries = {
    * @param predicate {CountryName} The ISO 3166 ISO 3166 Alpha-2 code to search with.
    * @returns {CountryDataPayload} An object containing the complete data set, including the predicate.
    */
-  searchByISOCode: (predicate: CountryISOCode) => {
+  searchByISOCode: (predicate: CountryISOCode): CountryData => {
     let start = 0;
     let end = COUNTRY_DATA.length - 1;
-    const data = COUNTRY_DATA.sort((a, b) =>
+    const data = [...COUNTRY_DATA].sort((a, b) =>
       a.iso_code.localeCompare(b.iso_code)
     ); // ISO codes are non-alphabetical
     while (start <= end) {
