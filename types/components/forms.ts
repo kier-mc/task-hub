@@ -4,7 +4,7 @@ import type {
   HTMLAutocompleteAttributeOptions,
   HTMLInputAttributeOptions,
 } from "../unions/forms.options";
-import type { CountryDataPayload } from "../schema";
+import type { CountryData, TagData, FrequencyData } from "../schema";
 
 /**
  * A baseline interface that other form component props inherit from.
@@ -128,4 +128,15 @@ export interface AutocompleteEmitData
  * An interface that specifically manages country emit data.
  */
 export interface AutocompleteEmitCountryData
-  extends AutocompleteEmitDataTemplate<CountryDataPayload> {}
+  extends AutocompleteEmitDataTemplate<CountryData> {}
+/**
+ * An interface that specifically manages frequency emit data.
+ */
+export interface AutocompleteEmitFrequencyData
+  extends AutocompleteEmitDataTemplate<FrequencyData> {}
+/**
+ * An interface for managing tag prop data.
+ */
+export type FormTagPropData = Omit<TagData, "tag_id" | "created_at"> & {
+  index: number;
+};

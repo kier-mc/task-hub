@@ -1,6 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import type {
-  CountryDataPayload,
+  CountryData,
   DatabaseAppPreferences,
   DatabaseRegionPreferences,
   DatabaseUnitPreferences,
@@ -38,7 +38,7 @@ export interface UserStoreState {
 /**
  * Contains the user's country data.
  */
-interface UserStoreCountryData extends CountryDataPayload {
+interface UserStoreCountryData extends CountryData {
   /**
    * The user's current locale (city, town etc).
    */
