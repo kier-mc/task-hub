@@ -11,6 +11,7 @@ import type {
   SpeedUnitsShort,
   TemperatureUnitsShort,
 } from "./unions/generic.units";
+import type { TagID, TagLabel, TagType } from "./unions/schema.tags";
 
 export interface Database {
   users: UsersTable;
@@ -20,7 +21,7 @@ export interface Database {
   tags: TagsTable;
 }
 
-export interface UsersTable {
+export type UsersTable = {
   user_id: number;
   user_uuid: string;
   created_at: string;
@@ -31,9 +32,9 @@ export interface UsersTable {
   preferences_app: DatabaseAppPreferences;
   preferences_region: DatabaseRegionPreferences;
   preferences_units: DatabaseUnitPreferences;
-}
+};
 
-export interface TasksTable {
+export type TasksTable = {
   task_id: number;
   created_at: string;
   author_id: number;
@@ -41,29 +42,36 @@ export interface TasksTable {
   description: string;
   frequency_id: FrequencyID;
   edited_at: string;
-  tag_id: number;
-}
+};
 
-export interface FrequencyTable {
+export type FrequencyTable = {
   frequency_id: FrequencyID;
   repeats_every: FrequencyRepetition;
-}
+};
 
-export interface CountriesTable {
+export type CountriesTable = {
   country_id: CountryID;
   country_name: CountryName;
   iso_code: CountryISOCode;
-}
+};
 
-export interface TagsTable {
-  tag_id: number;
+export type TagsTable = {
+  tag_id: TagID;
   created_at: string;
-  tag: string;
-  type: string;
-}
+  label: TagLabel;
+  type: TagType;
+};
 
 export type CountryData = {
-  [K in keyof CountriesTable]: CountriesTable[K] | null;
+  [key in keyof CountriesTable]: CountriesTable[key] | null;
+};
+
+export type TagData = {
+  [key in keyof TagsTable]: TagsTable[key] | null;
+};
+
+export type FrequencyData = {
+  [key in keyof FrequencyTable]: FrequencyTable[key] | null;
 };
 
 export interface DatabaseAppPreferences {}
