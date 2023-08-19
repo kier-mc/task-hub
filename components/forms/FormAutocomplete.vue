@@ -157,7 +157,7 @@
     min-width: 3rem;
     background-color: colour.$button-background;
     cursor: pointer;
-    transition: background-color 125ms;
+    transition: background-color 500ms easing.$ease-out-quart;
     &:focus {
       outline: 1px solid colour.$autocomplete-border-focus;
     }
@@ -167,7 +167,7 @@
     }
     &--clear {
       min-width: 1.5rem;
-      border-radius: 50%;
+      border-radius: 0.25rem;
       margin-inline: 0.5rem;
       &:hover {
         background-color: colour.$button-background-hover;
@@ -286,18 +286,40 @@ import type {
 
 // Prop definitions
 const props = defineProps({
+  /**
+   * The data object to be supplied to the autocomplete component.
+   */
   data: {
     type: Object as PropType<FormAutocompletePropData>,
     required: true,
   },
+  /**
+   * An optional boolean that represents whether or not the data is sorted by term.
+   * If true, a binary search will be conducted in certain internal functions
+   * to improve performance. Defaults to false to avoid erroneous behaviour.
+   */
+  isSorted: {
+    type: Boolean as PropType<boolean>,
+    required: false,
+  },
+  /**
+   * An optional boolean that represents whether or not the autocomplete element is
+   * disabled.
+   */
   isDisabled: {
     type: Boolean as PropType<boolean>,
     required: false,
   },
+  /**
+   * The term/predicate entered into the input field.
+   */
   emitTerm: {
     type: [String, null] as PropType<string | null>,
     required: true,
   },
+  /**
+   * The data object returned following a valid selection.
+   */
   emitData: {
     type: [Object, null] as PropType<object | null>,
     required: true,
@@ -306,7 +328,13 @@ const props = defineProps({
 
 // Emit definitions
 const emit = defineEmits<{
+  /**
+   * Updates emitTerm with the specified string.
+   */
   (event: "update:emit-term", data: string | null): void;
+  /**
+   * Updates emitData with the specified object.
+   */
   (event: "update:emit-data", data: Object | null): void;
 }>();
 
@@ -496,30 +524,44 @@ async function clearInput() {
 }
 
 function matchData(predicate: string): AutocompleteEmitData {
-  let start = 0;
-  let end = options.value.length - 1;
   const payload = <AutocompleteEmitData>{
     term: null,
     data: null,
   };
-  while (start <= end) {
-    const mid = Math.floor((start + end) / 2);
-    const normalisedTerm = options.value[mid].term // https://claritydev.net/blog/diacritic-insensitive-string-comparison-javascript
-      ?.normalize("NFD") // Convert to unicode
-      .replace(/[\u0300-\u036f]/g, "") // Remove all diacritic characters
-      .toLowerCase(); // Convert to lowercase
-    const normalisedPredicate = predicate
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-    if (normalisedTerm === normalisedPredicate) {
-      payload.term = options.value[mid].term;
-      payload.data = options.value[mid].data;
-      return payload;
-    } else if (normalisedTerm! < normalisedPredicate) {
-      start = mid + 1;
-    } else {
-      end = mid - 1;
+  // Use a binary search algorithm if the data is pre-ordered by predicate and specified in the props
+  if (props.isSorted) {
+    let start = 0;
+    let end = options.value.length - 1;
+    while (start <= end) {
+      const mid = Math.floor((start + end) / 2);
+      const normalisedTerm = options.value[mid].term // https://claritydev.net/blog/diacritic-insensitive-string-comparison-javascript
+        ?.normalize("NFD") // Convert to unicode
+        .replace(/[\u0300-\u036f]/g, "") // Remove all diacritic characters
+        .toLowerCase(); // Convert to lowercase
+      const normalisedPredicate = predicate
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+      if (normalisedTerm === normalisedPredicate) {
+        payload.term = options.value[mid].term;
+        payload.data = options.value[mid].data;
+        return payload;
+      } else if (normalisedTerm! < normalisedPredicate) {
+        start = mid + 1;
+      } else {
+        end = mid - 1;
+      }
+    }
+  }
+  // Otherwise, conduct a regular iterative search
+  else {
+    for (let i = 0; i < options.value.length; i++) {
+      const option = options.value[i];
+      if (predicate === option.term) {
+        payload.term = options.value[i].term;
+        payload.data = options.value[i].data;
+        return payload;
+      }
     }
   }
   return payload;
