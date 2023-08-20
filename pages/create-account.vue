@@ -36,6 +36,7 @@
                 :key="data.index"
                 class="create-account__autocomplete"
                 :data="data"
+                :is-sorted="true"
                 :is-disabled="data.section !== stepper.slide.active"
                 v-model:emit-term="receiver.term"
                 v-model:emit-data="receiver.data"
