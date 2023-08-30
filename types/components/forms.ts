@@ -3,8 +3,8 @@ import type {
   FormHandlerStyle,
   HTMLAutocompleteAttributeOptions,
   HTMLInputAttributeOptions,
-} from "../unions/forms.options";
-import type { CountryData, TagData, FrequencyData } from "../schema";
+} from "~/types/unions/forms.options";
+import type { CountryData, TagData, FrequencyData } from "~/types/schema";
 
 /**
  * A baseline interface that other form component props inherit from.

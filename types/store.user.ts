@@ -4,12 +4,12 @@ import type {
   DatabaseAppPreferences,
   DatabaseRegionPreferences,
   DatabaseUnitPreferences,
-} from "./schema";
+} from "~/types/schema";
 import type {
   SpeedUnitsShort,
   TemperatureUnitsShort,
-} from "./unions/generic.units";
-import { CountryID, CountryISOCode } from "./unions/schema.country";
+} from "~/types/unions/generic.units";
+import { CountryID, CountryISOCode } from "~/types/unions/schema.country";
 /**
  * Specifically manages the Pinia user store.
  */

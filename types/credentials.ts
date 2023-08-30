@@ -1,4 +1,4 @@
-import { CountryData } from "./schema";
+import { CountryData } from "~/types/schema";
 
 export interface LoginCredentialData {
   email: string | null;

@@ -2,16 +2,16 @@ import type {
   CountryID,
   CountryName,
   CountryISOCode,
-} from "types/unions/schema.country";
+} from "~/types/unions/schema.country";
 import type {
   FrequencyID,
   FrequencyRepetition,
-} from "./unions/schema.frequency";
+} from "~/types/unions/schema.frequency";
 import type {
   SpeedUnitsShort,
   TemperatureUnitsShort,
-} from "./unions/generic.units";
-import type { TagID, TagLabel, TagType } from "./unions/schema.tags";
+} from "~/types/unions/generic.units";
+import type { TagID, TagLabel, TagType } from "~/types/unions/schema.tags";
 
 export interface Database {
   users: UsersTable;

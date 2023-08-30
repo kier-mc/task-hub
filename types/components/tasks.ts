@@ -1,6 +1,6 @@
 // Types
-import type { FormTagPropData } from "types/components/forms";
-import type { FrequencyID } from "types/unions/schema.frequency";
+import type { FormTagPropData } from "~/types/components/forms";
+import type { FrequencyID } from "~/types/unions/schema.frequency";
 
 export type NewTask = {
   label: string;

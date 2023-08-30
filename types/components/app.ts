@@ -1,4 +1,4 @@
-import type { HTMLButtonAttributeOptions } from "../unions/button.options";
+import type { HTMLButtonAttributeOptions } from "~/types/unions/button.options";
 /**
  * Specifically manages button component prop data.
  */

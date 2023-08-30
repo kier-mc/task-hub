@@ -2,8 +2,8 @@ import type {
   CountryID,
   CountryISOCode,
   CountryName,
-} from "./unions/schema.country";
-import { OpenWeatherMapIconCode } from "./unions/weather.icons";
+} from "~/types/unions/schema.country";
+import { OpenWeatherMapIconCode } from "~/types/unions/weather.icons";
 
 /**
  * Specfically manages the Pinia weather store.
