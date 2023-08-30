@@ -1,7 +1,10 @@
 // Types
 import type { Database, TasksTable } from "~/types/schema";
-import type { TaskStoreState } from "~/types/store.tasks";
-import type { NewTask } from "~/types/components/tasks";
+import type {
+  TaskStoreState,
+  TaskStoreFetchResponse,
+} from "~/types/store.tasks";
+import type { NewTask, TaskObject } from "~/types/components/tasks";
 
 // Pinia stores
 import { useNotificationsStore } from "./notifications";
@@ -14,29 +17,74 @@ const notificationsStore = useNotificationsStore();
 /**
  * Remotely queries the database for all tasks associated with the currently logged in user.
  * Permissions are handled via PGSQL RLS policies. If no user is found, will throw an error.
- * @returns {Promise<TasksTable[] | null>}
+ * @returns {Promise<TaskObject[] | null>}
  * An array containing all tasks associated with the current user. If no data response is
  * received, will return null instead.
  */
-async function fetchFromEndpoint(): Promise<TasksTable[] | null> {
+async function fetchFromEndpoint(): Promise<TaskObject[] | null> {
   const request = await useSupabaseClient().auth.getUser();
   if (!request.data.user) {
     throw new Error(
       "Unable to fetch data from remote server. Check your connection and ensure that you are logged in"
     );
   }
-  const { data, error } = await useSupabaseClient<Database>()
-    .from("tasks")
-    .select("*");
+  const { data, error } = await useSupabaseClient<Database>().from("tasks")
+    .select(`
+    task_id,
+    created_at,
+    task,
+    description,
+    frequency_id,
+    edited_at,
+    tasks_tags (
+      task_id,
+      tag_id
+    )
+    `);
   if (error) {
     notificationsStore.push("Error", error.message);
     return null;
   }
   if (data) {
-    return data as TasksTable[];
+    const tasks: TaskObject[] = [];
+    for (let i = 0; i < data.length; i++) {
+      const response: TaskStoreFetchResponse = data[i];
+      const task: TaskObject = parseResponseData(response);
+      tasks.push(task);
+    }
+    return tasks;
   }
   return null;
 }
+/**
+ * Processes the raw data received from the database into the preferred format
+ * for local usage.
+ * @param data {TaskStoreFetchResponse}
+ * The data to be parsed. This must be synchronised with the request performed
+ * by {@link fetchFromEndpoint()}.
+ * @returns {TaskObject}
+ * A data object ready for use in the store tasks array.
+ */
+function parseResponseData(data: TaskStoreFetchResponse): TaskObject {
+  const payload: TaskObject = {
+    task_id: data.task_id,
+    task: data.task,
+    description: data.description,
+    frequency: {
+      frequency_id: data.frequency_id,
+      label: $tasks.frequency.getLabel(data.frequency_id),
+    },
+    timestamp: {
+      created_at: data.created_at,
+      edited_at: data.edited_at,
+    },
+  };
+  if (data.tasks_tags.length > 0) {
+    payload.tags = [...data.tasks_tags.map((tag) => tag.tag_id)];
+  }
+  return payload;
+}
+
 /**
  * Performs a remote COUNT(*) operation to determine the number of tasks
  * @returns {Promise<number>}
@@ -78,7 +126,7 @@ export const useTaskStore = defineStore("tasks", {
       // If pre-existing task data is found in local storage
       if (localStorage.getItem("taskData")) {
         const local = localStorage.getItem("taskData");
-        const data: TasksTable[] = JSON.parse(local!);
+        const data: TaskObject[] = JSON.parse(local!);
         const count = {
           local: () => data.length,
           remote: async () => await countRemoteTasks(),
@@ -161,16 +209,16 @@ export const useTaskStore = defineStore("tasks", {
     /**
      * Returns the complete set of task data as received. If no data is available,
      * returns null.
-     * @returns {TasksTable[] | null}
+     * @returns {TaskObject[] | null}
      */
-    getTasks(): TasksTable[] | null {
+    getTasks(): TaskObject[] | null {
       return this.tasks;
     },
     /**
      * Not implemented, do not use yet.
      * @returns
      */
-    getUrgentTasks(): TasksTable[] | null {
+    getUrgentTasks(): TaskObject[] | null {
       if (!this.tasks) return null;
       return this.tasks.map((task) => {
         return task;
