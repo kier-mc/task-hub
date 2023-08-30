@@ -1,5 +1,5 @@
 // Types
-import type { TagsTable } from "~/types/schema";
+import type { TagsTable, TagData } from "~/types/schema";
 import type {
   FormTagPropData,
   AutocompleteEmitFrequencyData,
@@ -8,6 +8,7 @@ import type {
   FrequencyID,
   FrequencyRepetition,
 } from "~/types/unions/schema.frequency";
+import type { TagID } from "~/types/unions/schema.tags";
 
 const TAG_DATA = <Omit<TagsTable, "created_at">[]>[
   {
@@ -152,6 +153,29 @@ export const $tasks = {
           task_id: taskID,
           tag_id: tag.index,
         });
+      }
+      return payload;
+    },
+    searchByID: (predicate: TagID): Omit<TagData, "created_at"> => {
+      const payload: Omit<TagData, "created_at"> = {
+        tag_id: null,
+        label: null,
+        type: null,
+      };
+      let start = 0;
+      let end = TAG_DATA.length - 1;
+      while (start <= end) {
+        const mid = Math.floor((start + end) / 2);
+        if (TAG_DATA[mid].tag_id === predicate) {
+          payload.tag_id = TAG_DATA[mid].tag_id;
+          payload.label = TAG_DATA[mid].label;
+          payload.type = TAG_DATA[mid].type;
+          return payload;
+        } else if (TAG_DATA[mid].tag_id < predicate) {
+          start = mid + 1;
+        } else {
+          end = mid - 1;
+        }
       }
       return payload;
     },
