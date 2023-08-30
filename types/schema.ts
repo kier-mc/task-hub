@@ -62,6 +62,11 @@ export type TagsTable = {
   type: TagType;
 };
 
+export type TasksTagsJoinTable = {
+  task_id: TasksTable["task_id"];
+  tag_id: TagsTable["tag_id"];
+};
+
 export type CountryData = {
   [key in keyof CountriesTable]: CountriesTable[key] | null;
 };
