@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_NO_WARNINGS=1 nuxt dev",
+    "dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 NODE_NO_WARNINGS=1 nuxt dev --host --https",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
@@ -21,7 +21,7 @@
     "@vueuse/core": "^10.2.1",
     "@vueuse/nuxt": "^10.4.1",
     "nuxt": "^3.7.0",
-    "nuxt-vitest": "^0.10.3",
+    "nuxt-vitest": "^0.10.4",
     "sass": "^1.66.1",
     "sass-loader": "^13.3.2",
     "typescript": "^5.2.2"
