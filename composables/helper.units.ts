@@ -2,7 +2,7 @@
 import type {
   SpeedUnitsShort,
   TemperatureUnitsShort,
-} from "types/unions/generic.units";
+} from "~/types/unions/generic.units";
 
 /**
  * Small helper function to truncate the input number to the specified decimal places.

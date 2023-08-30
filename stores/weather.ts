@@ -5,13 +5,13 @@ import type {
   WeatherStoreTemperatureData,
   WeatherStoreWindData,
   OpenWeatherMapResponse,
-} from "types/store.weather";
+} from "~/types/store.weather";
 import type {
   CountryID,
   CountryISOCode,
   CountryName,
-} from "types/unions/schema.country";
-import type { OpenWeatherMapIconCode } from "types/unions/weather.icons";
+} from "~/types/unions/schema.country";
+import type { OpenWeatherMapIconCode } from "~/types/unions/weather.icons";
 
 /**
  * An internal function used to call the OpenWeatherMap endpoint.

@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 // Types
-import type { LoadingIndicatorDisplayOption } from "../types/unions/loading-indicator.options";
+import type { LoadingIndicatorDisplayOption } from "~/types/unions/loading-indicator.options";
 
 // Prop definitions
 const props = defineProps({

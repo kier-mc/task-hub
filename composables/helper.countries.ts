@@ -1,10 +1,10 @@
-import { AutocompleteEmitCountryData } from "types/components/forms";
-import { CountriesTable, CountryData } from "types/schema";
+import { AutocompleteEmitCountryData } from "~/types/components/forms";
+import { CountriesTable, CountryData } from "~/types/schema";
 import {
   CountryID,
   CountryName,
   CountryISOCode,
-} from "types/unions/schema.country";
+} from "~/types/unions/schema.country";
 
 /* prettier-ignore */
 const COUNTRY_DATA: CountriesTable[] = [

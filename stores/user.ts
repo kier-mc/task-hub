@@ -3,17 +3,17 @@ import type {
   UserStoreState,
   UserStoreResponseData,
   UserStoreStatePreferences,
-} from "types/store.user";
-import type { Database } from "types/schema";
+} from "~/types/store.user";
+import type { Database } from "~/types/schema";
 import type {
   TemperatureUnitsShort,
   SpeedUnitsShort,
-} from "types/unions/generic.units";
+} from "~/types/unions/generic.units";
 import type {
   CountryID,
   CountryName,
   CountryISOCode,
-} from "types/unions/schema.country";
+} from "~/types/unions/schema.country";
 
 /**
  * A Pinia store for handling user data.

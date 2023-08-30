@@ -71,9 +71,9 @@
 
 <script setup lang="ts">
 // Types
-import type { ButtonPropData } from "types/components/app";
-import type { FormInputPropData } from "types/components/forms";
-import type { LoginCredentialData } from "types/credentials";
+import type { ButtonPropData } from "~/types/components/app";
+import type { FormInputPropData } from "~/types/components/forms";
+import type { LoginCredentialData } from "~/types/credentials";
 
 // Components
 import { SVGLogin } from "#components";

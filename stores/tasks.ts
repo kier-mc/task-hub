@@ -1,7 +1,7 @@
 // Types
-import type { Database, TasksTable } from "types/schema";
-import type { TaskStoreState } from "types/store.tasks";
-import type { NewTask } from "types/components/tasks";
+import type { Database, TasksTable } from "~/types/schema";
+import type { TaskStoreState } from "~/types/store.tasks";
+import type { NewTask } from "~/types/components/tasks";
 
 // Pinia stores
 import { useNotificationsStore } from "./notifications";

@@ -105,7 +105,7 @@
 import type {
   ButtonPropData,
   LoadingIndicatorPropData,
-} from "types/components/app";
+} from "~/types/components/app";
 
 // Prop definitions
 const props = defineProps({

@@ -16,6 +16,9 @@
       </div>
     </section>
   </div>
+  <div class="temp">
+    <TaskCreate />
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -66,7 +69,7 @@ definePageMeta({ layout: "hub", middleware: "auth-only" });
 const userStore = useUserStore();
 
 // Hooks
-onMounted(() => {
+onMounted(async () => {
   if (!userStore.response) userStore.fetchData();
 });
 </script>

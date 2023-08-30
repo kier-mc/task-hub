@@ -178,10 +178,10 @@ import type {
   FormInputPropData,
   NewAccountSectionPropData,
   FormAutocompletePropData,
-} from "types/components/forms";
-import type { ButtonPropData } from "types/components/app";
-import type { NewAccountCredentialData } from "types/credentials";
-import type { AutocompleteEmitCountryData } from "types/components/forms";
+} from "~/types/components/forms";
+import type { ButtonPropData } from "~/types/components/app";
+import type { NewAccountCredentialData } from "~/types/credentials";
+import type { AutocompleteEmitCountryData } from "~/types/components/forms";
 // Components
 import { SVGLogin } from "#components";
 

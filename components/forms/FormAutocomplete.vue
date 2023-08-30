@@ -282,7 +282,7 @@
 import type {
   AutocompleteEmitData,
   FormAutocompletePropData,
-} from "types/components/forms";
+} from "~/types/components/forms";
 
 // Prop definitions
 const props = defineProps({

@@ -1,13 +1,13 @@
 // Types
-import type { TagsTable } from "types/schema";
+import type { TagsTable } from "~/types/schema";
 import type {
   FormTagPropData,
   AutocompleteEmitFrequencyData,
-} from "types/components/forms";
+} from "~/types/components/forms";
 import type {
   FrequencyID,
   FrequencyRepetition,
-} from "types/unions/schema.frequency";
+} from "~/types/unions/schema.frequency";
 
 const TAG_DATA = <Omit<TagsTable, "created_at">[]>[
   {

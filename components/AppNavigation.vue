@@ -109,7 +109,7 @@
 <script setup lang="ts">
 // Types
 import type { User } from "@supabase/supabase-js";
-import type { NavigationPropData } from "types/components/app";
+import type { NavigationPropData } from "~/types/components/app";
 
 // Components
 import {
@@ -179,7 +179,7 @@ const user: Ref<User | null> = useSupabaseUser();
 // Template refs
 const options: Ref<Array<HTMLLIElement | null>> = ref([]);
 
-// Logic
+// Computed properties
 const menuHeight: ComputedRef<string> = computed((): string => {
   const count = propData.navigation.reduce((accumulator, option) => {
     if ((user && option.requiresAuth) || (!user && !option.requiresAuth)) {

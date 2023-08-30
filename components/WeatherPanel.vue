@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 // Type defintions
-import type { WeatherPanelData } from "types/components/weather";
+import type { WeatherPanelData } from "~/types/components/weather";
 
 // Prop defintions
 const props = defineProps({

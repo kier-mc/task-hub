@@ -211,7 +211,7 @@
 
 <script setup lang="ts">
 // Types
-import type { WeatherPanelData } from "types/components/weather";
+import type { WeatherPanelData } from "~/types/components/weather";
 
 // Pinia stores
 const userStore = useUserStore();

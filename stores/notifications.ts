@@ -1,5 +1,5 @@
 // Types
-import type { NotificationsStoreState } from "types/store.notifications";
+import type { NotificationsStoreState } from "~/types/store.notifications";
 
 /**
  * A Pinia store that handles notifications.
