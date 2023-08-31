@@ -182,7 +182,7 @@ export const useTaskStore = defineStore("tasks", {
           const id = data[0].task_id;
           const { error } = await useSupabaseClient<Database>()
             .from("tasks_tags")
-            .insert($tasks.tags.prepareInsert(id, tags));
+            .insert($tasks.tags.prepareDataForDBInsert(id, tags));
           if (error) {
             notificationsStore.push(
               "Error",
