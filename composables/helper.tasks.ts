@@ -200,5 +200,18 @@ export const $tasks = {
       }
       return payload;
     },
+    prepareDataForDBInsert: (taskID: number, tags: FormTagPropData[]) => {
+      const payload = [];
+      for (let i = 0; i < tags.length; i++) {
+        const tag = tags[i];
+        if (tag.label) {
+          payload.push({
+            task_id: taskID,
+            tag_id: $tasks.tags.searchByLabel(tag.label).tag_id,
+          });
+        }
+      }
+      return payload;
+    },
   },
 };
