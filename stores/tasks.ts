@@ -195,6 +195,21 @@ export const useTaskStore = defineStore("tasks", {
       }
       return;
     },
+    async deleteTask(id: number) {
+      const { error } = await useSupabaseClient<Database>()
+        .from("tasks")
+        .delete()
+        .eq("task_id", id);
+      if (error) {
+        notificationsStore.push(error.message, "error");
+        return;
+      }
+      if (this.tasks) {
+        const index = this.tasks.findIndex((task) => task.task_id === id);
+        this.tasks.splice(index, 1);
+      }
+      notificationsStore.push(`Task deleted successfully`, "success");
+    },
   },
   getters: {
     /**
