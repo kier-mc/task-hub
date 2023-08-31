@@ -8,7 +8,7 @@ import type {
   FrequencyID,
   FrequencyRepetition,
 } from "~/types/unions/schema.frequency";
-import type { TagID } from "~/types/unions/schema.tags";
+import type { TagID, TagLabel, TagType } from "~/types/unions/schema.tags";
 
 const TAG_DATA = <Omit<TagsTable, "created_at">[]>[
   {
@@ -133,29 +133,6 @@ export const $tasks = {
     },
   },
   tags: {
-    getPropData: (): FormTagPropData[] => {
-      const payload: FormTagPropData[] = [];
-      for (let i = 0; i < TAG_DATA.length; i++) {
-        const tag = TAG_DATA[i];
-        payload.push({
-          index: i,
-          label: tag.label,
-          type: tag.type,
-        });
-      }
-      return payload;
-    },
-    prepareInsert: (taskID: number, tags: FormTagPropData[]) => {
-      const payload = [];
-      for (let i = 0; i < tags.length; i++) {
-        const tag = tags[i];
-        payload.push({
-          task_id: taskID,
-          tag_id: tag.index,
-        });
-      }
-      return payload;
-    },
     searchByID: (predicate: TagID): Omit<TagData, "created_at"> => {
       const payload: Omit<TagData, "created_at"> = {
         tag_id: null,
@@ -176,6 +153,50 @@ export const $tasks = {
         } else {
           end = mid - 1;
         }
+      }
+      return payload;
+    },
+    searchByLabel: (predicate: TagLabel): Omit<TagData, "created_at"> => {
+      const payload: Omit<TagData, "created_at"> = {
+        tag_id: null,
+        label: null,
+        type: null,
+      };
+      for (let i = 0; i < TAG_DATA.length; i++) {
+        const data = TAG_DATA[i];
+        if (data.label === predicate) {
+          payload.tag_id = data.tag_id;
+          payload.label = data.label;
+          payload.type = data.type;
+        }
+      }
+      return payload;
+    },
+    searchByType: (predicate: TagType): Omit<TagData, "created_at"> => {
+      const payload: Omit<TagData, "created_at"> = {
+        tag_id: null,
+        label: null,
+        type: null,
+      };
+      for (let i = 0; i < TAG_DATA.length; i++) {
+        const data = TAG_DATA[i];
+        if (data.type === predicate) {
+          payload.tag_id = data.tag_id;
+          payload.label = data.label;
+          payload.type = data.type;
+        }
+      }
+      return payload;
+    },
+    getPropData: (): FormTagPropData[] => {
+      const payload: FormTagPropData[] = [];
+      for (let i = 0; i < TAG_DATA.length; i++) {
+        const tag = TAG_DATA[i];
+        payload.push({
+          index: i,
+          label: tag.label,
+          type: tag.type,
+        });
       }
       return payload;
     },
