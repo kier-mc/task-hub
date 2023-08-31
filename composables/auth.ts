@@ -2,7 +2,7 @@
 import type {
   LoginCredentialData,
   NewAccountCredentialData,
-} from "types/credentials";
+} from "~/types/credentials";
 
 /**
  * Attempts login via SupabaseAuthClient (@nuxtjs/supabase).
@@ -15,7 +15,7 @@ export async function loginUser(
   credentials: Ref<LoginCredentialData>
 ): Promise<boolean> {
   const notificationsStore = useNotificationsStore();
-  if (!allFieldsArePopulated(credentials)) {
+  if (!$app.allRefValuesArePopulated(credentials)) {
     notificationsStore.push(
       "Error",
       "Login failed. Please ensure all fields are filled in."
@@ -34,7 +34,6 @@ export async function loginUser(
   if (data.user) {
     await userStore.fetchData();
     notificationsStore.push("Success", `Logged in as ${userStore.getName}!`);
-    clearAllFields(credentials);
     await navigateTo("/hub");
     return true;
   }
@@ -52,7 +51,7 @@ export async function createUser(
   credentials: Ref<NewAccountCredentialData>
 ): Promise<boolean> {
   const notificationsStore = useNotificationsStore();
-  if (!allFieldsArePopulated(credentials)) {
+  if (!$app.allRefValuesArePopulated(credentials)) {
     notificationsStore.push("Error", "Please ensure all fields are filled in.");
     return false;
   }
