@@ -17,6 +17,7 @@
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/easing";
+@use "../assets/scss/data/fontsize";
 @use "../assets/scss/data/layout";
 .header {
   display: flex;
@@ -29,7 +30,7 @@
   &__title {
     all: unset;
     color: colour.$font-light;
-    font-size: calc(1rem * 1.25);
+    font-size: fontsize.$xxl;
     letter-spacing: 0.075rem;
   }
   &__button {
