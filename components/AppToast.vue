@@ -40,6 +40,7 @@
 @use "../assets/scss/data/fontsize";
 /* prettier-ignore */
 .toast {
+  pointer-events: none;
   opacity: 0;
   overflow: hidden;
   position: fixed;
@@ -61,6 +62,7 @@
     transform 250ms ease-in-out,
     filter 225ms ease-in-out;
   &[data-active="true"] {
+    pointer-events: all;
     opacity: 1;
     z-index: 1000;
     transform: translate3d(0, 0%, 0);
