@@ -1,4 +1,4 @@
-const $app = {
+export const $app = {
   /**
    * Iterates through all values of a reactive object and checks for any value
    * that is falsy.
