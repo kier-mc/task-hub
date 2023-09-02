@@ -161,6 +161,9 @@ export const useTaskStore = defineStore("tasks", {
         taskData.frequency,
         taskData.tags,
       ];
+      if (!task || !frequency_id) {
+        throw new Error("Task title and frequency are null");
+      }
       const { data, error } = await useSupabaseClient<Database>()
         .from("tasks")
         .insert({
