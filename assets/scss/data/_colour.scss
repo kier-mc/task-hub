@@ -5,22 +5,15 @@
  *
  */
 // Main
-$primary: hsl(210, 15%, 15%);
-$secondary: hsl(345, 85%, 60%);
-$tertiary: hsl(165, 95%, 40%);
-$dark: hsl(210, 15%, 10%);
-$neutral: hsl(210, 15%, 50%);
-$light: hsl(210, 15%, 90%);
-
-$slate-100:   hsl(208.2, 15.6%, 21.4%);
-$slate-200:   hsl(210, 15.1%, 28.6%);
-$slate-300:   hsl(207.9, 15.4%, 35.7%);
-$slate-400:   hsl(209.1, 15.1%, 42.9%);
-$slate-500:   hsl(209.2, 15.3%, 50%);
-$slate-600:   hsl(209.1, 15.1%, 57.1%);
-$slate-700:   hsl(210, 15.4%, 64.3%);
-$slate-800:   hsl(207.3, 15.1%, 71.4%);
-$slate-900:   hsl(208.2, 15.6%, 78.6%);
+$gunmetal-100: hsl(206.7, 17%, 10.4%);
+$gunmetal-200: hsl(207.3, 15.9%, 13.5%);
+$gunmetal-300: hsl(205.7, 16.7%, 16.5%);
+$gunmetal-400: hsl(210, 15.2%, 18%);
+$gunmetal-500: hsl(208.2, 15.6%, 21.4%);
+$gunmetal-600: hsl(208.9, 16.4%, 32.4%);
+$gunmetal-700: hsl(208.3, 16.2%, 43.5%);
+$gunmetal-800: hsl(207.6, 16%, 54.7%);
+$gunmetal-900: hsl(206.7, 15.6%, 66.1%);
 
 $cerise-100:  hsl(344.9, 84.7%, 25.7%);
 $cerise-200:  hsl(345.1, 85.1%, 34.3%);
@@ -42,7 +35,18 @@ $mint-700:    hsl(165, 95.4%, 57.3%);
 $mint-800:    hsl(164.8, 95.4%, 65.9%);
 $mint-900:    hsl(165.1, 95.4%, 74.3%);
 
+$neutral-100: hsl(208.4, 8%, 53.5%);
+$neutral-200: hsl(211.8, 8.1%, 59%);
+$neutral-300: hsl(210, 7.7%, 64.3%);
+$neutral-400: hsl(207.7, 8.4%, 69.6%);
+$neutral-500: hsl(210, 7.8%, 74.9%);
+$neutral-600: hsl(210, 8%, 80.4%);
+$neutral-700: hsl(204, 6.8%, 85.7%);
+$neutral-800: hsl(210, 8.7%, 91%);
+$neutral-900: hsl(210, 11.1%, 96.5%);
+
 $dark:        hsl(210, 11.1%, 3.5%);
+$mid:       hsl(210, 15%, 50%);
 $light:       hsl(210, 11.1%, 96.5%);
 
 // Gradients
@@ -63,36 +67,29 @@ $gradient-app-background: linear-gradient(
 );
 $gradient-app-header: linear-gradient(
   180deg,
-  color.adjust($primary, $lightness: -5%),
-  color.adjust($primary)
+  $gunmetal-300 0%,
+  $gunmetal-200 100%
 );
 $gradient-window-title: linear-gradient(
   180deg,
-  color.adjust($primary, $lightness: +2.5%) 0%,
-  color.adjust($primary, $lightness: +5%) 100%
-);
-$gradient-button-background: linear-gradient(
-  180deg,
-  color.adjust($primary, $lightness: +5%) 0%,
-  color.adjust($primary, $lightness: +7.5%) 100%
+  color.adjust($gunmetal-300, $lightness: +2.5%) 0%,
+  color.adjust($gunmetal-300, $lightness: +5%) 100%
 );
 $gradient-hub-header-background: linear-gradient(
   5deg,
-  hsl(210, 15%, 35%) 0%,
-  hsl(212, 20%, 20%) 75%
+  $gunmetal-600 0%,
+  $gunmetal-300 75%
 );
 
-
 // Fonts
-$font-light: color.adjust($neutral, $saturation: -5%, $lightness: +40%);
-$font-dark: color.adjust($neutral, $saturation: -5%, $lightness: -30%);
+$font-light: color.adjust($mid, $saturation: -5%, $lightness: +40%);
+$font-dark: color.adjust($mid, $saturation: -5%, $lightness: -30%);
 $font-light-translucent: color.adjust($font-light, $alpha: -0.2);
 $font-dark-translucent: color.adjust($font-dark, $alpha: -0.2);
-$font-accent-primary: color.adjust($primary, $saturation: -5%, $lightness: +10%);
 
 // Icons
-$icon-light: color.adjust($neutral, $saturation: -5%, $lightness: +40%);
-$icon-dark: color.adjust($neutral, $saturation: -5%, $lightness: -30%);
+$icon-light: color.adjust($mid, $saturation: -5%, $lightness: +40%);
+$icon-dark: color.adjust($mid, $saturation: -5%, $lightness: -30%);
 $icon-light-translucent: color.adjust($icon-light, $saturation: +30%, $alpha: -0.2);
 $icon-dark-translucent: color.adjust($icon-dark, $saturation: +30%, $alpha: -0.2);
 $icon-light-disabled: color.adjust($icon-light, $saturation: +80%, $alpha: -0.6);
@@ -106,39 +103,45 @@ $icon-dark-disabled: color.adjust($icon-dark, $saturation: +80%, $alpha: -0.6);
 // App
 $app-background: $gradient-app-background;
 $app-header: $gradient-app-header;
-$app-navigation-menu: color.adjust($primary, $saturation: -5%, $alpha: -0.2);
-$app-navigation-menu-hover: color.adjust($app-navigation-menu, $lightness: +5%);
+$app-navigation-menu: color.adjust($gunmetal-200, $alpha: -0.2);
+$app-navigation-menu-hover: color.adjust($app-navigation-menu, $lightness: +10%);
 
 // Windows/menus
 $window-title: $gradient-window-title;
-$window-body: color.adjust($neutral, $lightness: +37.5%);
+$window-body: color.adjust($mid, $lightness: +37.5%);
 
 // Buttons
-$button-background: color.adjust($primary, $lightness: +10%);
-$button-background-hover: color.adjust($button-background, $lightness: +10%);
+$button-background: $gunmetal-500;
+$button-background-hover: color.adjust($button-background, $saturation: +5%, $lightness: +10%);
 $button-border: color.adjust($button-background, $lightness: -5%);
 $button-border-hover: color.adjust($button-background-hover, $lightness: -5%);
-$button-font: color.adjust($neutral, $lightness: +40%);
+$button-font: $light;
 $button-font-hover: color.adjust($button-font, $lightness: +5%);
 $button-focus: color.adjust($button-border, $saturation: +10%, $lightness: +40%);
 
+$button-light-background: $gunmetal-700;
+$button-light-background-hover: color.adjust($button-background, $saturation: +5%, $lightness: +10%);
+$button-light-border: color.adjust($button-background, $lightness: -5%);
+$button-light-border-hover: color.adjust($button-background-hover, $lightness: -5%);
+$button-light-font: $light;
+$button-light-font-hover: color.adjust($button-font, $lightness: +5%);
+$button-light-focus: color.adjust($button-border, $saturation: +10%, $lightness: +40%);
+
 // Inputs
-$input-background: color.adjust($neutral, $lightness: +47.5%);
-$input-label: $font-accent-primary;
-$input-border: color.adjust($primary, $lightness: +45%);
+$input-background: color.adjust($light, $lightness: +5%);
+$input-border: $gunmetal-900;
 $input-border-focus: color.adjust($input-border, $lightness: -10%);
 
 // Autocomplete
-$autocomplete-background: color.adjust($neutral, $lightness: +47.5%);
-$autocomplete-label: $font-accent-primary;
-$autocomplete-border: color.adjust($primary, $lightness: +45%);
-$autocomplete-border-focus: color.adjust($input-border, $lightness: -10%);
-$autocomplete-options-background: color.adjust($neutral, $lightness: +50%);
-$autocomplete-option-background-a: color.adjust($neutral, $lightness: +40%);
-$autocomplete-option-background-b: color.adjust($neutral, $lightness: +47.5%);
-$autocomplete-option-background-hover: color.adjust($primary, $lightness: +55%);
+$autocomplete-background: color.adjust($light, $lightness: +5%);
+$autocomplete-border: $gunmetal-900;
+$autocomplete-border-focus: color.adjust($autocomplete-border, $lightness: -10%);
+$autocomplete-options-background: color.adjust($light, $lightness: +10%);
+$autocomplete-option-background-a: color.adjust($light, $lightness: +2.5%);
+$autocomplete-option-background-b: color.adjust($light, $lightness: -5%);
+$autocomplete-option-background-hover: $gunmetal-900;
 
 // Hub
 $hub-header-background: $gradient-hub-header-background;
-$hub-header-border: color.adjust($primary, $lightness: +45%, $alpha: -0.6);
-$hub-data-border: color.adjust($primary, $lightness: +45%, $alpha: -0.5);
+$hub-header-border: color.adjust($gunmetal-900, $alpha: -0.75);
+$hub-data-border: color.adjust($gunmetal-700, $alpha: -0.5);
