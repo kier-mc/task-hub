@@ -27,12 +27,12 @@
 
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
+@use "../assets/scss/data/easing";
 @use "../assets/scss/data/effect";
 @use "../assets/scss/data/fontsize";
 .input {
   position: relative;
   box-shadow: effect.$drop-shadow-xs;
-  transition: opacity 200ms ease-in-out;
   &:focus-within {
     &::before {
       opacity: 1;
@@ -48,8 +48,9 @@
     inset: 0;
     margin: -1px;
     background-color: colour.$input-border-focus;
-    transition: opacity 200ms;
+    transition: opacity 500ms easing.$ease-out-quart;
   }
+  /* prettier-ignore */
   &__label {
     position: absolute;
     top: 50%;
@@ -63,7 +64,9 @@
     cursor: text;
     transform: translateY(-50%);
     transform-origin: top left;
-    transition: top 125ms, left 125ms, transform 125ms;
+    transition:
+      top 250ms easing.$ease-out-quint,
+      transform 250ms easing.$ease-out-quint;
     &--focused {
       top: 0.5rem;
       transform: scale(0.75);
@@ -106,14 +109,14 @@ const props = defineProps({
     type: Object as PropType<FormInputPropData>,
     required: true,
   },
-  isDisabled: {
-    type: Boolean as PropType<boolean>,
-    required: false,
-  },
   emitValue: {
     type: [String, null] as PropType<string | null>,
     default: null,
     required: true,
+  },
+  isDisabled: {
+    type: Boolean as PropType<boolean>,
+    required: false,
   },
 });
 
@@ -125,8 +128,8 @@ const emit = defineEmits<{
 // Emit handler
 function emitHandler(): void {
   if (!inputElement.value) return;
-  const value = inputElement.value.value;
-  emit("update:emit-value", value);
+  const data = inputElement.value.value;
+  emit("update:emit-value", data);
 }
 
 // Reactive variables
@@ -136,14 +139,11 @@ const isFocused: Ref<boolean> = ref(false);
 const inputElement: Ref<HTMLInputElement | null> = ref(null);
 
 // Computed properties
-const setLabelClass = computed((): string | void => {
-  if (!inputElement.value) return "input__label";
-  let result = false;
-  const value = inputElement.value.value;
-  if (isFocused.value || value.length > 0) {
-    result = true;
-  }
-  return result ? "input__label input__label--focused" : "input__label";
+const setLabelClass = computed(() => {
+  const containsData = props.emitValue;
+  return isFocused.value || containsData
+    ? "input__label input__label--focused"
+    : "input__label";
 });
 const setTypeAttribute = computed(() => {
   return props.data.attributes.type ? props.data.attributes.type : "text";
