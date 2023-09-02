@@ -118,7 +118,7 @@
     left: 0;
     height: 0.25rem;
     width: 100%;
-    background: colour.$secondary;
+    background: colour.$cerise-500;
     &[data-active="true"] {
       opacity: 1;
     }

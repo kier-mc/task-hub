@@ -42,7 +42,7 @@
     width: 3rem;
     cursor: pointer;
     &:hover .header__icon {
-      fill: colour.$secondary;
+      fill: colour.$cerise-500;
     }
   }
   &__icon {

@@ -76,7 +76,7 @@
       aspect-ratio: 1/1;
       height: 3rem;
       margin: auto;
-      fill: colour.$font-light;
+      fill: colour.$icon-light;
     }
   }
   &__location {
@@ -128,7 +128,7 @@
           transform: rotateZ(360deg);
         }
       }
-      fill: colour.$secondary;
+      fill: colour.$cerise-500;
       animation: 1000ms easing.$ease-out-quart spin;
     }
   }
