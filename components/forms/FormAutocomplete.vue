@@ -1,4 +1,4 @@
-<template>
+<template ClientOnly>
   <div class="autocomplete-wrapper">
     <div
       ref="autocompleteElement"
@@ -108,7 +108,7 @@
     left: 0rem;
     padding-inline: 0.75rem;
     font-size: fontsize.$xs;
-    color: colour.$autocomplete-label;
+    color: colour.$font-dark;
     transform: translateY(-50%);
     transition: top 125ms, transform 125ms;
     transform-origin: top left;
@@ -351,7 +351,6 @@ let timeout: NodeJS.Timeout | undefined;
 const isExpanded: Ref<boolean> = ref(false);
 const isSearching: Ref<boolean> = ref(false);
 const options: Ref<Array<AutocompleteEmitData>> = ref([]);
-const forceRefresh: Ref<number> = ref(0);
 
 // Template refs
 const autocompleteElement: Ref<HTMLDivElement | null> = ref(null);
@@ -374,15 +373,10 @@ const setControlsClass = computed(() => {
 
 const setLabelClass = computed((): string | void => {
   if (!inputElement.value) return;
-  forceRefresh.value;
   const element = inputElement.value;
-  const input = element.value;
+  const containsData = props.emitTerm;
   let result = false;
-  if (
-    isExpanded.value ||
-    input.length > 0 ||
-    document.activeElement === element
-  ) {
+  if (isExpanded.value || containsData || document.activeElement === element) {
     result = true;
   }
   if (props.data.style) {
@@ -435,7 +429,25 @@ const optionsMinimumHeight = computed(() => {
   return `${options.value.length * 2.5 + multiplier}rem`;
 });
 
-// Logic
+const { focused } = useFocusWithin(autocompleteElement); // VueUse computed property
+
+// Watchers
+watch(focused, (isFocused) => {
+  if (!isFocused) {
+    isExpanded.value = false;
+  }
+});
+
+watch(
+  () => props.emitTerm,
+  (data) => {
+    if (!data) {
+      clearInput();
+    }
+  }
+);
+
+// Functions
 function populateDefaultOptions() {
   if (!props.data.options) return;
   options.value = [...props.data.options];
@@ -520,7 +532,6 @@ async function clearInput() {
   emitHandler(null, null);
   await nextTick();
   filterData();
-  forceRefresh.value++;
 }
 
 function matchData(predicate: string): AutocompleteEmitData {
@@ -553,7 +564,7 @@ function matchData(predicate: string): AutocompleteEmitData {
       }
     }
   }
-  // Otherwise, conduct a regular iterative search
+  // Otherwise, conduct a regular linear search
   else {
     for (let i = 0; i < options.value.length; i++) {
       const option = options.value[i];
@@ -591,14 +602,6 @@ function handleEscape(): void {
   isExpanded.value = false;
   useFocus(inputElement, { initialValue: true });
 }
-
-const { focused } = useFocusWithin(autocompleteElement);
-
-watch(focused, (isFocused) => {
-  if (!isFocused) {
-    isExpanded.value = false;
-  }
-});
 
 onKeyStroke("ArrowUp", (event) => {
   event.preventDefault();
