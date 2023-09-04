@@ -56,7 +56,9 @@
     opacity: 0.5;
     cursor: not-allowed;
     &:hover {
+      border: 1px solid colour.$button-border;
       background-color: colour.$button-background;
+      color: colour.$button-font;
     }
   }
   &:focus {
