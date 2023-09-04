@@ -45,7 +45,6 @@
   &__menu {
     all: unset;
     overflow: hidden;
-    visibility: hidden;
     height: 0;
     position: absolute;
     top: 0;
@@ -54,25 +53,21 @@
     color: colour.$font-light;
     backdrop-filter: blur(0.25rem);
     transition:
-      visibility 150ms ease-in-out,
       height 275ms easing.$ease-out-quart;
       box-shadow: 300ms easing.$ease-out-quart;
     @media (max-width: layout.$breakpoint-md) {
       width: 100vw;
     }
-    &[aria-expanded="true"] {
-      visibility: visible;           
-      height: v-bind("menuHeight");   
+    &[aria-expanded="true"] {         
+      height: v-bind(menuHeight);   
       box-shadow: effect.$drop-shadow-sm;   
     }
     &[aria-expanded="true"] .nav__option {
       opacity: 1;
     }    
   }
-  /* prettier-ignore */
   &__option {
     all: unset;
-    opacity: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -82,9 +77,7 @@
     padding-inline: 1rem;
     background-color: colour.$app-navigation-menu;
     cursor: pointer;
-    transition:
-      background-color 500ms easing.$ease-out-quart,
-      opacity 150ms easing.$ease-out-quart;
+    transition: background-color 500ms easing.$ease-out-quart;
     @media (max-width: layout.$breakpoint-md) {
       width: calc(100% - 2rem);
     }
