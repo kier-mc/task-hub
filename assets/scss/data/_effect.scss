@@ -1,7 +1,7 @@
 @use "sass:color";
 @use "./colour";
 
-$tint: color.adjust(colour.$dark, $saturation: +10%); // Tint for shadows
+$tint: color.adjust(colour.$gunmetal-100, $saturation: +10%); // Tint for shadows
 
 $drop-shadow-xs:
   0 1px 3px color.change($tint, $alpha: 0.12),
