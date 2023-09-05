@@ -1,4 +1,4 @@
-<template>{{ time }}</template>
+<template ClientOnly>{{ time }}</template>
 
 <style scoped lang="scss"></style>
 
