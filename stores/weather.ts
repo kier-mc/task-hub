@@ -344,7 +344,7 @@ export const useWeatherStore = defineStore("weather", {
      * @returns {string | null}
      */
     getWindDirection(): string | null {
-      if (!this.wind.angle) return null;
+      if (typeof this.wind.angle !== "number") return null;
       const angle = this.wind.angle;
       /* prettier-ignore */
       const directions = [ // Start from South to get direction wind blows to, not from
