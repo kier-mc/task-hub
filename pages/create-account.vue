@@ -127,7 +127,7 @@
       bottom: 0;
       left: 0;
       height: 2px;
-      background-color: colour.$secondary;
+      background-color: colour.$cerise-500;
     }
   }
 }
@@ -328,7 +328,7 @@ const translation = computed(() => {
 });
 
 const setSubmitDisabledState = computed(() => {
-  return !allFieldsArePopulated(ref(credentials));
+  return !$app.allRefValuesArePopulated(ref(credentials));
 });
 
 // Logic
