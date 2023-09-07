@@ -33,12 +33,12 @@ export default defineNuxtConfig({
   supabase: {
     redirect: false,
   },
-  vite: {
-    server: {
-      hmr: {
-        host: "localhost",
-        protocol: "ws",
-      },
-    },
-  },
+  // vite: {
+  //   server: {
+  //     hmr: {
+  //       host: "localhost",
+  //       protocol: "ws",
+  //     },
+  //   },
+  // },
 });
