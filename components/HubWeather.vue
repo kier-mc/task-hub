@@ -1,60 +1,78 @@
-<template>
-  <div class="container-weather">
-    <section class="weather">
-      <TransitionGroup name="transition-fade-opacity">
-        <div v-if="state.is_loading" key="0" class="weather__loading">
-          <AppLoadingIndicator
-            class="weather__loading--icon"
-            display="circle"
-          />
+<template ClientOnly>
+  <section v-if="isLoading" class="loading">
+    <AppLoadingIndicator class="loading__icon" display="dots" />
+    <div class="loading__label">Retrieving weather data...</div>
+  </section>
+  <section v-else class="container">
+    <section class="summary">
+      <div class="summary__label">
+        <div class="summary__locale">
+          {{ weatherStore.getLocale }}
         </div>
-        <template v-else key="1">
-          <div v-if="weatherStore.location" class="weather__location">
-            <div class="location__locale">{{ weatherStore.getLocale }}</div>
-            <div class="location__country">
-              {{ weatherStore.getCountryName }}
-            </div>
-          </div>
-          <div class="weather__controls">
-            <button
-              class="weather__refresh-button"
-              type="button"
-              :disabled="isRefreshable"
-              @click="fetchWrapper()"
-            >
-              <SVGRefresh class="weather__refresh-icon" />
-            </button>
-            Last updated {{ getLastUpdated }}
-          </div>
-          <div class="weather__data">
-            <div v-if="weatherStore.icon_code" class="weather__image">
-              <img
-                class="weather__conditions-icon"
-                :alt="weatherStore.getDescription!"
-                :src="`/img/svg/weather/${weatherStore.getIconCode}.svg`"
-              />
-            </div>
-
-            <div class="weather__panel-container">
-              <template v-for="panel in propData.data.panel" :key="panel.index">
-                <WeatherPanel
-                  :data="panel"
-                  class="weather__panel"
-                  :data-active="panel.index === state.active_panel"
-                  @click="cyclePanels()"
-                />
-              </template>
-            </div>
-            <div v-if="weatherStore.wind" class="weather__wind">
-              <div class="wind__direction">
-                <WeatherCompass class="wind__compass" :angle="getWindAngle" />
-              </div>
-            </div>
-          </div>
-        </template>
-      </TransitionGroup>
+        <div class="summary__country">
+          {{ weatherStore.getCountryName }}
+        </div>
+      </div>
+      <component class="summary__icon" :is="setWeatherIcon" />
     </section>
-  </div>
+    <button
+      class="expandable__button"
+      :title="setTemperatureButtonTitle"
+      type="button"
+      @click="toggleTemperatureData()"
+    >
+      <div class="expandable__button--label">Temperature</div>
+      <SVGExpandMore class="expandable__button--icon" />
+    </button>
+    <div
+      :aria-expanded="temperatureIsExpanded"
+      class="expandable expandable__temperature"
+    >
+      <table aria-label="Temperature" class="data-table temperature">
+        <tr
+          v-for="(data, index) in propData.table.temperature"
+          :key="index"
+          class="data-table__row"
+        >
+          <td class="data-table__label">{{ data.label }}</td>
+          <td class="data-table__value">{{ data.value }}</td>
+        </tr>
+      </table>
+    </div>
+    <button
+      class="expandable__button"
+      :title="setAtmosphereButtonTitle"
+      type="button"
+      @click="toggleAtmosphereData()"
+    >
+      <div class="expandable__button--label">Atmosphere</div>
+      <SVGExpandMore class="expandable__button--icon" />
+    </button>
+    <div
+      :aria-expanded="atmosphereIsExpanded"
+      class="expandable expandable__atmosphere"
+    >
+      <table aria-label="Atmosphere" class="data-table atmosphere">
+        <tr
+          v-for="(data, index) in propData.table.atmosphere"
+          :key="index"
+          class="data-table__row"
+        >
+          <td class="data-table__label">{{ data.label }}</td>
+          <td class="data-table__value">{{ data.value }}</td>
+        </tr>
+      </table>
+    </div>
+    <section class="refresh">
+      <div class="refresh__label">Last updated {{ setLastUpdated }}</div>
+      <AppButton
+        class="refresh__button"
+        :data="propData.button.refresh"
+        :is-loading="requestInProgress"
+        :is-disabled="requestInProgress || isRefreshable"
+      />
+    </section>
+  </section>
 </template>
 
 <style scoped lang="scss">
@@ -62,212 +80,195 @@
 @use "../assets/scss/data/easing";
 @use "../assets/scss/data/fontsize";
 @use "../assets/scss/data/layout";
-.weather {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: 4rem 2rem;
-  position: relative;
-  &__loading {
-    position: absolute;
-    inset: 0;
+.loading {
+  display: flex;
+  flex-direction: column;
+  &__icon {
+    width: 2rem;
+    margin-inline: auto;
+    fill: colour.$icon-light;
+  }
+  &__label {
+    margin-inline: auto;
+  }
+}
+.container {
+  padding-inline: 1rem;
+  padding-block: 0.5rem;
+}
+.summary {
+  $icon-size: 3rem; // SSOT
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 3rem;
+  margin-bottom: 1rem;
+  &__label {
+    // Sidebar width - icon size - all inline margins/padding
+    width: calc(30ch - $icon-size - 5rem);
+    word-wrap: break-word;
+    font-size: fontsize.$xl;
+  }
+  &__country {
+    font-size: fontsize.$rg;
+  }
+  &__icon {
+    width: $icon-size;
+    fill: colour.$icon-light;
+  }
+}
+/* prettier-ignore */
+.expandable { 
+  overflow: hidden;
+  height: 0px;
+  transition:
+    height 500ms easing.$ease-out-quart,
+    margin 250ms easing.$ease-out-quart;
+  &__temperature {
+    margin-bottom: 1rem;
+    &[aria-expanded="true"] {
+      height: v-bind(getTemperatureHeight);
+    }
+  }
+  &__atmosphere {
+    margin-bottom: 1rem;
+    &[aria-expanded="true"] {
+      height: v-bind(getAtmosphereHeight);
+    }
+  }
+  &__button {
+    all: unset;
     display: flex;
-    z-index: 10;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 0.25rem;
+    cursor: pointer;
     &--icon {
       aspect-ratio: 1/1;
-      height: 3rem;
-      margin: auto;
+      width: 1.75rem;
       fill: colour.$icon-light;
     }
   }
-  &__location {
-    grid-column: 1;
-    grid-row: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-inline: 1rem;
-  }
-  @at-root .location {
-    &__locale {
-      font-size: 1.5rem;
-    }
-  }
-  &__controls {
-    grid-column: 1;
-    grid-row: 2;
-    display: flex;
-    align-items: center;
-    padding-inline: 1rem;
-    font-size: fontsize.$xxs;
-  }
-  &__refresh-button {
-    all: unset;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-width: 2rem;
-    margin-left: -0.5rem; // Align the visible icon with the padding
-    margin-right: 0.5rem;
-    cursor: pointer;
-    &:disabled {
-      cursor: not-allowed;
-    }
-    &:disabled .weather__refresh-icon {
-      fill: colour.$icon-light-disabled;
-    }
-    &:disabled:hover .weather__refresh-icon {
-      fill: colour.$icon-light-disabled;
-      animation: none;
-    }
-    &:hover .weather__refresh-icon {
-      @keyframes spin {
-        from {
-          transform: rotateZ(0);
-        }
-        to {
-          transform: rotateZ(360deg);
-        }
-      }
-      fill: colour.$cerise-500;
-      animation: 1000ms easing.$ease-out-quart spin;
-    }
-  }
-  &__refresh-icon {
-    aspect-ratio: 1/1;
-    width: 1.75rem;
-    fill: colour.$icon-light-translucent;
-    transition: fill 200ms easing.$ease-out-quart;
-  }
-  &__data {
-    grid-column: 2;
-    grid-row: 1 / 3;
-    display: flex;
-    align-items: center;
-  }
-  &__image {
-    display: flex;
-    align-items: center;
-    aspect-ratio: 1/1;
-    padding-inline: 1rem;
-    margin-right: 0.5rem; // Slightly less to compensate for svg padding
-  }
-  &__conditions-icon {
-    aspect-ratio: 1/1;
-    width: 4rem;
-  }
-  &__panel-container {
-    position: relative;
-    width: 10rem;
-    height: 100%;
-    margin-right: 1rem;
-    cursor: pointer;
-  }
-  &__panel {
-    position: absolute;
-    inset: 0;
-    visibility: hidden;
-    display: flex;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 400ms easing.$ease-in-out-cubic, visibility 400ms;
-    &[data-active="true"] {
-      visibility: visible;
-      opacity: 1;
-    }
-  }
-  &__wind {
-    display: flex;
-    align-items: center;
-    margin-right: 0.5rem;
-    margin-left: 0.5rem;
-    @at-root .wind {
-      &__direction {
-        aspect-ratio: 1/1;
-        min-width: 5rem;
-        margin-right: 1rem;
-      }
-    }
+}
+.atmosphere {
+  margin-bottom: 2rem;
+}
+.refresh {
+  &__label {
+    margin-bottom: 1rem;
+    font-size: fontsize.$xs;
   }
 }
-// @media (max-width: layout.$breakpoint-lg) {
-//   .weather {
-
-//   }
-// }
-.transition-fade-opacity-enter-active,
-.transition-fade-opacity-leave-active {
-  $curve: easing.$ease-in-quart;
-  visibility: visible;
-  opacity: 1;
-  transition: opacity 500ms $curve, visibility 500ms $curve;
-}
-
-.transition-fade-opacity-enter-from,
-.transition-fade-opacity-leave-to {
-  visibility: hidden;
-  opacity: 0;
+.data-table {
+  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: fontsize.$sm;
+  text-rendering: optimizeLegibility;
+  font-variant: tabular-nums;
+  & tr {
+    height: 2rem;
+    background-color: hsla(210, 15%, 30%, 0.15);
+    cursor: default;
+    transition: background-color 500ms easing.$ease-out-quart;
+    &:nth-child(even) {
+      background-color: hsla(210, 15%, 40%, 0.15);
+    }
+    &:hover {
+      background-color: hsla(210, 15%, 40%, 0.3);
+    }
+  }
+  & td {
+    padding-block: 0.25rem;
+  }
+  &__header {
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid colour.$hub-header-border;
+    text-align: left;
+    font-size: fontsize.$lg;
+  }
+  &__label {
+    border-right: 1px solid colour.$hub-data-border;
+  }
+  &__value {
+    padding-left: 0.5rem;
+    font-weight: bold;
+    letter-spacing: -0.025rem;
+  }
 }
 </style>
 
 <script setup lang="ts">
-// Types
-import type { WeatherPanelData } from "~/types/components/weather";
+import type { ButtonPropData } from "~/types/components/app";
 
-// Pinia stores
 const userStore = useUserStore();
 const weatherStore = useWeatherStore();
 
-// Prop data
-const propData = {
-  data: {
-    panel: <WeatherPanelData[]>[
-      {
-        index: 0,
-        set_1: {
-          label: "Average",
-          value: weatherStore.getAverageTemperature,
-        },
-        set_2: {
-          label: "Maximum",
-          value: weatherStore.getMaximumTemperature,
-        },
-        set_3: {
-          label: "Minimum",
-          value: weatherStore.getMinimumTemperature,
-        },
-      },
-      {
-        index: 1,
-        set_1: {
-          label: "Wind",
-          value: weatherStore.getWindSpeed,
-        },
-        set_2: {
-          label: "Direction",
-          value: weatherStore.getWindAngle,
-        },
-        set_3: {
-          label: "Humidity",
-          value: weatherStore.getMinimumTemperature,
-        },
-      },
+// TODO: Propdata needs to be reactive to the weatherStore state
+const propData = ref({
+  table: {
+    temperature: [
+      { label: "Minimum", value: weatherStore.getMinimumTemperature },
+      { label: "Average", value: weatherStore.getAverageTemperature },
+      { label: "Maximum", value: weatherStore.getMaximumTemperature },
+      { label: "Feels Like", value: weatherStore.getFeelsLikeTemperature },
+    ],
+    atmosphere: [
+      { label: "Wind Speed", value: weatherStore.getWindSpeed },
+      { label: "Wind Direction", value: weatherStore.getWindDirection },
+      { label: "Humidity", value: weatherStore.getHumidity },
     ],
   },
-};
-
-// Reactive variables
-const location: Ref<string | null> = ref(null);
-const timestamp: Ref<Date> = refThrottled(ref(useNow()), 1000); // Throttled to 1 second updates
-const interval: Ref<ReturnType<typeof setInterval> | null> = ref(null);
-
-// Component state
-const state = ref({
-  is_loading: true,
-  active_panel: 0,
+  button: <Record<string, ButtonPropData>>{
+    refresh: {
+      function: () => fetchWrapper(),
+      label: "Refresh",
+      attributes: {
+        type: "button",
+      },
+    },
+  },
 });
 
-// Computed properties
-const getLastUpdated = computed(() => {
+const isLoading: Ref<boolean> = ref(true);
+const requestInProgress: Ref<boolean> = ref(false);
+
+const timestamp: Ref<Date> = refThrottled(ref(useNow()), 1000); // Throttled to 1 second updates
+const location: Ref<string | null> = ref(null);
+
+const temperatureIsExpanded: Ref<boolean> = ref(false);
+const atmosphereIsExpanded: Ref<boolean> = ref(false);
+
+const setWeatherIcon = computed(() => {
+  if (!weatherStore.response) return;
+  const icon = weatherStore.getIconCode;
+  return defineAsyncComponent(
+    () => import(`../components/svg/weather/${icon}.vue`)
+  );
+});
+
+const getTemperatureHeight = computed(() => {
+  const length = propData.value.table.temperature.length;
+  return `${length * 2}rem`;
+});
+
+const setTemperatureButtonTitle = computed(() => {
+  return temperatureIsExpanded
+    ? "Show temperature data"
+    : "Hide temperature data";
+});
+
+const getAtmosphereHeight = computed(() => {
+  const length = propData.value.table.atmosphere.length;
+  return `${length * 2}rem`;
+});
+
+const setAtmosphereButtonTitle = computed(() => {
+  return atmosphereIsExpanded ? "Show atmosphere data" : "Hide atmosphere data";
+});
+
+const setLastUpdated = computed(() => {
   return useTimeAgo(weatherStore.getTimestamp! * 1000).value;
 });
 
@@ -277,76 +278,42 @@ const isRefreshable = computed(() => {
   return time - call >= 600 ? false : true;
 });
 
-const getWindAngle = computed(() => {
-  const angle = weatherStore.getWindAngle;
-  return angle ?? 0;
-});
-
-// Watchers
 watch(
   weatherStore.$state,
   () => {
-    propData.data.panel[0] = {
-      index: 0,
-      set_1: {
-        label: "Average",
-        value: weatherStore.getAverageTemperature!,
-      },
-      set_2: {
-        label: "Maximum",
-        value: weatherStore.getMaximumTemperature!,
-      },
-      set_3: {
-        label: "Minimum",
-        value: weatherStore.getMinimumTemperature!,
-      },
-    };
-    propData.data.panel[1] = {
-      index: 1,
-      set_1: {
-        label: "Wind",
-        value: weatherStore.getWindSpeed!,
-      },
-      set_2: {
-        label: "Direction",
-        value: weatherStore.getWindDirection!,
-      },
-      set_3: {
-        label: "Humidity",
-        value: weatherStore.getHumidity!,
-      },
-    };
+    const temperatureTable = propData.value.table.temperature;
+    const atmosphereTable = propData.value.table.atmosphere;
+
+    temperatureTable[0].value = weatherStore.getMinimumTemperature;
+    temperatureTable[1].value = weatherStore.getAverageTemperature;
+    temperatureTable[2].value = weatherStore.getMaximumTemperature;
+    temperatureTable[3].value = weatherStore.getFeelsLikeTemperature;
+
+    atmosphereTable[0].value = weatherStore.getWindSpeed;
+    atmosphereTable[1].value = weatherStore.getWindDirection;
+    atmosphereTable[2].value = weatherStore.getHumidity;
   },
   { deep: true }
 );
 
-// Logic
 async function fetchWrapper() {
-  state.value.is_loading = true;
+  requestInProgress.value = true;
   await weatherStore.fetchData(location.value!);
-  state.value.is_loading = false;
+  requestInProgress.value = false;
 }
 
-function cyclePanels(): void {
-  if (interval.value) clearInterval(interval.value);
-  const total = propData.data.panel.length;
-  const next = state.value.active_panel + 1;
-  if (next === total) {
-    state.value.active_panel = 0;
-    interval.value = setInterval(cyclePanels, 5000);
-    return;
-  }
-  state.value.active_panel++;
-  interval.value = setInterval(cyclePanels, 5000);
+function toggleTemperatureData(): void {
+  temperatureIsExpanded.value = !temperatureIsExpanded.value;
 }
 
-// Hooks
+function toggleAtmosphereData(): void {
+  atmosphereIsExpanded.value = !atmosphereIsExpanded.value;
+}
+
 onMounted(async () => {
-  state.value.is_loading = true;
   if (!userStore.response) await userStore.fetchData();
   location.value = `${userStore.getLocale}, ${userStore.getCountryISOCode}`;
   await weatherStore.fetchData(location.value);
-  interval.value = setInterval(cyclePanels, 5000);
-  state.value.is_loading = false;
+  isLoading.value = false;
 });
 </script>
