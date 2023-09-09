@@ -353,7 +353,9 @@ function getWidth(): number {
 function updateWidth(): void {
   if (timeout.value) clearTimeout(timeout.value);
   timeout.value = setTimeout(() => {
-    stepper.value.size = getWidth();
+    const width = getWidth();
+    stepper.value.size = width;
+    stepper.value.translation = stepper.value.slide.active * width;
   }, 100);
 }
 
@@ -363,10 +365,10 @@ function createUserWrapper(credentials: NewAccountCredentialData): void {
   isLoading.value = false;
 }
 
-//Hooks
+// Hooks
 onMounted(() => {
   stepper.value.size = getWidth();
-  useEventListener(document, "resize", () => {
+  useEventListener(window, "resize", () => {
     updateWidth();
   });
 });
