@@ -10,7 +10,7 @@
 @use "../assets/scss/data/layout";
 .hub {
   display: flex;
-  height: 100%;
+  min-height: 100%;
   margin-inline: auto;
   &__sidebar {
     flex-basis: 30ch;

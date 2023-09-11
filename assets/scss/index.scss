@@ -3,8 +3,12 @@
 @use "./data/layout";
 @use "./data/normalise";
 
+html,
 body {
   height: 100vh;
+}
+
+body {
   background-image: colour.$app-background;
   background-attachment: fixed;
   color: colour.$font-dark;
