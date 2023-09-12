@@ -5,6 +5,7 @@ import type {
   TaskStoreFetchResponse,
 } from "~/types/store.tasks";
 import type { NewTask, TaskObject } from "~/types/components/tasks";
+import type { TagID } from "~/types/unions/schema.tags";
 
 // Pinia stores
 import { useNotificationsStore } from "./notifications";
@@ -233,14 +234,30 @@ export const useTaskStore = defineStore("tasks", {
       return this.tasks;
     },
     /**
-     * Not implemented, do not use yet.
-     * @returns
+     * Returns all tasks tagged with "low priority". If no data is available,
+     * returns null.
+     * @returns {TaskObject[] | null}
+     */
+    getLowPriorityTasks(): TaskObject[] | null {
+      if (!this.tasks) return null;
+      return this.tasks.filter($tasks.tags.filter.byLowPriority);
+    },
+    /**
+     * Returns all tasks tagged with "high priority". If no data is available,
+     * returns null.
+     * @returns {TaskObject[] | null}
+     */
+    getHighPriorityTasks(): TaskObject[] | null {
+      if (!this.tasks) return null;
+      return this.tasks.filter($tasks.tags.filter.byHighPriority);
+    },
+    /**
+     * Returns all tasks tagged with "urgent". If no data is available, returns null.
+     * @returns {TaskObject[] | null}
      */
     getUrgentTasks(): TaskObject[] | null {
       if (!this.tasks) return null;
-      return this.tasks.map((task) => {
-        return task;
-      });
+      return this.tasks.filter($tasks.tags.filter.byUrgent);
     },
   },
 });

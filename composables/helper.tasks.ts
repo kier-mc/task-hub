@@ -9,6 +9,7 @@ import type {
   FrequencyRepetition,
 } from "~/types/unions/schema.frequency";
 import type { TagID, TagLabel, TagType } from "~/types/unions/schema.tags";
+import type { TaskObject } from "~/types/components/tasks";
 
 const TAG_DATA = <Omit<TagsTable, "created_at">[]>[
   {
@@ -98,6 +99,27 @@ const FREQUENCY_TERMS = [
   "Yearly",
 ];
 
+/**
+ * A baseline filter function, intended for extension via other functions.
+ * Iterates through all tags associated with a task and returns true if
+ * the predicate is found.
+ * @param task {TaskObject}
+ * The current task is that being queried.
+ * @param predicate {TagID}
+ * A number (matching a predefined TagID) to search for.
+ * @returns {TaskObject | undefined}
+ * Any task that matches the predicate, or undefined if no matches are found.
+ */
+function tagFilter(task: TaskObject, predicate: TagID): TaskObject | undefined {
+  if (!task.tags) return;
+  for (let i = 0; i < task.tags.length; i++) {
+    if (Object.values(task.tags).includes(predicate)) {
+      return task;
+    }
+  }
+  return;
+}
+
 export const $tasks = {
   frequency: {
     generateAutocompleteData: (): AutocompleteEmitFrequencyData[] => {
@@ -133,6 +155,41 @@ export const $tasks = {
     },
   },
   tags: {
+    filter: {
+      /**
+       * Filter function for use with Array.prototype.filter.
+       * Returns all tasks that are tagged with "low priority".
+       * @param task {TaskObject}
+       * The current task that is being queried.
+       * @returns {TaskObject | undefined}
+       * Any task that matches the predicate, or undefined if no matches are found.
+       */
+      byLowPriority: (task: TaskObject): TaskObject | undefined => {
+        return tagFilter(task, 1);
+      },
+      /**
+       * Filter function for use with Array.prototype.filter.
+       * Returns all tasks that are tagged with "high priority".
+       * @param task {TaskObject}
+       * The current task that is being queried.
+       * @returns {TaskObject | undefined}
+       * Any task that matches the predicate, or undefined if no matches are found.
+       */
+      byHighPriority: (task: TaskObject): TaskObject | undefined => {
+        return tagFilter(task, 2);
+      },
+      /**
+       * Filter function for use with Array.prototype.filter.
+       * Returns all tasks that are tagged with "urgent".
+       * @param task {TaskObject}
+       * The current task that is being queried.
+       * @returns {TaskObject | undefined}
+       * Any task that matches the predicate, or undefined if no matches are found.
+       */
+      byUrgent: (task: TaskObject): TaskObject | undefined => {
+        return tagFilter(task, 3);
+      },
+    },
     searchByID: (predicate: TagID): Omit<TagData, "created_at"> => {
       const payload: Omit<TagData, "created_at"> = {
         tag_id: null,
