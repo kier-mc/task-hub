@@ -205,7 +205,6 @@ import type { ButtonPropData } from "~/types/components/app";
 const userStore = useUserStore();
 const weatherStore = useWeatherStore();
 
-// TODO: Propdata needs to be reactive to the weatherStore state
 const propData = ref({
   table: {
     temperature: [
