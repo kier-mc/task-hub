@@ -111,9 +111,14 @@ async function countRemoteTasks(): Promise<number> {
  */
 export const useTaskStore = defineStore("tasks", {
   state: (): TaskStoreState => ({
-    tasks: null,
+    response: null,
   }),
   actions: {
+    async init() {
+      if (!this.response) {
+        await this.fetchData();
+      }
+    },
     /**
      * Fetches task data from the store. If the store has not been queried previously (or
      * is not available in local storage), the data will be fetched remotely.
@@ -136,19 +141,19 @@ export const useTaskStore = defineStore("tasks", {
         if ((await count.remote()) !== count.local() || forceUpdate) {
           const response = await fetchFromEndpoint();
           if (!response) return;
-          this.tasks = response;
+          this.response = response;
           localStorage.setItem("taskData", JSON.stringify(response));
           return;
         }
         // Otherwise, use the local copy
-        this.tasks = data;
+        this.response = data;
         return;
       }
       // If no previous response was found, fetch data
-      if (!this.tasks || forceUpdate) {
+      if (!this.response || forceUpdate) {
         const response = await fetchFromEndpoint();
         if (!response) return;
-        this.tasks = response;
+        this.response = response;
       }
     },
     async createTask(taskData: NewTask) {
@@ -208,9 +213,9 @@ export const useTaskStore = defineStore("tasks", {
         notificationsStore.push(error.message, "error");
         return;
       }
-      if (this.tasks) {
-        const index = this.tasks.findIndex((task) => task.task_id === id);
-        this.tasks.splice(index, 1);
+      if (this.response) {
+        const index = this.response.findIndex((task) => task.task_id === id);
+        this.response.splice(index, 1);
       }
       notificationsStore.push(`Task deleted successfully`, "success");
     },
@@ -223,7 +228,7 @@ export const useTaskStore = defineStore("tasks", {
      * @returns {number | null}
      */
     getTaskCount(): number | null {
-      return this.tasks ? this.tasks.length : null;
+      return this.response ? this.response.length : null;
     },
     /**
      * Returns the complete set of task data as received. If no data is available,
@@ -231,7 +236,7 @@ export const useTaskStore = defineStore("tasks", {
      * @returns {TaskObject[] | null}
      */
     getTasks(): TaskObject[] | null {
-      return this.tasks;
+      return this.response;
     },
     /**
      * Returns all tasks tagged with "low priority". If no data is available,
@@ -239,8 +244,8 @@ export const useTaskStore = defineStore("tasks", {
      * @returns {TaskObject[] | null}
      */
     getLowPriorityTasks(): TaskObject[] | null {
-      if (!this.tasks) return null;
-      return this.tasks.filter($tasks.tags.filter.byLowPriority);
+      if (!this.response) return null;
+      return this.response.filter($tasks.tags.filter.byLowPriority);
     },
     /**
      * Returns all tasks tagged with "high priority". If no data is available,
@@ -248,16 +253,16 @@ export const useTaskStore = defineStore("tasks", {
      * @returns {TaskObject[] | null}
      */
     getHighPriorityTasks(): TaskObject[] | null {
-      if (!this.tasks) return null;
-      return this.tasks.filter($tasks.tags.filter.byHighPriority);
+      if (!this.response) return null;
+      return this.response.filter($tasks.tags.filter.byHighPriority);
     },
     /**
      * Returns all tasks tagged with "urgent". If no data is available, returns null.
      * @returns {TaskObject[] | null}
      */
     getUrgentTasks(): TaskObject[] | null {
-      if (!this.tasks) return null;
-      return this.tasks.filter($tasks.tags.filter.byUrgent);
+      if (!this.response) return null;
+      return this.response.filter($tasks.tags.filter.byUrgent);
     },
   },
 });
