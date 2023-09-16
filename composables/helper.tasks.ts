@@ -251,6 +251,7 @@ export const $tasks = {
         const tag = TAG_DATA[i];
         payload.push({
           index: i,
+          tag_id: tag.tag_id,
           label: tag.label,
           type: tag.type,
         });
