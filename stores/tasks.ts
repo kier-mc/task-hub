@@ -238,31 +238,5 @@ export const useTaskStore = defineStore("tasks", {
     getTasks(): TaskObject[] | null {
       return this.response;
     },
-    /**
-     * Returns all tasks tagged with "low priority". If no data is available,
-     * returns null.
-     * @returns {TaskObject[] | null}
-     */
-    getLowPriorityTasks(): TaskObject[] | null {
-      if (!this.response) return null;
-      return this.response.filter($tasks.tags.filter.byLowPriority);
-    },
-    /**
-     * Returns all tasks tagged with "high priority". If no data is available,
-     * returns null.
-     * @returns {TaskObject[] | null}
-     */
-    getHighPriorityTasks(): TaskObject[] | null {
-      if (!this.response) return null;
-      return this.response.filter($tasks.tags.filter.byHighPriority);
-    },
-    /**
-     * Returns all tasks tagged with "urgent". If no data is available, returns null.
-     * @returns {TaskObject[] | null}
-     */
-    getUrgentTasks(): TaskObject[] | null {
-      if (!this.response) return null;
-      return this.response.filter($tasks.tags.filter.byUrgent);
-    },
   },
 });
