@@ -137,6 +137,6 @@ export interface AutocompleteEmitFrequencyData
 /**
  * An interface for managing tag prop data.
  */
-export type FormTagPropData = Omit<TagData, "tag_id" | "created_at"> & {
+export type FormTagPropData = Omit<TagData, "created_at"> & {
   index: number;
 };
