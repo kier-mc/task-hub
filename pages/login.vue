@@ -64,7 +64,7 @@
     margin-bottom: 1rem;
   }
   &__button {
-    margin-left: auto;
+    width: calc(100% - 1rem);
   }
 }
 </style>
