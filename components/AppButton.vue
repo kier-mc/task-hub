@@ -104,10 +104,7 @@
 
 <script setup lang="ts">
 // Types
-import type {
-  ButtonPropData,
-  LoadingIndicatorPropData,
-} from "~/types/components/app";
+import type { ButtonPropData } from "~/types/components/app";
 
 // Prop definitions
 const props = defineProps({
@@ -129,7 +126,8 @@ const props = defineProps({
 const button: Ref<HTMLButtonElement | null> = ref(null);
 
 // Computed properties
-const buttonWidth = computed(() => {
+const buttonWidth = computed(async () => {
+  await nextTick();
   return button.value ? `${button.value.clientWidth}px` : "auto";
 });
 </script>
