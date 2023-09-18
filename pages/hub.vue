@@ -1,7 +1,7 @@
 <template>
   <section class="hub">
     <HubSidebar class="hub__sidebar" />
-    <HubTasks class="hub__tasks" />
+    <HubTasks />
   </section>
 </template>
 
