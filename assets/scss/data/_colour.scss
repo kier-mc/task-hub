@@ -46,7 +46,7 @@ $neutral-800: hsl(210, 8.7%, 91%);
 $neutral-900: hsl(210, 11.1%, 96.5%);
 
 $dark:        hsl(210, 11.1%, 3.5%);
-$mid:       hsl(210, 15%, 50%);
+$mid:         hsl(210, 15%, 50%);
 $light:       hsl(210, 11.1%, 96.5%);
 
 // Gradients
@@ -145,3 +145,6 @@ $autocomplete-option-background-hover: $gunmetal-900;
 $hub-header-background: $gradient-hub-header-background;
 $hub-header-border: color.adjust($gunmetal-900, $alpha: -0.75);
 $hub-data-border: color.adjust($gunmetal-700, $alpha: -0.5);
+
+// Modal
+$modal-backdrop: color.adjust($gunmetal-200, $alpha: -0.75);
