@@ -75,7 +75,6 @@
 </template>
 
 <style scoped lang="scss">
-@use "sass:color";
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/easing";
 @use "../assets/scss/data/effect";
@@ -203,7 +202,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: color.adjust(colour.$gunmetal-200, $alpha: -0.25);
+  background-color: colour.$modal-backdrop;
   backdrop-filter: blur(0.25rem);
   color: colour.$font-light;
   &__button {
