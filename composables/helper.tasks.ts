@@ -140,8 +140,9 @@ export const $tasks = {
       return payload;
     },
     getLabel: (id: FrequencyID): FrequencyRepetition => {
-      if (!(id in FREQUENCY_DATA))
+      if (!(id in FREQUENCY_DATA)) {
         throw new Error("Invalid frequency ID supplied");
+      }
       return FREQUENCY_DATA[id];
     },
     getID: (label: FrequencyRepetition): FrequencyID => {
@@ -155,41 +156,6 @@ export const $tasks = {
     },
   },
   tags: {
-    filter: {
-      /**
-       * Filter function for use with Array.prototype.filter.
-       * Returns all tasks that are tagged with "low priority".
-       * @param task {TaskObject}
-       * The current task that is being queried.
-       * @returns {TaskObject | undefined}
-       * Any task that matches the predicate, or undefined if no matches are found.
-       */
-      byLowPriority: (task: TaskObject): TaskObject | undefined => {
-        return tagFilter(task, 1);
-      },
-      /**
-       * Filter function for use with Array.prototype.filter.
-       * Returns all tasks that are tagged with "high priority".
-       * @param task {TaskObject}
-       * The current task that is being queried.
-       * @returns {TaskObject | undefined}
-       * Any task that matches the predicate, or undefined if no matches are found.
-       */
-      byHighPriority: (task: TaskObject): TaskObject | undefined => {
-        return tagFilter(task, 2);
-      },
-      /**
-       * Filter function for use with Array.prototype.filter.
-       * Returns all tasks that are tagged with "urgent".
-       * @param task {TaskObject}
-       * The current task that is being queried.
-       * @returns {TaskObject | undefined}
-       * Any task that matches the predicate, or undefined if no matches are found.
-       */
-      byUrgent: (task: TaskObject): TaskObject | undefined => {
-        return tagFilter(task, 3);
-      },
-    },
     searchByID: (predicate: TagID): Omit<TagData, "created_at"> => {
       const payload: Omit<TagData, "created_at"> = {
         tag_id: null,
