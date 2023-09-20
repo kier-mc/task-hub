@@ -1,201 +1,105 @@
 <template>
-  <div class="task" :class="{ 'task--edited': hasBeenEditedLocally }">
-    <div class="modal" :class="{ 'modal--visible': modalVisible }">
-      <div class="modal__message">
-        Are you sure you want to delete this task?
-      </div>
-      <div class="modal__options">
-        <button class="button modal__button" @click="modalVisible = false">
-          Cancel
-        </button>
+  <ClientOnly>
+    <article class="task">
+      <section v-if="modal.is_visible" class="modal">
+        <AppButton class="modal__button" :data="propData.button.cancel" />
+        <AppButton class="modal__button" :data="propData.button.delete" />
+      </section>
+      <header class="task__header">
+        <h3 class="task__title">{{ props.data.task }}</h3>
         <button
-          class="button modal__button modal__button--delete"
-          @click="deleteTask()"
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-    <div
-      :class="
-        isExpanded ? 'task__header task__header--expanded' : 'task__header'
-      "
-    >
-      <h3 v-show="!isEditable" class="task__title">
-        {{ localTask.task }}
-      </h3>
-      <label v-show="isEditable" class="screen-reader-label" for="task-title">
-        Task Title
-      </label>
-      <input
-        v-show="isEditable"
-        id="task-title"
-        class="task__title--editable"
-        :value="localTask.task"
-        :placeholder="props.taskData.task"
-        @input="
-          {
-            handleInput('task', $event), detectChanges;
-          }
-        "
-      />
-      <div class="task__options">
-        <button
-          v-show="localTask.description && isEditable === false"
-          type="button"
+          v-if="props.data.description || props.data.tags"
           class="task__button"
+          :title="isExpanded ? 'Hide content' : 'Show content'"
+          type="button"
           @click="isExpanded = !isExpanded"
         >
-          <template v-if="isExpanded">
-            <SVGExpandLess class="task__icon" />
-          </template>
-          <template v-else>
-            <SVGExpandMore class="task__icon" />
-          </template>
+          <SVGExpandMore :class="setExpandIconRotation" />
         </button>
-        <button
-          v-show="isEditable"
-          type="button"
-          class="task__button"
-          @click="handleUndo()"
-        >
-          <SVGUndo class="task__icon" />
-        </button>
-        <button type="button" class="task__button" @click="toggleEditMode()">
-          <template v-if="hasBeenEditedLocally">
-            <SVGSave class="task__icon" />
-          </template>
-          <template v-else>
-            <SVGEdit class="task__icon" />
-          </template>
-        </button>
-        <button type="button" class="task__button" @click="modalVisible = true">
-          <SVGDelete class="task__icon" />
-        </button>
-      </div>
-    </div>
-    <div
-      v-show="!isEditable"
-      :class="isExpanded ? 'task__description--expanded' : 'task__description'"
-    >
-      {{ localTask.description }}
-    </div>
-    <div
-      v-show="isEditable"
-      :class="isExpanded ? 'task__description--expanded' : 'task__description'"
-    >
-      <label
-        v-show="isEditable"
-        class="screen-reader-label"
-        for="task-description"
+      </header>
+      <div
+        v-if="props.data.description || props.data.tags"
+        ref="expandable"
+        class="task__expandable"
+        :aria-expanded="isExpanded"
       >
-        Task Description
-      </label>
-      <input
-        id="task-description"
-        class="task__description--editable"
-        :value="localTask.description"
-        :placeholder="props.taskData.description"
-        @input="
-          {
-            handleInput('description', $event), detectChanges;
-          }
-        "
-      />
-    </div>
-    <div class="task__footer">
-      <div class="task__timestamp">
-        Created on
-        <span class="task__timestamp--highlighted">{{
-          formattedCreationDate
-        }}</span>
-        at
-        <span class="task__timestamp--highlighted">{{
-          formattedCreationTime
-        }}</span>
-        <template v-show="hasBeenEditedPreviously">
-          <span class="task__timestamp--delimiter">|</span>Edited on
-          <span class="task__timestamp--highlighted">{{
-            convertedEditDate
-          }}</span>
-          at
-          <span class="task__timestamp--highlighted">{{
-            convertedEditTime
-          }}</span>
-        </template>
+        <section v-if="props.data.description" class="task__description">
+          {{ props.data.description }}
+        </section>
+        <section v-if="props.data.tags" class="task__tags">
+          <template v-for="(id, index) in props.data.tags" :key="index">
+            <FormTag
+              :data="generateTagData(id, index)"
+              :read-only="true"
+              class="task__tag"
+            />
+          </template>
+        </section>
       </div>
-      <div class="task__frequency">
-        <template v-if="!isEditable">
-          {{ localTask.frequency.label }}
-        </template>
-
-        <FormAutocomplete
-          v-if="isEditable"
-          :form-data="propData.formHandler[0]"
-          :emit-label="localTask.frequency.label"
-          :emit-value="localTask.frequency.value"
-          @update:emit-label="
-            (label) => {
-              (localTask.frequency.label = label), detectChanges;
-            }
-          "
-          @update:emit-value="
-            (value) => {
-              (localTask.frequency.value = value as FrequencyRepetition), detectChanges;
-            }
-          "
-        />
-      </div>
-    </div>
-  </div>
+      <footer class="task__footer">
+        <div class="task__timestamp">
+          <span class="task__frequency-label">
+            {{ props.data.frequency.label }}
+          </span>
+          <span class="task__timestamp--created-at"
+            >Created
+            {{ formatTimeAgo(new Date(props.data.timestamp.created_at)) }}
+          </span>
+          <span
+            v-if="props.data.timestamp.edited_at"
+            class="task__timestamp--edited-at"
+            >Edited
+            {{ formatTimeAgo(new Date(props.data.timestamp.edited_at)) }}</span
+          >
+        </div>
+        <div class="task__options">
+          <button
+            class="task__option task__button task__button--footer"
+            title="Edit"
+            type="button"
+          >
+            <SVGEdit class="task__icon task__icon--footer" />
+          </button>
+          <button
+            class="task__option task__button task__button--footer"
+            title="Delete"
+            type="button"
+            @click="modal.is_visible = true"
+          >
+            <SVGDelete class="task__icon task__icon--footer" />
+          </button>
+        </div>
+      </footer>
+    </article>
+  </ClientOnly>
 </template>
 
 <style scoped lang="scss">
+@use "sass:color";
+@use "../assets/scss/data/colour";
+@use "../assets/scss/data/easing";
+@use "../assets/scss/data/effect";
+@use "../assets/scss/data/fontsize";
 .task {
   position: relative;
-  border: 1px solid hsl(0, 0%, 30%);
-  background-color: hsl(0, 0%, 15%);
-  &__header,
-  &__header--expanded,
-  &__description--expanded,
-  &__footer {
-    padding: 0.5rem;
-  }
-  &__header,
-  &__header--expanded {
+  background-color: colour.$neutral-800;
+  box-shadow: effect.$drop-shadow-sm;
+  &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: hsl(0, 0%, 10%);
-  }
-  &__header {
-    position: relative;
-    // Simulate a border without the layout shift
-    &--expanded::before {
-      content: "";
-      position: absolute;
-      right: 0;
-      bottom: -1px;
-      left: 0;
-      height: 1px;
-      background-color: hsl(0, 0%, 35%);
-    }
+    min-height: 3rem;
+    background-image: linear-gradient(
+      100deg,
+      colour.$gunmetal-400 0%,
+      colour.$gunmetal-500 100%
+    );
+    color: colour.$font-light;
   }
   &__title {
-    width: 100%;
-    font-size: 1.15rem;
-    &--editable {
-      all: unset;
-      width: 100%;
-      outline: 1px dashed hsla(0, 0%, 35%, 0.75);
-      font-size: 1.15rem;
-      font-weight: bold;
-    }
-  }
-  &__options {
-    display: flex;
-    column-gap: 0.25rem;
-    margin-left: 0.5rem;
+    all: unset;
+    padding-inline: 1rem;
+    font-size: fontsize.$rg;
   }
   &__button {
     all: unset;
@@ -203,349 +107,208 @@
     justify-content: center;
     align-items: center;
     aspect-ratio: 1/1;
-    min-width: 24px;
+    width: 3rem;
     cursor: pointer;
-  }
-  &__icon {
-    fill: hsl(0, 0%, 80%);
-    transition: fill 125ms;
-    &:hover {
-      fill: hsl(0, 0%, 90%);
+    &:hover .task__icon {
+      fill: colour.$cerise-500;
+    }
+    &--footer {
+      width: 1.5rem;
     }
   }
-  &__description,
-  &__description--expanded {
-    display: grid;
-    font-size: 0.9rem;
+  /* prettier-ignore */
+  &__icon {
+    pointer-events: none;
+    width: 1.5rem;
+    fill: colour.$icon-light;
+    transition:
+      fill 500ms easing.$ease-out-quart,
+      transform 350ms easing.$ease-out-quart;
+    &--expanded {
+      transform: rotateZ(180deg);
+    }
+    &--footer {
+      fill: colour.$icon-dark;
+    }
+  }
+  &__expandable {
+    overflow: hidden;
+    transition: height 500ms easing.$ease-out-quart;
+    &--height-zero {
+      height: 0px;
+    }
+    &[aria-expanded="true"] {
+      height: v-bind(setExpandedHeight);
+    }
   }
   &__description {
-    $transition-time: 175ms;
-    grid-template-rows: 0px;
-    opacity: 0;
-    padding: 0 0.5rem;
-    transition: opacity $transition-time, grid-template-rows $transition-time,
-      padding $transition-time;
-    &--expanded {
-      opacity: 1;
-      grid-template-rows: 1fr;
-      transition: opacity $transition-time, grid-template-rows $transition-time,
-        padding $transition-time;
+    padding-inline: 1rem;
+    padding-block: 1rem;
+    font-size: fontsize.$sm;
+  }
+  &__tags {
+    display: flex;
+    align-items: center;
+    padding-inline: 1rem;
+    padding-bottom: 1rem;
+    &:only-of-type {
+      padding-top: 1rem;
     }
-    &--editable {
-      all: unset;
-      width: 100%;
-      outline: 1px dashed hsl(0, 0%, 35%);
+  }
+  &__tag {
+    max-width: max-content;
+    padding-inline: 0.5rem;
+    &:not(:last-child) {
+      margin-right: 0.5rem;
     }
   }
   &__footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid hsl(0, 0%, 35%);
-    font-size: 0.9rem;
+    min-height: 2rem;
+    background-color: colour.$neutral-600;
+  }
+  &__frequency-label {
+    padding-right: 0.5rem;
+    border-right: 1px solid colour.$gunmetal-800;
+    margin-right: 0.5rem;
+    text-transform: capitalize;
   }
   &__timestamp {
-    &--highlighted {
-      border-bottom: 1px dotted hsl(0, 0%, 75%);
-    }
-    &--delimiter {
-      margin-inline: 0.5rem;
-      color: hsl(0, 0%, 40%);
+    padding-inline: 1rem;
+    font-size: fontsize.$xxs;
+    &--edited-at {
+      padding-left: 0.5rem;
+      border-left: 1px solid colour.$gunmetal-800;
+      margin-left: 0.5rem;
     }
   }
-  &--edited {
-    border: 1px solid hsl(10, 50%, 50%);
+  &__options {
+    display: flex;
+    align-items: center;
+  }
+  &__option {
+    &:not(:last-child) {
+      margin-right: 0.25rem;
+    }
+  }
+  &:not(:last-child) {
+    margin-bottom: 1rem;
   }
 }
 .modal {
-  visibility: hidden;
-  opacity: 0;
   position: absolute;
-  display: grid;
-  align-items: center;
   inset: 0;
-  z-index: 10;
-  padding: 0.5rem;
-  transition: opacity 175ms, visibility 175ms, backdrop-filter 175ms;
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background-color: hsla(0, 0%, 10%, 0.85);
-    backdrop-filter: blur(0.25rem);
-  }
-  &--visible {
-    visibility: visible;
-    opacity: 1;
-    z-index: 10;
-  }
-  &__message {
-    position: relative;
-    z-index: 10;
-    margin: auto;
-  }
-  &__options {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    column-gap: 1rem;
-    z-index: 10;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: color.adjust(colour.$gunmetal-200, $alpha: -0.25);
+  backdrop-filter: blur(0.25rem);
+  color: colour.$font-light;
   &__button {
-    z-index: 10;
-    border: 1px solid hsl(0, 0%, 30%);
-    font-size: 0.9rem;
-    transition: background-color 175ms;
-    align-self: start;
-    &--delete {
-      background-color: hsl(10, 50%, 50%);
-      &:hover {
-        background-color: hsl(10, 75%, 50%);
-      }
+    &:not(:last-child) {
+      margin-right: 0.5rem;
     }
   }
-}
-.screen-reader-label {
-  position: absolute;
-  left: -5000px;
-  overflow: hidden;
-  width: 1px;
-  height: 1px;
 }
 </style>
 
 <script setup lang="ts">
-/* Pinia stores */
-const notificationsStore = useNotificationsStore();
+// External imports
+import { formatTimeAgo } from "@vueuse/core";
+
+// Types
+import type { FormTagPropData } from "~/types/components/forms";
+import type { TaskObject } from "~/types/components/tasks";
+import type { TagID } from "~/types/unions/schema.tags";
+import type { ButtonPropData } from "~/types/components/app";
+
+// Pinia stores
 const taskStore = useTaskStore();
-const userStore = useUserStore();
-/* Prop/v-model-related data */
+
+// Prop definitions
 const props = defineProps({
-  taskData: { type: Object as PropType<Database["tasks"]>, required: true },
-});
-const propOptions = [
-  { value: "daily", label: "Daily" },
-  { value: "weekly", label: "Weekly" },
-  { value: "fortnightly", label: "Fortnightly" },
-  { value: "monthly", label: "Monthly" },
-  { value: "triannually", label: "Tri-annually (4 months)" },
-  { value: "biannually", label: "Bi-annually (6 months)" },
-  { value: "annually", label: "Annually" },
-];
-const propDefaultLabel = (): string | void => {
-  for (let i = 0; i < propOptions.length; i++) {
-    const option = propOptions[i];
-    const frequency = convertFrequency(props.taskData.frequency_id);
-    if (option.value === frequency) {
-      return option.label;
-    }
-  }
-  return;
-};
-const propData = {
-  formHandler: [
-    {
-      index: 0,
-      type: "autocomplete",
-      label: "Frequency",
-      default: propDefaultLabel(),
-      style: "mini",
-      attributes: {
-        id: "task-frequency",
-      },
-      options: [...propOptions],
-    } as FormHandlerData,
-  ],
-};
-/* Reactive variables */
-const isEditable: Ref<boolean> = ref(false);
-const isExpanded: Ref<boolean> = ref(false);
-const hasBeenEditedPreviously: Ref<boolean> = ref(false);
-const hasBeenEditedLocally: Ref<boolean> = ref(false);
-const modalVisible: Ref<boolean> = ref(false);
-const localTask: CompleteTaskData = reactive({
-  task: null,
-  description: null,
-  frequency: {
-    label: null,
-    value: null,
+  data: {
+    type: Object as PropType<TaskObject>,
+    required: true,
   },
 });
-const formattedCreationDate: Ref<string> = ref("");
-const formattedCreationTime: Ref<string> = ref("");
-const convertedEditDate: Ref<string> = ref("");
-const convertedEditTime: Ref<string> = ref("");
-const frequencyLabels: Ref<Array<string | null>> = ref([]);
-/**
- * Called on a task when edit mode is induced.
- * Updates localTask reactive variable to sync with changes made.
- * @param prop {"task"|"description"} - string that references the value to be altered
- * @param event {Event} - relevant input event, passed by $event in the template
- */
-function handleInput(prop: "task" | "description", event: Event): void {
-  const target = event.target as HTMLInputElement;
-  localTask[prop] = target.value ?? "";
-}
 
-const detectChanges = computed((): void => {
-  const frequency = convertFrequency(
-    props.taskData.frequency_id as FrequencyID
-  );
-  if (
-    localTask.task !== props.taskData.task ||
-    localTask.description !== props.taskData.description ||
-    localTask.frequency.value !== frequency
-  ) {
-    hasBeenEditedLocally.value = true;
-  } else {
-    hasBeenEditedLocally.value = false;
-  }
+// Prop data
+const propData = {
+  button: <Record<string, ButtonPropData>>{
+    cancel: {
+      function: () => (modal.value.is_visible = false),
+      label: "Cancel",
+      attributes: {
+        type: "button",
+      },
+    },
+    delete: {
+      function: async () => deleteTask(),
+      label: "Delete",
+      attributes: {
+        type: "button",
+      },
+    },
+  },
+};
+
+// Reactive variables
+const isExpanded: Ref<boolean> = ref(false);
+const expandableHeight: Ref<number> = ref(0);
+const modal = ref({
+  is_visible: false,
 });
 
-/**
- * Determines whether a task is in an editable state or not.
- * If hasBeenEditedLocally is true when it is called, call updateTask to commit the changes.
- */
-async function toggleEditMode(): Promise<void> {
-  if (!editIsValid()) return;
-  isEditable.value = !isEditable.value;
-  isEditable.value ? (isExpanded.value = true) : (isExpanded.value = false);
-  await nextTick();
-  if (hasBeenEditedLocally.value) {
-    if (editIsValid()) {
-      updateTask();
-      return;
-    }
-  }
-}
-/**
- * Connects to database, updates data and pushes a notification to the user.
- * Commits only if a task has been edited, differences are present between the prop
- * and local copy and the user opts to commit the alteration.
- */
-async function updateTask(): Promise<void> {
-  const timestamp = new Date().toISOString();
-  const { error } = await useSupabaseClient<Database>()
-    .from("tasks")
-    .update({
-      task: localTask.task,
-      description: localTask.description,
-      frequency_id: convertFrequency(
-        localTask.frequency.value as FrequencyRepetition
-      ),
-      edited_at: timestamp,
-    })
-    .eq("task_id", props.taskData.task_id);
-  if (error) {
-    notificationsStore.setMessage(error.message, "error");
-    return;
-  }
-  notificationsStore.setMessage(`Task updated successfully`, "success");
-  hasBeenEditedLocally.value = false;
-  updateEditDateAndTime(timestamp);
-}
-/**
- * Connects to database, deletes data and pushes a notification to the user.
- */
-async function deleteTask(): Promise<void> {
-  const { error } = await useSupabaseClient<Database>()
-    .from("tasks")
-    .delete()
-    .eq("task_id", props.taskData.task_id);
-  if (error) {
-    notificationsStore.setMessage(error.message, "error");
-    return;
-  }
-  notificationsStore.setMessage(`Task deleted successfully`, "success");
-  modalVisible.value = false;
-  taskStore.getTasks();
-}
-function checkForPreviousEdit(): void {
-  for (const task of taskStore.tasks) {
-    if (task.task_id === props.taskData.task_id) {
-      if (task.edited_at) {
-        hasBeenEditedPreviously.value = true;
-        updateEditDateAndTime(task.edited_at);
-        return;
-      }
-    }
-  }
-}
-function updateEditDateAndTime(timestamp: string): void {
-  const timeOptions = { timeStyle: "short" };
-  convertedEditDate.value = convertDate(
-    timestamp,
-    userStore.getCountryISOCode() as string
-  ) as string;
-  convertedEditTime.value = convertTime(
-    timestamp,
-    userStore.getCountryISOCode() as string,
-    timeOptions as Intl.LocaleOptions
-  ) as string;
-}
-function editIsValid(): boolean | void {
-  const frequencyIsValid = propOptions.some((option) => {
-    return option.value === localTask.frequency.value;
-  });
-  if (!localTask.task) {
-    notificationsStore.setMessage("Invalid task title", "error");
-    syncLocalDataWithPropData();
-    hasBeenEditedLocally.value = false;
-    return false;
-  }
-  if (!frequencyIsValid) {
-    notificationsStore.setMessage("Invalid task frequency", "error");
-    syncLocalDataWithPropData();
-    hasBeenEditedLocally.value = false;
-    return false;
-  }
-  return true;
+// Template refs
+const expandable: Ref<HTMLElement | null> = ref(null);
+
+// Computed properties
+const setExpandIconRotation = computed(() => {
+  return isExpanded.value
+    ? "task__icon task__icon--expanded"
+    : "task__icon task__icon--expand";
+});
+
+const setExpandedHeight = computed(() => {
+  if (!expandable.value) return;
+  const height = expandableHeight.value;
+  return `${height}px`;
+});
+
+// Functions
+function generateTagData(id: TagID, index: number): FormTagPropData {
+  return {
+    index: index,
+    tag_id: id,
+    label: $tasks.tags.searchByID(id).label,
+    type: $tasks.tags.searchByID(id).type,
+  };
 }
 
-function generateFrequencyLabels(): void {
-  if (!propData.formHandler[0].options) return;
-  for (let i = 0; i < propData.formHandler[0].options.length; i++) {
-    const option = propData.formHandler[0].options[i];
-    frequencyLabels.value.push(option.label);
-  }
+async function deleteTask() {
+  const id = props.data.task_id;
+  await taskStore.deleteTask(id);
+  await taskStore.fetchData();
+  modal.value.is_visible = false;
 }
-function syncLocalDataWithPropData(): void {
-  localTask.task = props.taskData.task;
-  localTask.description = props.taskData.description;
-  localTask.frequency.label = propDefaultLabel() ?? null;
-  localTask.frequency.value =
-    (convertFrequency(props.taskData.frequency_id) as FrequencyRepetition) ??
-    null;
+
+function calculateExpandedHeight() {
+  if (!expandable.value) return;
+  expandableHeight.value = expandable.value.clientHeight;
+  expandable.value.classList.add("task__expandable--height-zero");
 }
-async function handleUndo(): Promise<void> {
-  syncLocalDataWithPropData();
-  await nextTick();
-  hasBeenEditedLocally.value = false;
-}
-function formatDateAndTime() {
-  formattedCreationDate.value = convertDate(
-    props.taskData.created_at,
-    userStore.getCountryISOCode() as string
-  ) as string;
-  formattedCreationTime.value = convertTime(
-    props.taskData.created_at,
-    userStore.getCountryISOCode() as string,
-    {
-      timeStyle: "short",
-    }
-  ) as string;
-}
-/*
-Create a reactive copy of the prop data for potential edits
-Read the timestamp from the props and attempt to populate date/time refs
-*/
+
+// Hooks
 onMounted(async () => {
-  if (!userStore.data) await userStore.fetchData();
-  generateFrequencyLabels();
-  syncLocalDataWithPropData();
-  formatDateAndTime();
-  checkForPreviousEdit();
+  await nextTick();
+  calculateExpandedHeight();
+});
+
+onUpdated(() => {
+  // Recalculate the height when the data is filtered
+  calculateExpandedHeight();
 });
 </script>
