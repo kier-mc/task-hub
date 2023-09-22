@@ -134,9 +134,3 @@ export interface AutocompleteEmitCountryData
  */
 export interface AutocompleteEmitFrequencyData
   extends AutocompleteEmitDataTemplate<FrequencyData> {}
-/**
- * An interface for managing tag prop data.
- */
-export type FormTagPropData = Omit<TagData, "created_at"> & {
-  index: number;
-};
