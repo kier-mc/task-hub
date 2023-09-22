@@ -1,8 +1,8 @@
 import type { TasksTable, TasksTagsJoinTable } from "~/types/schema";
-import type { TaskObject } from "./components/tasks";
+import type { TaskData } from "./components/tasks";
 
 export interface TaskStoreState {
-  response: TaskObject[] | null;
+  response: TaskData[] | null;
 }
 
 export type TaskStoreFetchResponse = Omit<TasksTable, "author_id"> & {
