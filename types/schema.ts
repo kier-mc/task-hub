@@ -1,16 +1,6 @@
-import type {
-  CountryID,
-  CountryName,
-  CountryISOCode,
-} from "~/types/unions/schema.country";
-import type {
-  FrequencyID,
-  FrequencyRepetition,
-} from "~/types/unions/schema.frequency";
-import type {
-  SpeedUnitsShort,
-  TemperatureUnitsShort,
-} from "~/types/unions/generic.units";
+import type { CountryID, CountryName, CountryISOCode } from "~/types/unions/schema.country";
+import type { FrequencyID, FrequencyRepetition } from "~/types/unions/schema.frequency";
+import type { SpeedUnitsShort, TemperatureUnitsShort } from "~/types/unions/generic.units";
 import type { TagID, TagLabel, TagType } from "~/types/unions/schema.tags";
 
 export interface Database {
@@ -72,12 +62,18 @@ export type CountryData = {
 };
 
 export type TagData = {
-  [key in keyof TagsTable]: TagsTable[key] | null;
+  [key in keyof Omit<TagsTable, "created_at">]: TagsTable[key] | null;
 };
+
+export type TasksTagsJoinData = {
+  [key in keyof TasksTagsJoinTable]: TasksTagsJoinTable[key] | null
+}
 
 export type FrequencyData = {
   [key in keyof FrequencyTable]: FrequencyTable[key] | null;
 };
+
+export type TimestampData = Pick<TasksTable, "created_at" | "edited_at">
 
 export interface DatabaseAppPreferences {}
 
