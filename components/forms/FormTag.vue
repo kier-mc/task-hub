@@ -1,5 +1,5 @@
 <template>
-  <button type="button" :class="setTagClass">
+  <button class="tag" type="button">
     <div class="tag__label">{{ props.data.label }}</div>
   </button>
 </template>
@@ -24,7 +24,6 @@
   transition:
     background-color easing.$ease-out-quart 500ms,
     transform easing.$ease-out-quart 100ms;
-  cursor: v-bind(setCursorType);
   &:hover {
     transform: scale(1.05);
     background-color: colour.$gunmetal-500;
@@ -47,30 +46,17 @@
 
 <script setup lang="ts">
 // Types
-import type { FormTagPropData } from "~/types/components/forms";
+import type { TagData } from "~/types/schema";
 
 // Prop definitions
 const props = defineProps({
   data: {
-    type: Object as PropType<FormTagPropData>,
+    type: Object as PropType<TagData>,
     required: true,
   },
   isSelected: {
     type: Boolean as PropType<boolean>,
     required: false,
   },
-  readOnly: {
-    type: Boolean as PropType<boolean>,
-    required: false,
-  },
-});
-
-// Computed properties
-const setTagClass = computed(() => {
-  return props.isSelected ? "tag tag--selected" : "tag";
-});
-
-const setCursorType = computed(() => {
-  return props.readOnly ? "default" : "pointer";
 });
 </script>
