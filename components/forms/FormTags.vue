@@ -95,11 +95,8 @@ const emit = defineEmits<{
 
 // Emit handler
 function emitHandler(): void {
-  emit("update:selected-tags", tags.value);
+  emit("update:selected-tags", props.selectedTags);
 }
-
-// Reactive variables
-const tags: Ref<TagData[]> = ref(props.selectedTags || []);
 
 // Template refs
 const tagsElement: Ref<HTMLElement | null> = ref(null);
@@ -122,7 +119,6 @@ const setTagClass = computed(() => (tag: TagData) => {
 watch(
   () => props.selectedTags,
   () => {
-    tags.value = props.selectedTags;
     // console.log(props.selectedTags.map((tag) => tag.tag_id));
     emitHandler();
   },
@@ -140,11 +136,13 @@ function handleClick(tag: TagData): void {
 }
 
 function addTag(tag: TagData): void {
-  tags.value.push(tag);
+  props.selectedTags.push(tag);
 }
 
 function removeTag(tag: TagData): void {
-  const index = tags.value.indexOf(tag);
-  tags.value.splice(index, 1);
+  const index = props.selectedTags.findIndex(
+    (selectedTag) => selectedTag.tag_id === tag.tag_id
+  );
+  props.selectedTags.splice(index, 1);
 }
 </script>
