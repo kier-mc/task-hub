@@ -36,6 +36,7 @@
     visibility: visible;
     background-color: colour.$modal-backdrop;
     backdrop-filter: blur(0.25rem);
+    z-index: 990;
   }
 }
 .modal {
