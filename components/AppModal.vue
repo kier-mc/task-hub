@@ -96,6 +96,7 @@ const props = defineProps({
   title: {
     type: String as PropType<string>,
     required: true,
+    default: "",
   },
   showModal: {
     type: Boolean as PropType<boolean>,
