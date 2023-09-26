@@ -4,7 +4,7 @@ import type {
   TaskStoreState,
   TaskStoreFetchResponse,
 } from "~/types/store.tasks";
-import type { NewTask, TaskObject } from "~/types/components/tasks";
+import type { NewTaskData, TaskData } from "~/types/components/tasks";
 import type { TagID } from "~/types/unions/schema.tags";
 
 // Pinia stores
@@ -18,11 +18,11 @@ const notificationsStore = useNotificationsStore();
 /**
  * Remotely queries the database for all tasks associated with the currently logged in user.
  * Permissions are handled via PGSQL RLS policies. If no user is found, will throw an error.
- * @returns {Promise<TaskObject[] | null>}
+ * @returns {Promise<TaskData[] | null>}
  * An array containing all tasks associated with the current user. If no data response is
  * received, will return null instead.
  */
-async function fetchFromEndpoint(): Promise<TaskObject[] | null> {
+async function fetchFromEndpoint(): Promise<TaskData[] | null> {
   const request = await useSupabaseClient().auth.getUser();
   if (!request.data.user) {
     throw new Error(
@@ -47,10 +47,10 @@ async function fetchFromEndpoint(): Promise<TaskObject[] | null> {
     return null;
   }
   if (data) {
-    const tasks: TaskObject[] = [];
+    const tasks: TaskData[] = [];
     for (let i = 0; i < data.length; i++) {
       const response: TaskStoreFetchResponse = data[i];
-      const task: TaskObject = parseResponseData(response);
+      const task: TaskData = parseResponseData(response);
       tasks.push(task);
     }
     return tasks;
@@ -63,17 +63,17 @@ async function fetchFromEndpoint(): Promise<TaskObject[] | null> {
  * @param data {TaskStoreFetchResponse}
  * The data to be parsed. This must be synchronised with the request performed
  * by {@link fetchFromEndpoint()}.
- * @returns {TaskObject}
+ * @returns {TaskData}
  * A data object ready for use in the store tasks array.
  */
-function parseResponseData(data: TaskStoreFetchResponse): TaskObject {
-  const payload: TaskObject = {
+function parseResponseData(data: TaskStoreFetchResponse): TaskData {
+  const payload: TaskData = {
     task_id: data.task_id,
     task: data.task,
     description: data.description,
     frequency: {
       frequency_id: data.frequency_id,
-      label: $tasks.frequency.getLabel(data.frequency_id),
+      repeats_every: $tasks.frequency.getLabel(data.frequency_id),
     },
     timestamp: {
       created_at: data.created_at,
@@ -81,7 +81,9 @@ function parseResponseData(data: TaskStoreFetchResponse): TaskObject {
     },
   };
   if (data.tasks_tags.length > 0) {
-    payload.tags = [...data.tasks_tags.map((tag) => tag.tag_id)];
+    payload.tags = [
+      ...data.tasks_tags.map((tag) => $tasks.tags.searchByID(tag.tag_id)),
+    ];
   }
   return payload;
 }
@@ -132,7 +134,7 @@ export const useTaskStore = defineStore("tasks", {
       // If pre-existing task data is found in local storage
       if (localStorage.getItem("taskData")) {
         const local = localStorage.getItem("taskData");
-        const data: TaskObject[] = JSON.parse(local!);
+        const data: TaskData[] = JSON.parse(local!);
         const count = {
           local: () => data.length,
           remote: async () => await countRemoteTasks(),
@@ -156,15 +158,16 @@ export const useTaskStore = defineStore("tasks", {
         this.response = response;
       }
     },
-    async createTask(taskData: NewTask) {
+    async createTask(taskData: NewTaskData) {
       const request = await useSupabaseClient().auth.getUser();
       if (!request.data.user) {
         throw new Error("Unable to find user. Check that you are logged in.");
       }
-      const [task, description, frequency_id, tags] = [
-        taskData.label,
+      const [author_id, task, description, frequency_id, tags] = [
+        request.data.user.id,
+        taskData.task,
         taskData.description,
-        taskData.frequency,
+        taskData.frequency?.frequency_id,
         taskData.tags,
       ];
       if (!task || !frequency_id) {
@@ -173,7 +176,7 @@ export const useTaskStore = defineStore("tasks", {
       const { data, error } = await useSupabaseClient<Database>()
         .from("tasks")
         .insert({
-          author_id: request.data.user.id,
+          author_id: author_id,
           task: task,
           description: description,
           frequency_id: frequency_id,
@@ -187,7 +190,7 @@ export const useTaskStore = defineStore("tasks", {
         return;
       }
       if (data) {
-        if (tags) {
+        if (tags && tags.length) {
           const id = data[0].task_id;
           const { error } = await useSupabaseClient<Database>()
             .from("tasks_tags")
@@ -233,9 +236,9 @@ export const useTaskStore = defineStore("tasks", {
     /**
      * Returns the complete set of task data as received. If no data is available,
      * returns null.
-     * @returns {TaskObject[] | null}
+     * @returns {TaskData[] | null}
      */
-    getTasks(): TaskObject[] | null {
+    getTasks(): TaskData[] | null {
       return this.response;
     },
   },
