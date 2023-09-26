@@ -221,6 +221,50 @@ export const useTaskStore = defineStore("tasks", {
       }
       notificationsStore.push(`Task deleted successfully`, "success");
     },
+    async updateTask(taskData: NewTaskData, taskID: number) {
+      const request = await useSupabaseClient().auth.getUser();
+      if (!request.data.user) {
+        throw new Error("Unable to find user. Check that you are logged in");
+      }
+      const [task_id, task, description, frequency_id, tags, timestamp] = [
+        taskID,
+        taskData.task,
+        taskData.description,
+        taskData.frequency?.frequency_id,
+        taskData.tags,
+        new Date().toISOString(),
+      ];
+      const { error } = await useSupabaseClient<Database>()
+        .from("tasks")
+        .update({
+          task: task,
+          description: description,
+          frequency_id: frequency_id,
+          edited_at: timestamp,
+        })
+        .eq("task_id", task_id);
+      if (error) {
+        notificationsStore.push(
+          "An error occurred whilst updating the task",
+          "error"
+        );
+        return;
+      }
+      if (tags && tags.length) {
+        const { error } = await useSupabaseClient<Database>()
+          .from("tasks_tags")
+          .upsert($tasks.tags.prepareDataForDBInsert(task_id, tags))
+          .eq("task_id", task_id);
+        if (error) {
+          notificationsStore.push(
+            "Error",
+            "An error occurred whilst updating the tags"
+          );
+          return;
+        }
+      }
+      notificationsStore.push("Success", "Task updated successfully");
+    },
   },
   getters: {
     /**
