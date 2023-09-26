@@ -5,7 +5,6 @@ import type {
   TaskStoreFetchResponse,
 } from "~/types/store.tasks";
 import type { NewTaskData, TaskData } from "~/types/components/tasks";
-import type { TagID } from "~/types/unions/schema.tags";
 
 // Pinia stores
 import { useNotificationsStore } from "./notifications";
