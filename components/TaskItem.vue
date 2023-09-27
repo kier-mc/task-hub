@@ -279,6 +279,14 @@ const setExpandedHeight = computed(() => {
   return `${height}px`;
 });
 
+// Watchers
+watch(
+  () => props.data,
+  () => {
+    calculateExpandedHeight();
+  }
+);
+
 // Functions
 async function deleteTaskWrapper() {
   const id = props.data.task_id;
@@ -297,11 +305,6 @@ function calculateExpandedHeight() {
 // Hooks
 onMounted(async () => {
   await nextTick();
-  calculateExpandedHeight();
-});
-
-onUpdated(async () => {
-  // Recalculate the height when the data is filtered
   calculateExpandedHeight();
 });
 </script>
