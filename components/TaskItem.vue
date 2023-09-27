@@ -222,7 +222,6 @@ import { formatTimeAgo } from "@vueuse/core";
 
 // Types
 import type { TaskData } from "~/types/components/tasks";
-import type { TagID } from "~/types/unions/schema.tags";
 import type { ButtonPropData } from "~/types/components/app";
 
 // Pinia stores
