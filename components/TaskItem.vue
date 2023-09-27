@@ -27,19 +27,18 @@
           {{ props.data.description }}
         </section>
         <section v-if="props.data.tags" class="task__tags">
-          <template v-for="(id, index) in props.data.tags" :key="index">
-            <FormTag
-              :data="generateTagData(id, index)"
-              :read-only="true"
-              class="task__tag"
-            />
-          </template>
+          <FormTag
+            v-for="(tag, index) in props.data.tags"
+            :key="index"
+            :data="tag"
+            class="task__tag"
+          />
         </section>
       </div>
       <footer class="task__footer">
         <div class="task__timestamp">
           <span class="task__frequency-label">
-            {{ props.data.frequency.label }}
+            {{ props.data.frequency.repeats_every }}
           </span>
           <span class="task__timestamp--created-at"
             >Created
@@ -218,8 +217,7 @@
 import { formatTimeAgo } from "@vueuse/core";
 
 // Types
-import type { FormTagPropData } from "~/types/components/forms";
-import type { TaskObject } from "~/types/components/tasks";
+import type { TaskData } from "~/types/components/tasks";
 import type { TagID } from "~/types/unions/schema.tags";
 import type { ButtonPropData } from "~/types/components/app";
 
@@ -229,7 +227,7 @@ const taskStore = useTaskStore();
 // Prop definitions
 const props = defineProps({
   data: {
-    type: Object as PropType<TaskObject>,
+    type: Object as PropType<TaskData>,
     required: true,
   },
 });
@@ -245,7 +243,7 @@ const propData = {
       },
     },
     delete: {
-      function: async () => deleteTask(),
+      function: async () => deleteTaskWrapper(),
       label: "Delete",
       attributes: {
         type: "button",
@@ -278,19 +276,9 @@ const setExpandedHeight = computed(() => {
 });
 
 // Functions
-function generateTagData(id: TagID, index: number): FormTagPropData {
-  return {
-    index: index,
-    tag_id: id,
-    label: $tasks.tags.searchByID(id).label,
-    type: $tasks.tags.searchByID(id).type,
-  };
-}
-
-async function deleteTask() {
+async function deleteTaskWrapper() {
   const id = props.data.task_id;
   await taskStore.deleteTask(id);
-  await taskStore.fetchData();
   modal.value.is_visible = false;
 }
 
