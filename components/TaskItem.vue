@@ -288,6 +288,8 @@ async function deleteTaskWrapper() {
 
 function calculateExpandedHeight() {
   if (!expandable.value) return;
+  // Remove zero height class (if it exists) so height can be correctly recalculated for updates
+  expandable.value.classList.remove("task__expandable--height-zero");
   expandableHeight.value = expandable.value.clientHeight;
   expandable.value.classList.add("task__expandable--height-zero");
 }
@@ -298,7 +300,7 @@ onMounted(async () => {
   calculateExpandedHeight();
 });
 
-onUpdated(() => {
+onUpdated(async () => {
   // Recalculate the height when the data is filtered
   calculateExpandedHeight();
 });
