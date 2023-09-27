@@ -56,6 +56,7 @@
             class="task__option task__button task__button--footer"
             title="Edit"
             type="button"
+            @click="editMode = true"
           >
             <SVGEdit class="task__icon task__icon--footer" />
           </button>
@@ -70,6 +71,9 @@
         </div>
       </footer>
     </article>
+    <AppModal title="Edit Task" v-model:show-modal="editMode">
+      <TaskCreate v-if="editMode" :edit-mode="true" :edit-data="props.data" />
+    </AppModal>
   </ClientOnly>
 </template>
 
@@ -255,6 +259,7 @@ const propData = {
 // Reactive variables
 const isExpanded: Ref<boolean> = ref(false);
 const expandableHeight: Ref<number> = ref(0);
+const editMode: Ref<boolean> = ref(false);
 const modal = ref({
   is_visible: false,
 });
