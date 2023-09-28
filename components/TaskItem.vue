@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
     <article class="task">
-      <section v-if="modal.is_visible" class="modal">
+      <section v-if="deleteMode" class="modal">
         <AppButton class="modal__button" :data="propData.button.cancel" />
         <AppButton class="modal__button" :data="propData.button.delete" />
       </section>
@@ -64,7 +64,7 @@
             class="task__option task__button task__button--footer"
             title="Delete"
             type="button"
-            @click="modal.is_visible = true"
+            @click="deleteMode = true"
           >
             <SVGDelete class="task__icon task__icon--footer" />
           </button>
@@ -238,7 +238,7 @@ const props = defineProps({
 const propData = {
   button: <Record<string, ButtonPropData>>{
     cancel: {
-      function: () => (modal.value.is_visible = false),
+      function: () => (deleteMode.value = false),
       label: "Cancel",
       attributes: {
         type: "button",
@@ -257,10 +257,8 @@ const propData = {
 // Reactive variables
 const isExpanded: Ref<boolean> = ref(false);
 const expandableHeight: Ref<number> = ref(0);
+const deleteMode: Ref<boolean> = ref(false);
 const editMode: Ref<boolean> = ref(false);
-const modal = ref({
-  is_visible: false,
-});
 
 // Template refs
 const expandable: Ref<HTMLElement | null> = ref(null);
@@ -290,7 +288,7 @@ watch(
 async function deleteTaskWrapper() {
   const id = props.data.task_id;
   await taskStore.deleteTask(id);
-  modal.value.is_visible = false;
+  deleteMode.value = false;
 }
 
 function calculateExpandedHeight() {
