@@ -285,13 +285,23 @@ watch(
 );
 
 // Functions
-async function deleteTaskWrapper() {
+/**
+ * Wrapper for the task store deleteTask() function.
+ * Ensures the correct ID is passed to the function and handles the task
+ * modal visibility for the component.
+ */
+async function deleteTaskWrapper(): Promise<void> {
   const id = props.data.task_id;
   await taskStore.deleteTask(id);
   deleteMode.value = false;
 }
-
-function calculateExpandedHeight() {
+/**
+ * Calculates the height the task should be when fully expanded, including
+ * any description, tags or other data that may or may not be present.
+ * Used to provide an accurate number to the CSS so the height can be
+ * animated smoothly without compromise.
+ */
+function calculateExpandedHeight(): void {
   if (!expandable.value) return;
   // Remove zero height class (if it exists) so height can be correctly recalculated for updates
   expandable.value.classList.remove("task__expandable--height-zero");
