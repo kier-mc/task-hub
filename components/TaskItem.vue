@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
     <article class="task">
-      <section v-if="deleteMode" class="modal">
+      <section v-if="deleteMode" class="delete-modal">
         <AppButton class="modal__button" :data="propData.button.cancel" />
         <AppButton class="modal__button" :data="propData.button.delete" />
       </section>
@@ -199,7 +199,7 @@
     margin-bottom: 1rem;
   }
 }
-.modal {
+.delete-modal {
   position: absolute;
   inset: 0;
   display: flex;
