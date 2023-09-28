@@ -1,8 +1,8 @@
 <template>
   <section class="sidebar">
-      <section class="datetime">
-        <HubDateTime />
-      </section>
+    <section class="datetime">
+      <HubDateTime />
+    </section>
     <div class="weather">
       <HubWeather />
     </div>
