@@ -206,7 +206,6 @@
   justify-content: center;
   align-items: center;
   background-color: colour.$modal-backdrop;
-  backdrop-filter: blur(0.25rem);
   color: colour.$font-light;
   &__button {
     &:not(:last-child) {
