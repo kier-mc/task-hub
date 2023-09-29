@@ -12,9 +12,9 @@
 <style scoped lang="scss"></style>
 
 <script setup lang="ts">
-import type { TaskObject } from "~/types/components/tasks";
+import type { TaskData } from "~/types/components/tasks";
 
 const props = defineProps({
-  data: { type: Array as PropType<TaskObject[]>, required: true },
+  data: { type: Array as PropType<TaskData[]>, required: true },
 });
 </script>
