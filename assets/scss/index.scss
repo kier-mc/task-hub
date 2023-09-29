@@ -3,14 +3,8 @@
 @use "./data/layout";
 @use "./data/normalise";
 
-html,
-body {
-  height: 100vh;
-}
-
 body {
   background-color: colour.$gunmetal-600;
-  background-attachment: fixed;
   color: colour.$font-dark;
   font-family: Inter, sans-serif;
 }
