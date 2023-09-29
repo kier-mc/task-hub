@@ -17,7 +17,7 @@
   box-shadow: effect.$drop-shadow-sm;
 }
 .container-main {
-  height: calc(100vh - 3rem);
+  height: calc(100vh - 3rem); // Minus header height
   max-width: layout.$breakpoint-xl;
   margin: 0 auto;
 }
