@@ -40,7 +40,6 @@
     align-items: center;
     aspect-ratio: 1/1;
     width: 3rem;
-    padding-inline: 1rem;
     cursor: pointer;
     &:hover .header__icon {
       fill: colour.$cerise-500;
