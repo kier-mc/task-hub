@@ -1,73 +1,72 @@
 <template>
-  <section class="container__create-account">
-    <header class="header">
-      <h2 class="header__title">Create Account</h2>
-    </header>
-    <ol class="timeline">
-      <li
-        class="timeline__step"
-        v-for="step in propData.data.form"
-        :key="step.index"
-        :data-active="step.index === stepper.slide.active"
-      >
-        {{ step.label }}
-      </li>
-    </ol>
-    <form ref="form" class="create-account">
-      <div class="create-account__steps">
-        <section
-          class="create-account__step"
-          v-for="(section, index) in propData.data.form"
-          :key="section.index"
-          :data-active="stepper.slide.active === index"
+  <div class="container__create-account">
+    <article class="create-account">
+      <header class="header">
+        <h2 class="header__title">Create Account</h2>
+      </header>
+      <ol class="timeline">
+        <li
+          class="timeline__step"
+          v-for="step in propData.data.form"
+          :key="step.index"
+          :data-active="step.index === stepper.slide.active"
         >
-          <template v-for="data in section.data">
-            <template v-if="data.type === 'input'">
-              <FormInput
-                :key="data.index"
-                class="create-account__input"
-                :data="data"
-                :is-disabled="data.section !== stepper.slide.active"
-                v-model:emit-value="credentials[data.attributes.id]"
-              />
+          {{ step.label }}
+        </li>
+      </ol>
+      <form ref="form" class="form">
+        <div class="form__steps">
+          <section
+            class="form__step"
+            v-for="(section, index) in propData.data.form"
+            :key="section.index"
+            :data-active="stepper.slide.active === index"
+          >
+            <template v-for="data in section.data">
+              <template v-if="data.type === 'input'">
+                <FormInput
+                  :key="data.index"
+                  class="form__input"
+                  :data="data"
+                  :is-disabled="data.section !== stepper.slide.active"
+                  v-model:emit-value="credentials[data.attributes.id]"
+                />
+              </template>
+              <template v-else-if="data.type === 'autocomplete'">
+                <FormAutocomplete
+                  :key="data.index"
+                  class="form__autocomplete"
+                  :data="data"
+                  :is-sorted="true"
+                  :is-disabled="data.section !== stepper.slide.active"
+                  v-model:emit-term="receiver.term"
+                  v-model:emit-data="receiver.data"
+                />
+              </template>
             </template>
-            <template v-else-if="data.type === 'autocomplete'">
-              <FormAutocomplete
-                :key="data.index"
-                class="create-account__autocomplete"
-                :data="data"
-                :is-sorted="true"
-                :is-disabled="data.section !== stepper.slide.active"
-                v-model:emit-term="receiver.term"
-                v-model:emit-data="receiver.data"
-              />
-            </template>
+          </section>
+        </div>
+        <div class="form__buttons">
+          <AppButton
+            class="form__button"
+            :data="propData.data.button[0]"
+            :is-disabled="stepper.slide.active === 0"
+          />
+          <template v-if="stepper.slide.active < propData.data.form.length - 1">
+            <AppButton class="form__button" :data="propData.data.button[1]" />
           </template>
-        </section>
-      </div>
-      <div class="create-account__buttons">
-        <AppButton
-          class="create-account__button"
-          :data="propData.data.button[0]"
-          :is-disabled="stepper.slide.active === 0"
-        />
-        <template v-if="stepper.slide.active < propData.data.form.length - 1">
-          <AppButton
-            class="create-account__button"
-            :data="propData.data.button[1]"
-          />
-        </template>
-        <template v-else>
-          <AppButton
-            class="create-account__button"
-            :data="propData.data.button[2]"
-            :is-disabled="setSubmitDisabledState"
-            :is-loading="isLoading"
-          />
-        </template>
-      </div>
-    </form>
-  </section>
+          <template v-else>
+            <AppButton
+              class="form__button"
+              :data="propData.data.button[2]"
+              :is-disabled="setSubmitDisabledState"
+              :is-loading="isLoading"
+            />
+          </template>
+        </div>
+      </form>
+    </article>
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -77,13 +76,15 @@
 .container__create-account {
   position: relative;
   max-width: 40ch;
+  padding-top: 2rem;
   margin-inline: auto;
-  margin-top: 2rem;
-  background-color: colour.$window-body;
-  box-shadow: effect.$drop-shadow-md;
   @media (max-width: layout.$breakpoint-sm) {
     max-width: calc(100% - 2rem);
   }
+}
+.create-account {
+  box-shadow: effect.$drop-shadow-md;
+  background-color: colour.$window-body;
 }
 .header {
   display: flex;
@@ -131,8 +132,8 @@
     }
   }
 }
-.create-account {
-  overflow: hidden;
+.form {
+  overflow-x: hidden;
   padding: 1rem;
   margin-inline: auto;
   &__steps {
