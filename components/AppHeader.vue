@@ -25,10 +25,10 @@
   align-items: center;
   max-width: layout.$breakpoint-xl;
   height: inherit;
-  padding-inline: 1rem;
   margin-inline: auto;
   &__title {
     all: unset;
+    padding-inline: 1rem;
     color: colour.$font-light;
     font-size: fontsize.$xxl;
     letter-spacing: 0.075rem;
@@ -40,6 +40,7 @@
     align-items: center;
     aspect-ratio: 1/1;
     width: 3rem;
+    padding-inline: 1rem;
     cursor: pointer;
     &:hover .header__icon {
       fill: colour.$cerise-500;
