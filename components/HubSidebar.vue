@@ -14,10 +14,14 @@
 @use "../assets/scss/data/effect";
 @use "../assets/scss/data/layout";
 .sidebar {
-  border-right: 1px solid colour.$gunmetal-700;
-  box-shadow: effect.$drop-shadow-md;
-  background-image: colour.$hub-header-background;
+  border-right: 1px solid colour.$gunmetal-500;
+  border-left: 1px solid colour.$gunmetal-500;
+  box-shadow: effect.$drop-shadow-sm;
+  background-color: colour.$gunmetal-400;
   color: colour.$font-light;
+  @media (max-width: layout.$breakpoint-xl) {
+    border-left: none;
+  }
 }
 .datetime {
   display: flex;
