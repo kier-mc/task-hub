@@ -1,4 +1,4 @@
-<template ClientOnly>
+<template>
   <section v-if="isLoading" class="loading">
     <AppLoadingIndicator class="loading__icon" display="dots" />
     <div class="loading__label">Retrieving weather data...</div>
