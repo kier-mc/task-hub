@@ -200,11 +200,14 @@
 </style>
 
 <script setup lang="ts">
+// Types
 import type { ButtonPropData } from "~/types/components/app";
 
+// Pinia stores
 const userStore = useUserStore();
 const weatherStore = useWeatherStore();
 
+// Prop data
 const propData = ref({
   table: {
     temperature: [
@@ -230,15 +233,15 @@ const propData = ref({
   },
 });
 
+// Reactive variables
 const isLoading: Ref<boolean> = ref(true);
 const requestInProgress: Ref<boolean> = ref(false);
-
 const timestamp: Ref<Date> = refThrottled(ref(useNow()), 1000); // Throttled to 1 second updates
 const location: Ref<string | null> = ref(null);
-
 const temperatureIsExpanded: Ref<boolean> = ref(false);
 const atmosphereIsExpanded: Ref<boolean> = ref(false);
 
+// Computed properties
 const setWeatherIcon = computed(() => {
   if (!weatherStore.response) return;
   const icon = weatherStore.getIconCode;
@@ -277,6 +280,7 @@ const isRefreshable = computed(() => {
   return time - call >= 600 ? false : true;
 });
 
+// Watchers
 watch(
   weatherStore.$state,
   () => {
@@ -295,6 +299,7 @@ watch(
   { deep: true }
 );
 
+// Functions
 async function fetchWrapper() {
   requestInProgress.value = true;
   await weatherStore.fetchData(location.value!);
@@ -309,6 +314,7 @@ function toggleAtmosphereData(): void {
   atmosphereIsExpanded.value = !atmosphereIsExpanded.value;
 }
 
+// Hooks
 onMounted(async () => {
   if (!userStore.response) await userStore.fetchData();
   location.value = `${userStore.getLocale}, ${userStore.getCountryISOCode}`;
