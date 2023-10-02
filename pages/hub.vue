@@ -1,7 +1,7 @@
 <template>
   <section class="hub">
     <HubSidebar class="hub__sidebar" />
-    <HubTasks />
+    <HubTasks class="hub__tasks" />
   </section>
 </template>
 
@@ -12,6 +12,9 @@
   display: flex;
   min-height: 100%;
   margin-inline: auto;
+  @media (max-width: layout.$breakpoint-lg) {
+    display: block;
+  }
   &__sidebar {
     flex-basis: 30ch;
     min-width: 30ch;
