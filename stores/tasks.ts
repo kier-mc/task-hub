@@ -157,10 +157,18 @@ export const useTaskStore = defineStore("tasks", {
         this.response = response;
       }
     },
-    async createTask(taskData: NewTaskData) {
+    /**
+     * Creates a new task based on the supplied data. If any critical data is absent,
+     * an error will be thrown. If an error on the back end occurs, a more generic
+     * error message will be provided to the end user via the notification system, and
+     * the function will return.
+     * @param taskData {NewTaskData}
+     * An object containing data to be passed to the back end.
+     */
+    async createTask(taskData: NewTaskData): Promise<void> {
       const request = await useSupabaseClient().auth.getUser();
       if (!request.data.user) {
-        throw new Error("Unable to find user. Check that you are logged in.");
+        throw new Error("Unable to find user. Check that you are logged in");
       }
       const [author_id, task, description, frequency_id, tags] = [
         request.data.user.id,
@@ -206,13 +214,23 @@ export const useTaskStore = defineStore("tasks", {
       }
       return;
     },
-    async deleteTask(id: number) {
+    /**
+     * Deletes the specified task from the database and removes the local copy
+     * from the Pinia store. If the task cannot be deleted, a generic error
+     * message is pushed to the user via the notifications system.
+     * @param id {number}
+     * A numerical identifier that should correspond with a database row.
+     */
+    async deleteTask(id: number): Promise<void> {
       const { error } = await useSupabaseClient<Database>()
         .from("tasks")
         .delete()
         .eq("task_id", id);
       if (error) {
-        notificationsStore.push(error.message, "error");
+        notificationsStore.push(
+          "An error occurred whilst attempting to delete the task",
+          "error"
+        );
         return;
       }
       if (this.response) {
@@ -221,7 +239,16 @@ export const useTaskStore = defineStore("tasks", {
       }
       notificationsStore.push(`Task deleted successfully`, "success");
     },
-    async updateTask(taskData: NewTaskData, taskID: number) {
+    /**
+     * Updates/upserts data related to a pre-existing task. If the task cannot be
+     * updated, a generic error message is pushed to the user via the notification
+     * system.
+     * @param taskData {NewTaskData}
+     * An object containing updated data to be passed to the back end.
+     * @param taskID {number}
+     * A numerical identifier that should correspond with a database row.
+     */
+    async updateTask(taskData: NewTaskData, taskID: number): Promise<void> {
       const request = await useSupabaseClient().auth.getUser();
       if (!request.data.user) {
         throw new Error("Unable to find user. Check that you are logged in");
