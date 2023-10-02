@@ -15,54 +15,56 @@
       </div>
       <component class="summary__icon" :is="setWeatherIcon" />
     </section>
-    <button
-      class="expandable__button"
-      :title="setTemperatureButtonTitle"
-      type="button"
-      @click="toggleTemperatureData()"
-    >
-      <div class="expandable__button--label">Temperature</div>
-      <SVGExpandMore class="expandable__button--icon" />
-    </button>
-    <div
-      :aria-expanded="temperatureIsExpanded"
-      class="expandable expandable__temperature"
-    >
-      <table aria-label="Temperature" class="data-table temperature">
-        <tr
-          v-for="(data, index) in propData.table.temperature"
-          :key="index"
-          class="data-table__row"
-        >
-          <td class="data-table__label">{{ data.label }}</td>
-          <td class="data-table__value">{{ data.value }}</td>
-        </tr>
-      </table>
-    </div>
-    <button
-      class="expandable__button"
-      :title="setAtmosphereButtonTitle"
-      type="button"
-      @click="toggleAtmosphereData()"
-    >
-      <div class="expandable__button--label">Atmosphere</div>
-      <SVGExpandMore class="expandable__button--icon" />
-    </button>
-    <div
-      :aria-expanded="atmosphereIsExpanded"
-      class="expandable expandable__atmosphere"
-    >
-      <table aria-label="Atmosphere" class="data-table atmosphere">
-        <tr
-          v-for="(data, index) in propData.table.atmosphere"
-          :key="index"
-          class="data-table__row"
-        >
-          <td class="data-table__label">{{ data.label }}</td>
-          <td class="data-table__value">{{ data.value }}</td>
-        </tr>
-      </table>
-    </div>
+    <section class="data">
+      <button
+        class="expandable__button"
+        :title="setTemperatureButtonTitle"
+        type="button"
+        @click="toggleTemperatureData()"
+      >
+        <div class="expandable__button--label">Temperature</div>
+        <SVGExpandMore class="expandable__button--icon" />
+      </button>
+      <div
+        :aria-expanded="temperatureIsExpanded"
+        class="expandable expandable__temperature"
+      >
+        <table aria-label="Temperature" class="data-table temperature">
+          <tr
+            v-for="(data, index) in propData.table.temperature"
+            :key="index"
+            class="data-table__row"
+          >
+            <td class="data-table__label">{{ data.label }}</td>
+            <td class="data-table__value">{{ data.value }}</td>
+          </tr>
+        </table>
+      </div>
+      <button
+        class="expandable__button"
+        :title="setAtmosphereButtonTitle"
+        type="button"
+        @click="toggleAtmosphereData()"
+      >
+        <div class="expandable__button--label">Atmosphere</div>
+        <SVGExpandMore class="expandable__button--icon" />
+      </button>
+      <div
+        :aria-expanded="atmosphereIsExpanded"
+        class="expandable expandable__atmosphere"
+      >
+        <table aria-label="Atmosphere" class="data-table atmosphere">
+          <tr
+            v-for="(data, index) in propData.table.atmosphere"
+            :key="index"
+            class="data-table__row"
+          >
+            <td class="data-table__label">{{ data.label }}</td>
+            <td class="data-table__value">{{ data.value }}</td>
+          </tr>
+        </table>
+      </div>
+    </section>
     <section class="refresh">
       <div class="refresh__label">Last updated {{ setLastUpdated }}</div>
       <AppButton
@@ -92,17 +94,14 @@
     margin-inline: auto;
   }
 }
-.container {
-  padding-inline: 1rem;
-  padding-block: 0.5rem;
-}
 .summary {
   $icon-size: 3rem; // SSOT
   display: flex;
   justify-content: space-between;
   align-items: center;
   min-height: 3rem;
-  margin-bottom: 1rem;
+  padding-inline: 1rem;
+  padding-block: 0.5rem;
   &__label {
     // Sidebar width - icon size - all inline margins/padding
     width: calc(30ch - $icon-size - 5rem);
@@ -121,17 +120,18 @@
 .expandable { 
   overflow: hidden;
   height: 0px;
+  padding-inline: 1rem;
+  // padding-block: 0.5rem;
+  // margin-block: 0.5rem;
   transition:
     height 500ms easing.$ease-out-quart,
     margin 250ms easing.$ease-out-quart;
   &__temperature {
-    margin-bottom: 1rem;
     &[aria-expanded="true"] {
       height: v-bind(getTemperatureHeight);
     }
   }
   &__atmosphere {
-    margin-bottom: 1rem;
     &[aria-expanded="true"] {
       height: v-bind(getAtmosphereHeight);
     }
@@ -141,9 +141,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    margin-bottom: 0.25rem;
+    width: calc(100% - 2rem);
+    padding-inline: 1rem;
+    padding-block: 0.5rem;
     cursor: pointer;
+    &--label {
+      display: flex;
+      align-items: center;
+      height: 1.75rem;
+    }
     &--icon {
       aspect-ratio: 1/1;
       width: 1.75rem;
@@ -155,6 +161,9 @@
   margin-bottom: 2rem;
 }
 .refresh {
+  padding-inline: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
   &__label {
     margin-bottom: 1rem;
     font-size: fontsize.$xs;
@@ -163,6 +172,7 @@
 .data-table {
   table-layout: fixed;
   width: 100%;
+  margin-block: 0.5rem;
   border-collapse: collapse;
   font-size: fontsize.$sm;
   text-rendering: optimizeLegibility;
@@ -252,7 +262,8 @@ const setWeatherIcon = computed(() => {
 
 const getTemperatureHeight = computed(() => {
   const length = propData.value.table.temperature.length;
-  return `${length * 2}rem`;
+  const margin = "1rem";
+  return `calc(${length * 2}rem + ${margin})`;
 });
 
 const setTemperatureButtonTitle = computed(() => {
@@ -263,7 +274,8 @@ const setTemperatureButtonTitle = computed(() => {
 
 const getAtmosphereHeight = computed(() => {
   const length = propData.value.table.atmosphere.length;
-  return `${length * 2}rem`;
+  const margin = "1rem";
+  return `calc(${length * 2}rem + ${margin})`;
 });
 
 const setAtmosphereButtonTitle = computed(() => {
