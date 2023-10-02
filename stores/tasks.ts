@@ -1,5 +1,5 @@
 // Types
-import type { Database, TasksTable } from "~/types/schema";
+import type { Database } from "~/types/schema";
 import type {
   TaskStoreState,
   TaskStoreFetchResponse,
