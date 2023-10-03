@@ -102,7 +102,7 @@ import type { NewTaskData, TaskData } from "~/types/components/tasks";
 import type { TagData } from "~/types/schema";
 
 // Components
-import { SVGPlus, SVGEdit } from "#components";
+import { SVGPlus } from "#components";
 
 // Pinia stores
 const taskStore = useTaskStore();
