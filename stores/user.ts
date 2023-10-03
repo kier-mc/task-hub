@@ -40,6 +40,11 @@ export const useUserStore = defineStore("user", {
     },
   }),
   actions: {
+    async init() {
+      if (!this.response) {
+        await this.fetchData();
+      }
+    },
     async fetchData(force?: boolean): Promise<void> {
       if (!force && this.response) return;
       const request = await useSupabaseClient().auth.getUser();
