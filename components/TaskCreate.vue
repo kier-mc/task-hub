@@ -1,6 +1,6 @@
 <template>
   <div class="container__create-task">
-    <div class="create-task">
+    <article class="create-task">
       <FormInput
         class="create-task__input"
         :data="propData.data.input.label"
@@ -41,7 +41,7 @@
         :is-disabled="!taskIsValid || requestInProgress"
         :is-loading="requestInProgress"
       />
-    </div>
+    </article>
   </div>
 </template>
 
