@@ -115,6 +115,10 @@ export const useTaskStore = defineStore("tasks", {
     response: null,
   }),
   actions: {
+    /**
+     * Initialisation function intended to be called when a component that utilises the
+     * store is mounted.
+     */
     async init() {
       if (!this.response) {
         await this.fetchData();
