@@ -443,7 +443,9 @@ watch(
   (data) => {
     if (!data) {
       clearInput();
+      return;
     }
+    filterWithTimeout();
   }
 );
 
@@ -472,6 +474,10 @@ async function handleInput(event: Event): Promise<void> {
   }
   emitHandler(searchValue, dataValue);
   await nextTick();
+  filterWithTimeout();
+}
+
+function filterWithTimeout(): void {
   if (timeout) clearTimeout(timeout);
   timeout = setTimeout(filterData, 500);
 }
@@ -486,8 +492,7 @@ function filterData(): void {
   // Create an array for partial substring matches
   const partialMatches = [];
   // Get search string
-  const target = inputElement.value as HTMLInputElement;
-  const predicate = target.value;
+  const predicate = props.emitTerm;
   // Filter results by substring, or return default prop data if no matches detected
   if (predicate) {
     for (let i = 0; i < props.data.options.length; i++) {
