@@ -172,6 +172,12 @@ import type {
   SpeedSelectPropData,
 } from "~/types/components/forms";
 import type { ButtonPropData } from "~/types/components/app";
+import type {
+  PersonalPreferencesData,
+  WeatherPreferencesData,
+  LocalisationPreferencesData,
+  UnitPreferencesData,
+} from "~/types/credentials";
 
 // Components
 import { SVGSave } from "#components";
@@ -268,7 +274,7 @@ const propData = {
     },
     button: <Record<string, ButtonPropData>>{
       submit: {
-        function: () => window.alert("Submit"),
+        function: () => console.log(preferences.value),
         label: "Update",
         icon: SVGSave,
         attributes: {
@@ -298,17 +304,17 @@ const receiver: Ref<Record<string, AutocompleteEmitCountryData>> = ref({
     },
   },
 });
-const personal: Ref<Record<string, string | null>> = ref({
+const personal: Ref<PersonalPreferencesData> = ref({
   name: null,
 });
-const weather: Ref<Record<string, string | null>> = ref({
+const weather: Ref<WeatherPreferencesData> = ref({
   locale: null,
   country: null,
 });
-const localisation: Ref<Record<string, string | null>> = ref({
+const localisation: Ref<LocalisationPreferencesData> = ref({
   country: null,
 });
-const units: Ref<Record<string, string | null>> = ref({
+const units: Ref<UnitPreferencesData> = ref({
   temperature: null,
   speed: null,
 });
@@ -332,12 +338,27 @@ const time = computed(() => {
   return timestamp.value.toLocaleTimeString(locale, options);
 });
 
+// const preferences: ComputedRef<UserPreferencesData> = computed(() => {
+//   return {
+//     personal: { ...personal.value },
+//     weather: { ...weather.value },
+//     localisation: { ...localisation.value },
+//     units: { ...units.value },
+//   };
+// });
+
 const preferences = computed(() => {
   return {
-    personal: { ...personal.value },
-    weather: { ...weather.value },
-    localisation: { ...localisation.value },
-    units: { ...units.value },
+    preferred_name: personal.value.name,
+    country_id: $countries.searchByCountryName(weather.value.country!),
+    locale: weather.value.locale,
+    preferences_region: {
+      locale_formatting: localisation.value.country,
+    },
+    preferences_units: {
+      temperature: units.value.temperature,
+      speed: units.value.speed,
+    },
   };
 });
 
