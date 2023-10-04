@@ -4,7 +4,77 @@
       <header class="header">
         <h2 class="header__title">Settings</h2>
       </header>
-      <section class="content"></section>
+      <section class="content">
+        <h3 class="content__title">Personal</h3>
+        <FormInput
+          class="content__input"
+          :data="propData.data.input.name"
+          v-model:emit-value="personal.name"
+        />
+        <h3 class="content__title">Weather</h3>
+        <FormInput
+          class="content__input"
+          :data="propData.data.input.weather_locale"
+          v-model:emit-value="weather.locale"
+        />
+        <FormAutocomplete
+          class="content__input"
+          :data="propData.data.autocomplete.weather_country"
+          v-model:emit-term="receiver.weather.term"
+          v-model:emit-data="receiver.weather.data"
+        />
+        <h3 class="content__title">Localisation</h3>
+        <FormAutocomplete
+          class="content__input"
+          :data="propData.data.autocomplete.localisation_country"
+          v-model:emit-term="receiver.localisation.term"
+          v-model:emit-data="receiver.localisation.data"
+        />
+        <div class="locale-preview">
+          <ClientOnly>
+            <span class="locale-preview__label">Example formatting:</span
+            >{{ day }}, {{ date }} {{ time }}
+          </ClientOnly>
+        </div>
+        <h3 class="content__title">Units</h3>
+        <div class="units">
+          <div class="temperature">
+            <label class="units__label" for="unit-temperature">
+              Temperature
+            </label>
+            <select
+              class="units__select"
+              id="unit-temperature"
+              name="unit-temperature"
+            >
+              <option
+                v-for="(data, index) in propData.data.select.temperature"
+                :key="index"
+                :selected="data.value === units.temperature"
+                :value="data.value"
+                class="units__option"
+              >
+                {{ data.label }}
+              </option>
+            </select>
+          </div>
+          <div class="speed">
+            <label class="units__label" for="unit-speed">Wind Speed</label>
+            <select class="units__select" id="unit-speed" name="unit-speed">
+              <option
+                v-for="(data, index) in propData.data.select.speed"
+                :key="index"
+                :selected="data.value === units.speed"
+                :value="data.value"
+                class="units__option"
+              >
+                {{ data.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <AppButton class="button" :data="propData.data.button.submit" />
+      </section>
     </article>
   </div>
 </template>
@@ -12,6 +82,7 @@
 <style scoped lang="scss">
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/effect";
+@use "../assets/scss/data/fontsize";
 @use "../assets/scss/data/layout";
 .container__settings {
   max-width: 60ch;
@@ -33,7 +104,7 @@
   color: colour.$font-light;
   &__title {
     all: unset;
-    font-size: 1.025rem;
+    font-size: fontsize.$lg;
     font-weight: bold;
   }
 }
@@ -41,10 +112,274 @@
   padding: 1rem;
   margin-inline: auto;
   background-color: colour.$window-body;
+  &__title {
+    all: unset;
+    display: block;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid colour.$gunmetal-900;
+    margin-bottom: 1rem;
+    font-size: fontsize.$lg;
+    font-weight: bold;
+    &:not(:first-of-type) {
+      margin-top: 2rem;
+    }
+  }
+  &__input {
+    &:not(:last-of-type) {
+      margin-bottom: 1rem;
+    }
+  }
+}
+.locale-preview {
+  margin-top: 1rem;
+  font-size: fontsize.$sm;
+  &__label {
+    margin-right: 0.5rem;
+  }
+}
+.units {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 1rem;
+  margin-bottom: 2rem;
+  &__label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  &__select {
+    width: 100%;
+    height: 3rem;
+    padding-inline: 0.5rem;
+    border: 1px solid colour.$input-border;
+    box-shadow: effect.$drop-shadow-xs;
+    background-color: colour.$input-background;
+    text-transform: capitalize;
+    cursor: pointer;
+  }
+}
+.button {
+  width: calc(100% - 1rem);
 }
 </style>
 
 <script setup lang="ts">
+// Types
+import type {
+  FormInputPropData,
+  FormAutocompletePropData,
+  AutocompleteEmitCountryData,
+  TemperatureSelectPropData,
+  SpeedSelectPropData,
+} from "~/types/components/forms";
+import type { ButtonPropData } from "~/types/components/app";
+
+// Components
+import { SVGSave } from "#components";
+
 // Meta
 definePageMeta({ middleware: "auth-only" });
+
+// Pinia stores
+const userStore = useUserStore();
+
+// Variables
+const countryData = $countries.generateAutocompleteData();
+
+// Prop data
+const propData = {
+  data: {
+    input: <Record<string, FormInputPropData>>{
+      name: {
+        index: 0,
+        type: "input",
+        label: "Preferred Name",
+        hint: "Your preferred display name",
+        attributes: {
+          id: "name",
+          type: "text",
+        },
+      },
+      weather_locale: {
+        index: 1,
+        type: "input",
+        label: "Current Locale",
+        hint: "The location used for weather data",
+        attributes: {
+          id: "weather-locale",
+          type: "text",
+        },
+      },
+    },
+    autocomplete: <Record<string, FormAutocompletePropData>>{
+      weather_country: {
+        index: 2,
+        type: "autocomplete",
+        label: "Country",
+        hint: "The country your locale is within",
+        attributes: {
+          id: "weather-country",
+        },
+        options: countryData,
+      },
+      localisation_country: {
+        index: 3,
+        type: "autocomplete",
+        label: "Localisation Country",
+        hint: "Controls localisation for date/time formatting",
+        attributes: {
+          id: "localisation-country",
+        },
+        options: countryData,
+      },
+    },
+    select: {
+      temperature: <TemperatureSelectPropData[]>[
+        {
+          label: "celsius",
+          value: "c",
+        },
+        {
+          label: "fahrenheit",
+          value: "f",
+        },
+        {
+          label: "kelvin",
+          value: "k",
+        },
+      ],
+      speed: <SpeedSelectPropData[]>[
+        {
+          label: "metres per second",
+          value: "ms",
+        },
+        {
+          label: "kilometres per hour",
+          value: "kmh",
+        },
+        {
+          label: "miles per hour",
+          value: "mph",
+        },
+        {
+          label: "knots",
+          value: "kn",
+        },
+      ],
+    },
+    button: <Record<string, ButtonPropData>>{
+      submit: {
+        function: () => window.alert("Submit"),
+        label: "Update",
+        icon: SVGSave,
+        attributes: {
+          type: "button",
+        },
+      },
+    },
+  },
+};
+
+// Reactive variables
+const receiver: Ref<Record<string, AutocompleteEmitCountryData>> = ref({
+  weather: {
+    term: null,
+    data: {
+      country_id: null,
+      country_name: null,
+      iso_code: null,
+    },
+  },
+  localisation: {
+    term: null,
+    data: {
+      country_id: null,
+      country_name: null,
+      iso_code: null,
+    },
+  },
+});
+const personal: Ref<Record<string, string | null>> = ref({
+  name: null,
+});
+const weather: Ref<Record<string, string | null>> = ref({
+  locale: null,
+  country: null,
+});
+const localisation: Ref<Record<string, string | null>> = ref({
+  country: null,
+});
+const units: Ref<Record<string, string | null>> = ref({
+  temperature: null,
+  speed: null,
+});
+const timestamp = useNow();
+
+// Computed properties
+const day = computed(() => {
+  const locale = localisation.value.country ?? "en-GB";
+  const options: Intl.DateTimeFormatOptions = { weekday: "long" };
+  return timestamp.value.toLocaleDateString(locale, options);
+});
+
+const date = computed(() => {
+  const locale = localisation.value.country ?? "en-GB";
+  return timestamp.value.toLocaleDateString(locale);
+});
+
+const time = computed(() => {
+  const locale = localisation.value.country ?? "en-GB";
+  const options: Intl.DateTimeFormatOptions = { timeStyle: "medium" };
+  return timestamp.value.toLocaleTimeString(locale, options);
+});
+
+const preferences = computed(() => {
+  return {
+    personal: { ...personal.value },
+    weather: { ...weather.value },
+    localisation: { ...localisation.value },
+    units: { ...units.value },
+  };
+});
+
+// Watchers
+watch(receiver.value.localisation, () => {
+  const code = receiver.value.localisation.data?.iso_code ?? "GB";
+  localisation.value.country = `en-${code}`;
+});
+
+// Functions
+function assignPersonalValues() {
+  personal.value.name = userStore.getName;
+}
+
+function assignWeatherValues() {
+  weather.value.locale = userStore.getLocale;
+  weather.value.country = userStore.getCountryName;
+  receiver.value.weather.term = weather.value.country;
+  receiver.value.weather.data = $countries.searchByID(userStore.getCountryID!);
+}
+
+function assignLocalisationValues() {
+  const format = userStore.getPreferredLocaleFormatting;
+  const data = $countries.searchByISOCode(format!);
+  receiver.value.localisation.term = data.country_name;
+  receiver.value.localisation.data = data;
+}
+
+function assignUnitValues() {
+  units.value.temperature = userStore.getPreferredTemperatureUnit;
+  units.value.speed = userStore.getPreferredSpeedUnit;
+}
+
+function assignValues() {
+  assignPersonalValues();
+  assignWeatherValues();
+  assignLocalisationValues();
+  assignUnitValues();
+}
+
+onMounted(async () => {
+  await userStore.init();
+  assignValues();
+});
 </script>
