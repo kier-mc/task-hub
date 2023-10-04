@@ -350,9 +350,10 @@ const time = computed(() => {
 });
 
 const preferences = computed(() => {
+  const country = $countries.searchByCountryName(weather.value.country!);
   return {
     preferred_name: personal.value.name,
-    country_id: $countries.searchByCountryName(weather.value.country!),
+    country_id: country.country_id,
     locale: weather.value.locale,
     preferences_region: {
       locale_formatting: localisation.value.country,
