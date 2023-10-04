@@ -6,14 +6,6 @@ import type {
 } from "~/types/store.tasks";
 import type { NewTaskData, TaskData } from "~/types/components/tasks";
 
-// Pinia stores
-import { useNotificationsStore } from "./notifications";
-import { setActivePinia, createPinia } from "pinia";
-
-// Instantiate Pinia and notifications store
-setActivePinia(createPinia());
-const notificationsStore = useNotificationsStore();
-
 /**
  * Remotely queries the database for all tasks associated with the currently logged in user.
  * Permissions are handled via PGSQL RLS policies. If no user is found, will throw an error.
@@ -22,6 +14,7 @@ const notificationsStore = useNotificationsStore();
  * received, will return null instead.
  */
 async function fetchFromEndpoint(): Promise<TaskData[] | null> {
+  const notificationsStore = useNotificationsStore();
   const request = await useSupabaseClient().auth.getUser();
   if (!request.data.user) {
     throw new Error(
@@ -170,6 +163,7 @@ export const useTaskStore = defineStore("tasks", {
      * An object containing data to be passed to the back end.
      */
     async createTask(taskData: NewTaskData): Promise<void> {
+      const notificationsStore = useNotificationsStore();
       const request = await useSupabaseClient().auth.getUser();
       if (!request.data.user) {
         throw new Error("Unable to find user. Check that you are logged in");
@@ -226,6 +220,7 @@ export const useTaskStore = defineStore("tasks", {
      * A numerical identifier that should correspond with a database row.
      */
     async deleteTask(id: number): Promise<void> {
+      const notificationsStore = useNotificationsStore();
       const { error } = await useSupabaseClient<Database>()
         .from("tasks")
         .delete()
@@ -253,6 +248,7 @@ export const useTaskStore = defineStore("tasks", {
      * A numerical identifier that should correspond with a database row.
      */
     async updateTask(taskData: NewTaskData, taskID: number): Promise<void> {
+      const notificationsStore = useNotificationsStore();
       const request = await useSupabaseClient().auth.getUser();
       if (!request.data.user) {
         throw new Error("Unable to find user. Check that you are logged in");
