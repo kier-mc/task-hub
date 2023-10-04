@@ -284,8 +284,7 @@ const propData = {
     },
     button: <Record<string, ButtonPropData>>{
       submit: {
-        function: async () =>
-          await userStore.updatePreferences(preferences.value),
+        function: async () => await updateSettingsWrapper(),
         label: "Update",
         icon: SVGSave,
         attributes: {
@@ -404,6 +403,10 @@ function assignValues() {
   assignWeatherValues();
   assignLocalisationValues();
   assignUnitValues();
+}
+
+async function updateSettingsWrapper() {
+  await userStore.updatePreferences(preferences.value);
 }
 
 onMounted(async () => {
