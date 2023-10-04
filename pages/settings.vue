@@ -280,9 +280,8 @@ const propData = {
     },
     button: <Record<string, ButtonPropData>>{
       submit: {
-        function: () => {
-          return 0;
-        },
+        function: async () =>
+          await userStore.updatePreferences(preferences.value),
         label: "Update",
         icon: SVGSave,
         attributes: {
@@ -344,6 +343,21 @@ const time = computed(() => {
   const locale = localisation.value.country ?? "en-GB";
   const options: Intl.DateTimeFormatOptions = { timeStyle: "medium" };
   return timestamp.value.toLocaleTimeString(locale, options);
+});
+
+const preferences = computed(() => {
+  return {
+    preferred_name: personal.value.name,
+    country_id: $countries.searchByCountryName(weather.value.country!),
+    locale: weather.value.locale,
+    preferences_region: {
+      locale_formatting: localisation.value.country,
+    },
+    preferences_units: {
+      temperature: units.value.temperature,
+      speed: units.value.speed,
+    },
+  };
 });
 
 // Watchers
