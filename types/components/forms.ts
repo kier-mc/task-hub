@@ -1,5 +1,6 @@
 import type { FormElementType, FormHandlerStyle, HTMLAutocompleteAttributeOptions, HTMLInputAttributeOptions } from "~/types/unions/forms.options";
 import type { CountryData, FrequencyData } from "~/types/schema";
+import type { SpeedUnitsShort, SpeedUnitsFull, TemperatureUnitsShort, TemperatureUnitsFull } from "../unions/generic.units";
 
 /**
  * A baseline interface that other form component props inherit from.
@@ -129,3 +130,18 @@ export interface AutocompleteEmitCountryData
  */
 export interface AutocompleteEmitFrequencyData
   extends AutocompleteEmitDataTemplate<FrequencyData> {}
+/**
+ * A template interface that serves as a baseline for select/option element groups.
+ */
+interface SelectPropData<LabelType, ValueType> {
+  label: LabelType;
+  value: ValueType;
+}
+/**
+ * An interface that specifically manages temperature units for select/option element groups.
+ */
+export interface TemperatureSelectPropData extends SelectPropData<TemperatureUnitsFull, TemperatureUnitsShort> {}
+/**
+ * An interface that specifically manages speed units for select/option element groups.
+ */
+export interface SpeedSelectPropData extends SelectPropData<SpeedUnitsFull, SpeedUnitsShort> {}
