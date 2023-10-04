@@ -79,7 +79,11 @@
             </select>
           </div>
         </div>
-        <AppButton class="button" :data="propData.data.button.submit" />
+        <AppButton
+          class="button"
+          :data="propData.data.button.submit"
+          :is-disabled="!preferencesAreValid"
+        />
       </section>
     </article>
   </div>
@@ -358,6 +362,10 @@ const preferences = computed(() => {
       speed: units.value.speed,
     },
   };
+});
+
+const preferencesAreValid = computed(() => {
+  return $app.allRefValuesArePopulated(preferences);
 });
 
 // Watchers
