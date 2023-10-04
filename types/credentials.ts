@@ -1,5 +1,5 @@
 import { CountryData } from "~/types/schema";
-import { CountryName } from "./unions/schema.country";
+import { CountryName, CountryID } from "./unions/schema.country";
 import { TemperatureUnitsShort, SpeedUnitsShort } from "./unions/generic.units";
 
 export interface LoginCredentialData {
@@ -51,10 +51,16 @@ export type UnitPreferencesData = {
 }
 
 export interface UserPreferences {
-  personal: PersonalPreferences;
-  weather: WeatherPreferences;
-  localisation: LocalisationPreferences;
-  units: UnitPreferences;
+  preferred_name: string,
+  country_id: CountryID,
+  locale: string,
+  preferences_region: {
+    locale_formatting: LocalisationPreferences["country"]
+  },
+  preferences_units: {
+    temperature: UnitPreferences["temperature"];
+    speed: UnitPreferences["speed"];
+  },
 }
 
 export type UserPreferencesData = {
