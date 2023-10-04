@@ -46,6 +46,7 @@
               class="units__select"
               id="unit-temperature"
               name="unit-temperature"
+              v-model="units.temperature"
             >
               <option
                 v-for="(data, index) in propData.data.select.temperature"
@@ -60,7 +61,12 @@
           </div>
           <div class="speed">
             <label class="units__label" for="unit-speed">Wind Speed</label>
-            <select class="units__select" id="unit-speed" name="unit-speed">
+            <select
+              class="units__select"
+              id="unit-speed"
+              name="unit-speed"
+              v-model="units.speed"
+            >
               <option
                 v-for="(data, index) in propData.data.select.speed"
                 :key="index"
