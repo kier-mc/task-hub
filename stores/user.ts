@@ -14,6 +14,7 @@ import type {
   CountryName,
   CountryISOCode,
 } from "~/types/unions/schema.country";
+import type { UserPreferencesData } from "~/types/credentials";
 
 /**
  * A Pinia store for handling user data.
@@ -97,6 +98,38 @@ export const useUserStore = defineStore("user", {
           response.preferences_units.temperature,
         ];
       }
+    },
+    async updatePreferences(preferenceData: UserPreferencesData) {
+      const notificationsStore = useNotificationsStore();
+      const request = await useSupabaseClient().auth.getUser();
+      if (!request.data.user) {
+        throw new Error(
+          "Unable to fetch data from remote server. Check your connection and ensure that you are logged in"
+        );
+      }
+      const user = request.data.user;
+      const { preferred_name, country_id, locale } = preferenceData;
+      const preferences_region = preferenceData.preferences_region;
+      const preferences_units = preferenceData.preferences_units;
+      const { error } = await useSupabaseClient<Database>()
+        .from("users")
+        .update({
+          preferred_name: preferred_name,
+          country_id: country_id,
+          locale: locale,
+          preferences_region: preferences_region,
+          preferences_units: preferences_units,
+        })
+        .eq("user_uuid", user.id);
+      if (error) {
+        notificationsStore.push(
+          "Error",
+          "An error occurred whilst updating your settings"
+        );
+        return;
+      }
+      notificationsStore.push("Success", "Settings updated successfully");
+      await this.fetchData(true);
     },
   },
   getters: {
