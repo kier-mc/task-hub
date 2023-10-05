@@ -187,6 +187,7 @@ import type {
   WeatherPreferencesData,
   LocalisationPreferencesData,
   UnitPreferencesData,
+  UserPreferencesData,
 } from "~/types/credentials";
 
 // Components
@@ -348,7 +349,7 @@ const time = computed(() => {
   return timestamp.value.toLocaleTimeString(locale, options);
 });
 
-const preferences = computed(() => {
+const preferences: ComputedRef<UserPreferencesData> = computed(() => {
   const country = $countries.searchByCountryName(weather.value.country!);
   return {
     preferred_name: personal.value.name,
