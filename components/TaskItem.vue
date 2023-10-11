@@ -214,8 +214,19 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   background-color: colour.$modal-backdrop;
   color: colour.$font-light;
+  &__label {
+    margin-bottom: 0.75rem;
+    text-align: center;
+    font-size: fontsize.$xs;
+  }
+  &__buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   &__button {
     &:not(:last-child) {
       margin-right: 1rem;
