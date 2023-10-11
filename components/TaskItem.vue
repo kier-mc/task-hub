@@ -2,8 +2,17 @@
   <ClientOnly>
     <article class="task">
       <section v-if="deleteMode" class="delete-modal">
-        <AppButton class="modal__button" :data="propData.button.cancel" />
-        <AppButton class="modal__button" :data="propData.button.delete" />
+        <div class="delete-modal__label">Deleting a task is permanent</div>
+        <div class="delete-modal__buttons">
+          <AppButton
+            class="delete-modal__button"
+            :data="propData.button.cancel"
+          />
+          <AppButton
+            class="delete-modal__button"
+            :data="propData.button.delete"
+          />
+        </div>
       </section>
       <header class="task__header">
         <h3 class="task__title">{{ props.data.task }}</h3>
@@ -209,7 +218,7 @@
   color: colour.$font-light;
   &__button {
     &:not(:last-child) {
-      margin-right: 0.5rem;
+      margin-right: 1rem;
     }
   }
 }
