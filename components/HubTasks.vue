@@ -33,6 +33,9 @@
     display: flex;
   }
   &__option {
+    @media (max-width: layout.$breakpoint-sm) {
+      margin-inline: auto;
+    }
     &:not(:last-child) {
       margin-right: 0.5rem;
     }
