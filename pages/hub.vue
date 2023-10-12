@@ -12,7 +12,7 @@
   display: flex;
   min-height: 100%;
   margin-inline: auto;
-  @media (max-width: layout.$breakpoint-lg) {
+  @media (max-width: layout.$breakpoint-md) {
     display: block;
   }
   &__sidebar {
