@@ -27,7 +27,7 @@
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/layout";
 .tasks {
-  width: calc(100% - 1rem);
+  width: calc(100% - 2rem);
   padding: 1rem;
   &__options {
     display: flex;
