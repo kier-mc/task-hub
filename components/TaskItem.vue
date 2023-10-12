@@ -90,6 +90,7 @@
 @use "../assets/scss/data/colour";
 @use "../assets/scss/data/easing";
 @use "../assets/scss/data/effect";
+@use "../assets/scss/data/layout";
 @use "../assets/scss/data/fontsize";
 .task {
   position: relative;
@@ -177,14 +178,23 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-height: 2rem;
+    padding-block: 0.25rem;
+    padding-right: 0.5rem;
     background-color: colour.$neutral-600;
+    @media (max-width: layout.$breakpoint-sm) {
+      padding-block: 0.5rem;
+    }
   }
   &__frequency-label {
     padding-right: 0.5rem;
     border-right: 1px solid colour.$gunmetal-800;
     margin-right: 0.5rem;
     text-transform: capitalize;
+    @media (max-width: layout.$breakpoint-sm) {
+      display: block;
+      border-right: none;
+      margin-bottom: 0.25rem;
+    }
   }
   &__timestamp {
     padding-inline: 1rem;
@@ -193,6 +203,12 @@
       padding-left: 0.5rem;
       border-left: 1px solid colour.$gunmetal-800;
       margin-left: 0.5rem;
+      @media (max-width: layout.$breakpoint-sm) {
+        display: block;
+        padding-left: 0rem;
+        border-left: none;
+        margin-left: 0rem;
+      }
     }
   }
   &__options {
