@@ -165,23 +165,6 @@ export const $tasks = {
       }
       return payload;
     },
-    searchByType: (predicate: TagType): TagData => {
-      const payload: TagData = {
-        tag_id: null,
-        label: null,
-        type: null,
-      };
-      for (let i = 0; i < TAG_DATA.length; i++) {
-        const data = TAG_DATA[i];
-        if (data.type === predicate) {
-          payload.tag_id = data.tag_id;
-          payload.label = data.label;
-          payload.type = data.type;
-          return payload;
-        }
-      }
-      return payload;
-    },
     getPropData: (): TagData[] => {
       const payload: TagData[] = [];
       for (let i = 0; i < TAG_DATA.length; i++) {
