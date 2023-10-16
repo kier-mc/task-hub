@@ -7,7 +7,7 @@ import type {
 } from "~/types/unions/schema.frequency";
 import type { TagID, TagLabel, TagType } from "~/types/unions/schema.tags";
 
-const TAG_DATA: TagData[] = [
+export const TAG_DATA: TagData[] = [
   {
     tag_id: 1,
     label: "low priority",
@@ -75,7 +75,7 @@ const TAG_DATA: TagData[] = [
   },
 ];
 
-const FREQUENCY_DATA = <Record<FrequencyID, FrequencyRepetition>>{
+export const FREQUENCY_DATA = <Record<FrequencyID, FrequencyRepetition>>{
   1: "daily",
   2: "weekly",
   3: "fortnightly",
@@ -85,7 +85,7 @@ const FREQUENCY_DATA = <Record<FrequencyID, FrequencyRepetition>>{
   7: "annually",
 };
 
-const FREQUENCY_TERMS = [
+export const FREQUENCY_TERMS = [
   "Daily",
   "Weekly",
   "Fortnightly",
