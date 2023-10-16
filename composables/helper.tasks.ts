@@ -143,6 +143,7 @@ export const $tasks = {
           payload.tag_id = data.tag_id;
           payload.label = data.label;
           payload.type = data.type;
+          return payload;
         }
       }
       return payload;
@@ -159,6 +160,7 @@ export const $tasks = {
           payload.tag_id = data.tag_id;
           payload.label = data.label;
           payload.type = data.type;
+          return payload;
         }
       }
       return payload;
@@ -175,6 +177,7 @@ export const $tasks = {
           payload.tag_id = data.tag_id;
           payload.label = data.label;
           payload.type = data.type;
+          return payload;
         }
       }
       return payload;
