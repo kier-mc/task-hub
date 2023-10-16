@@ -31,8 +31,8 @@ export const $app = {
       return true;
     };
     if (Array.isArray(inputRef)) {
-      for (const credential of inputRef) {
-        if (!checkValues(credential.value)) {
+      for (const key of inputRef) {
+        if (!checkValues(key.value)) {
           return false;
         }
       }
