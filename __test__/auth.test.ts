@@ -109,7 +109,18 @@ describe("Tests related to creating an account", () => {
   });
   // Reset values, notification store data and mocks
   beforeEach(() => {
-    clearAllFields(newAccountCredentials);
+    const { email, password, name, location, locale } = toRefs(
+      newAccountCredentials.value
+    );
+    email.value = null;
+    password.value = null;
+    name.value = null;
+    location.value = {
+      country_id: null,
+      country_name: null,
+      iso_code: null,
+    };
+    locale.value = null;
     notificationsStore.$reset();
     vi.resetAllMocks();
   });
