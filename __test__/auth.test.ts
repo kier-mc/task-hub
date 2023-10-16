@@ -4,7 +4,7 @@
 import type {
   LoginCredentialData,
   NewAccountCredentialData,
-} from "types/credentials";
+} from "~/types/credentials";
 
 // Testing functions
 import { setActivePinia, createPinia } from "pinia";
