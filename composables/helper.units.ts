@@ -113,16 +113,16 @@ export const $units = {
      * An optional object that can be passed to manipulate the return value.
      * Parsed parameters are minimumFractionDigits and maximumFractionDigits.
      * @returns {string}
-     * A string that includes the converted temperature and the appropriate unit.
+     * A string that includes the converted speed and the appropriate unit.
      * It will be formatted to either one decimal place and the user's locale
      * formatting preference, or to a single decimal place and the system locale.
      * @example
-     * // Returns "15°C"
-     * temperature.format(288.15, "c")
-     * // Returns "17.5°C"
-     * temperature.format(290.65, "c")
-     * // Returns 20.25°C"
-     * temperature.format(293.4, "c", {minimumFractionDigits: 2, maximumFractionDigits: 2})
+     * // Returns "11.2 mph"
+     * speed.format(5, "mph")
+     * // Returns "5.2 kn"
+     * speed.format(2.7, "kn")
+     * // Returns "5.87 km/h"
+     * speed.format(1.63, "kmh", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
      */
     format: (
       speed: number,
@@ -165,11 +165,11 @@ export const $units = {
      * It will be formatted to either one decimal place and the user's locale
      * formatting preference, or to a single decimal place and the system locale.
      * @example
-     * // Returns "15°C"
+     * // Returns "15 °C"
      * temperature.format(288.15, "c")
-     * // Returns "17.5°C"
+     * // Returns "17.5 °C"
      * temperature.format(290.65, "c")
-     * // Returns 20.25°C"
+     * // Returns "20.25 °C"
      * temperature.format(293.4, "c", {minimumFractionDigits: 2, maximumFractionDigits: 2})
      */
     format: (
