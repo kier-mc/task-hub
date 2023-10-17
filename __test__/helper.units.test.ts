@@ -58,6 +58,12 @@ describe("Tests related to temperature conversion", () => {
       expect(format.test(result)).toEqual(true);
     }
   });
+  test("A supplied optional locales object alters the formatting", () => {
+    const options = { minimumFractionDigits: 4, maximumFractionDigits: 4 };
+    const expectedLength = 10; // 2 whole numbers, 1 delimiter, 4 decimals, 1 space and 2 symbol chars
+    const result = $units.temperature.format(294.34, "c", options);
+    expect(result.length).toEqual(expectedLength);
+  });
 });
 
 describe("Tests related to speed conversion", () => {
@@ -128,5 +134,11 @@ describe("Tests related to speed conversion", () => {
       const result = $units.speed.format(number, "ms");
       expect(format.test(result)).toEqual(true);
     }
+  });
+  test("A supplied optional locales object alters the formatting", () => {
+    const options = { minimumFractionDigits: 4, maximumFractionDigits: 4 };
+    const expectedLength = 12; // 3 whole numbers, 1 delimiter, 4 decimals, 1 space and 3 symbol chars
+    const result = $units.speed.format(58.9356, "mph", options);
+    expect(result.length).toEqual(expectedLength);
   });
 });
