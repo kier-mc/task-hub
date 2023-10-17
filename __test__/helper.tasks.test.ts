@@ -202,4 +202,20 @@ describe("Tests related to tag data lookup", () => {
       expect(data.type).toEqual(TAG_DATA[i - 1].type);
     }
   });
+  test("Searching with an invalid ID throws an exception", () => {
+    const badID = -1;
+    // @ts-ignore
+    // TS will warn because an valid IDs are union typed
+    expect(() => $tasks.tags.searchByID(badID)).toThrowError(
+      `Tag with ID ${badID} not found`
+    );
+  });
+  test("Searching with an invalid label throws an exception", () => {
+    const badLabel = "nonexistent label";
+    // @ts-ignore
+    // TS will warn because an valid IDs are union typed
+    expect(() => $tasks.tags.searchByLabel(badLabel)).toThrowError(
+      `Tag with label ${badLabel} not found`
+    );
+  });
 });
