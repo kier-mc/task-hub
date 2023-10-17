@@ -73,6 +73,20 @@ describe("Tests related to frequency data lookup", () => {
       expect($tasks.frequency.getID(FREQUENCY_DATA[i])).toEqual(i);
     }
   });
+  test("Searching with an invalid label throws an exception", () => {
+    // @ts-ignore
+    // TS will warn because an valid labels are union typed
+    expect(() => $tasks.frequency.getID("nonexistent label")).toThrowError(
+      "Invalid frequency label supplied"
+    );
+  });
+  test("Searching with an invalid ID throws an exception", () => {
+    // @ts-ignore
+    // TS will warn because an valid IDs are union typed
+    expect(() => $tasks.frequency.getLabel(-1)).toThrowError(
+      "Invalid frequency ID supplied"
+    );
+  });
 });
 
 describe("Tests related to generating tag prop data", () => {
