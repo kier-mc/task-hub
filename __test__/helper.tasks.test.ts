@@ -167,29 +167,6 @@ describe("Tasks related to generating database-ready tag data", () => {
 });
 
 describe("Tests related to tag data lookup", () => {
-  const cache: number[] = [];
-  /**
-   * Scoped helper function to generate random integers between zero and the
-   * length of the TAG_DATA array. Used to produce random combinations of tags
-   * for the test suite.
-   * @returns {number}
-   * A random integer between 0 and TAG.DATA.length
-   */
-  function getRandomInt(): number {
-    const length = TAG_DATA.length - 1;
-    let number: number = 0;
-    while (true) {
-      number = Math.floor(Math.random() * (length + 1));
-      if (!cache.includes(number)) {
-        cache.push(number);
-        break;
-      }
-    }
-    return number;
-  }
-  beforeEach(() => {
-    cache.splice(0, cache.length);
-  });
   test("Searching with a valid ID returns the expected data", () => {
     const length = Object.keys(TAG_DATA).length + 1;
     for (let i = 1; i < length; i++) {
