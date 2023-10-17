@@ -146,7 +146,7 @@ export const $tasks = {
           return payload;
         }
       }
-      return payload;
+      throw new Error(`Tag with ID ${predicate} not found`);
     },
     searchByLabel: (predicate: TagLabel): TagData => {
       const payload: TagData = {
@@ -163,7 +163,7 @@ export const $tasks = {
           return payload;
         }
       }
-      return payload;
+      throw new Error(`Tag with label ${predicate} not found`);
     },
     getPropData: (): TagData[] => {
       const payload: TagData[] = [];
