@@ -1,44 +1,15 @@
 export const $app = {
   /**
    * Iterates through all values of a reactive object and checks for any value
-   * that is falsy.
-   * @param inputRef {Ref<any> | Ref<any>[]}
-   * The a ref or array of refs to iterate over and check for truthiness.
+   * that is falsy. Will return true if no falsy values were detected.
+   * @param inputRef {Ref<any>}
+   * The a ref object to iterate over and check for truthiness.
    * @returns {boolean}
-   * A boolean response based on whether or not a falsy value was detected.
+   * A boolean response based on the evaluation.
    */
-  allRefValuesArePopulated: (inputRef: Ref<any> | Ref<any>[]): boolean => {
-    const checkValues = (object: any): boolean => {
-      if (Array.isArray(object)) {
-        for (const item of object) {
-          if (!checkValues(item)) {
-            return false;
-          }
-        }
-      } else {
-        for (const value of Object.values(object)) {
-          if (typeof value === "object" && value !== null) {
-            if (!checkValues(value)) {
-              return false;
-            }
-          } else {
-            if (!value) {
-              return false;
-            }
-          }
-        }
-      }
-      return true;
-    };
-    if (Array.isArray(inputRef)) {
-      for (const key of inputRef) {
-        if (!checkValues(key.value)) {
-          return false;
-        }
-      }
-    } else {
-      return checkValues(inputRef.value);
-    }
-    return true;
+  allRefValuesArePopulated: (input: Ref<any>) => {
+    const data = input.value;
+    const test = (value: any) => !value;
+    return !Object.values(data).some(test);
   },
 };
