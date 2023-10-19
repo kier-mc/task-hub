@@ -7,7 +7,7 @@ import {
 } from "~/types/unions/schema.country";
 
 /* prettier-ignore */
-const COUNTRY_DATA: CountriesTable[] = [
+export const COUNTRY_DATA: CountriesTable[] = [
   { country_id: 1, country_name: "Afghanistan", iso_code: "AF" },
   { country_id: 2, country_name: "Åland Islands", iso_code: "AX" },
   { country_id: 3, country_name: "Albania", iso_code: "AL" },
