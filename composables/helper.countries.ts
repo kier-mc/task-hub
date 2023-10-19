@@ -292,7 +292,7 @@ export const $countries = {
         end = mid - 1;
       }
     }
-    return payload;
+    throw new Error(`Cannot locate data using country ID '${predicate}'`);
   },
   /**
    * Searches through all countries by their ISO 3166 English short name. No character locale conversions are performed.
@@ -320,7 +320,7 @@ export const $countries = {
         end = mid - 1;
       }
     }
-    return payload;
+    throw new Error(`Cannot locate data using country name '${predicate}'`);
   },
   /**
    * Searches through all countries by their ISO 3166 Alpha-2 code.
@@ -352,7 +352,7 @@ export const $countries = {
         end = mid - 1;
       }
     }
-    return payload;
+    throw new Error(`Cannot locate data using ISO code '${predicate}'`);
   },
   /**
    * Generates an array of objects suitable for use with the Autocomplete form component.
