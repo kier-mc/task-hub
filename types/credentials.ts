@@ -34,7 +34,8 @@ export type WeatherPreferencesData = {
 }
 
 export interface LocalisationPreferences {
-  country: string;
+  country: CountryName;
+  code: string;
 }
 
 export type LocalisationPreferencesData = {
@@ -55,7 +56,7 @@ export interface UserPreferences {
   country_id: CountryID,
   locale: string,
   preferences_region: {
-    locale_formatting: LocalisationPreferences["country"]
+    locale_formatting: LocalisationPreferences["code"]
   },
   preferences_units: {
     temperature: UnitPreferences["temperature"];
