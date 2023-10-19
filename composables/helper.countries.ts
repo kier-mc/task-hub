@@ -325,7 +325,7 @@ export const $countries = {
   /**
    * Searches through all countries by their ISO 3166 Alpha-2 code.
    * Slightly more expensive than other methods, as ISO codes are not inherently ordered.
-   * @param predicate {CountryName} The ISO 3166 ISO 3166 Alpha-2 code to search with.
+   * @param predicate {CountryName} The ISO 3166 Alpha-2 code to search with.
    * @returns {CountryDataPayload} An object containing the complete data set, including the predicate.
    */
   searchByISOCode: (predicate: CountryISOCode): CountryData => {
