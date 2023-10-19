@@ -259,11 +259,11 @@ const COUNTRY_DATA: CountriesTable[] = [
   { country_id: 249, country_name: "Zimbabwe", iso_code: "ZW" },
 ];
 
-const payload: CountryData = {
-  country_id: null,
-  country_name: null,
-  iso_code: null,
-};
+// const payload: CountryData = {
+//   country_id: null,
+//   country_name: null,
+//   iso_code: null,
+// };
 
 export const $countries = {
   /**
@@ -274,6 +274,11 @@ export const $countries = {
   searchByID: (predicate: CountryID): CountryData => {
     let start = 0;
     let end = COUNTRY_DATA.length - 1;
+    const payload: CountryData = {
+      country_id: null,
+      country_name: null,
+      iso_code: null,
+    };
     while (start <= end) {
       const mid = Math.floor((start + end) / 2);
       if (COUNTRY_DATA[mid].country_id === predicate) {
@@ -297,6 +302,11 @@ export const $countries = {
   searchByCountryName: (predicate: CountryName): CountryData => {
     let start = 0;
     let end = COUNTRY_DATA.length - 1;
+    const payload: CountryData = {
+      country_id: null,
+      country_name: null,
+      iso_code: null,
+    };
     while (start <= end) {
       const mid = Math.floor((start + end) / 2);
       if (COUNTRY_DATA[mid].country_name === predicate) {
@@ -324,6 +334,11 @@ export const $countries = {
     const data = [...COUNTRY_DATA].sort((a, b) =>
       a.iso_code.localeCompare(b.iso_code)
     ); // ISO codes are non-alphabetical
+    const payload: CountryData = {
+      country_id: null,
+      country_name: null,
+      iso_code: null,
+    };
     while (start <= end) {
       const mid = Math.floor((start + end) / 2);
       if (data[mid].iso_code === predicate) {
