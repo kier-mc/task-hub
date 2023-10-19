@@ -346,7 +346,7 @@ export const $countries = {
         payload.country_name = data[mid].country_name;
         payload.iso_code = predicate;
         return payload;
-      } else if (data[mid].country_name < predicate) {
+      } else if (data[mid].iso_code < predicate) {
         start = mid + 1;
       } else {
         end = mid - 1;
