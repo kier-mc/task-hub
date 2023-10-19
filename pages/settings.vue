@@ -189,6 +189,7 @@ import type {
   UnitPreferencesData,
   UserPreferencesData,
 } from "~/types/credentials";
+import type { CountryISOCode } from "~/types/unions/schema.country";
 
 // Components
 import { SVGSave } from "#components";
@@ -323,6 +324,7 @@ const weather: Ref<WeatherPreferencesData> = ref({
   country: null,
 });
 const localisation: Ref<LocalisationPreferencesData> = ref({
+  code: null,
   country: null,
 });
 const units: Ref<UnitPreferencesData> = ref({
@@ -333,18 +335,18 @@ const timestamp = useNow();
 
 // Computed properties
 const day = computed(() => {
-  const locale = localisation.value.country ?? "en-GB";
+  const locale = localisation.value.code ?? "en-GB";
   const options: Intl.DateTimeFormatOptions = { weekday: "long" };
   return timestamp.value.toLocaleDateString(locale, options);
 });
 
 const date = computed(() => {
-  const locale = localisation.value.country ?? "en-GB";
+  const locale = localisation.value.code ?? "en-GB";
   return timestamp.value.toLocaleDateString(locale);
 });
 
 const time = computed(() => {
-  const locale = localisation.value.country ?? "en-GB";
+  const locale = localisation.value.code ?? "en-GB";
   const options: Intl.DateTimeFormatOptions = { timeStyle: "medium" };
   return timestamp.value.toLocaleTimeString(locale, options);
 });
@@ -356,7 +358,7 @@ const preferences: ComputedRef<UserPreferencesData> = computed(() => {
     country_id: country.country_id,
     locale: weather.value.locale,
     preferences_region: {
-      locale_formatting: localisation.value.country,
+      locale_formatting: localisation.value.code,
     },
     preferences_units: {
       temperature: units.value.temperature,
@@ -372,7 +374,10 @@ const preferencesAreValid = computed(() => {
 // Watchers
 watch(receiver.value.localisation, () => {
   const code = receiver.value.localisation.data?.iso_code ?? "GB";
-  localisation.value.country = `en-${code}`;
+  const country =
+    receiver.value.localisation.data?.country_name ?? "United Kingdom";
+  localisation.value.code = `en-${code}`;
+  localisation.value.country = country;
 });
 
 // Functions
@@ -389,7 +394,8 @@ function assignWeatherValues() {
 
 function assignLocalisationValues() {
   const format = userStore.getPreferredLocaleFormatting;
-  const data = $countries.searchByISOCode(format!);
+  const predicate = format?.substring(format.length - 2) as CountryISOCode;
+  const data = $countries.searchByISOCode(predicate);
   receiver.value.localisation.term = data.country_name;
   receiver.value.localisation.data = data;
 }
