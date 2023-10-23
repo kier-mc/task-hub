@@ -352,7 +352,9 @@ const time = computed(() => {
 });
 
 const preferences: ComputedRef<UserPreferencesData> = computed(() => {
-  const country = $countries.searchByCountryName(weather.value.country!);
+  const country = $countries.searchByCountryName(
+    weather.value.country ?? "United Kingdom"
+  );
   return {
     preferred_name: personal.value.name,
     country_id: country.country_id,
