@@ -151,6 +151,7 @@ export const useTaskStore = defineStore("tasks", {
       if (!this.response || forceUpdate) {
         const response = await fetchFromEndpoint();
         if (!response) return;
+        localStorage.setItem("taskData", JSON.stringify(response));
         this.response = response;
       }
     },
