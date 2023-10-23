@@ -273,8 +273,8 @@ export const useTaskStore = defineStore("tasks", {
         .eq("task_id", task_id);
       if (error) {
         notificationsStore.push(
-          "An error occurred whilst updating the task",
-          "error"
+          "Error",
+          "An error occurred whilst updating the task"
         );
         return;
       }
