@@ -61,7 +61,7 @@ export async function createUser(
     options: {
       data: {
         preferred_name: credentials.value.name,
-        country_id: credentials.value.country?.country_id,
+        country_id: credentials.value.location?.country_id,
         locale: credentials.value.locale,
       },
     },
