@@ -89,6 +89,7 @@ export async function logoutUser(): Promise<void> {
   const { error } = await useSupabaseClient().auth.signOut();
   if (error) throw new Error(error.message);
   userStore.$reset();
+  localStorage.removeItem("taskData");
   notificationsStore.push("Success", "Logged out successfully!");
   await navigateTo("/");
 }
