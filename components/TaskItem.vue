@@ -345,7 +345,10 @@ async function calculateExpandedHeight(): Promise<void> {
   expandableHeight.value = expandable.value.clientHeight;
   expandable.value.classList.add("task__expandable--height-zero");
 }
-
+/**
+ * Small wrapper function to handle invocation of the component in edit mode.
+ * Sets editMode to true and collapses the task, if it is expanded.
+ */
 function handleEditMode(): void {
   editMode.value = true;
   isExpanded.value = false;
