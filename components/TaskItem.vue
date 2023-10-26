@@ -65,7 +65,7 @@
             class="task__option task__button task__button--footer"
             title="Edit"
             type="button"
-            @click="editMode = true"
+            @click="handleEditMode()"
           >
             <SVGEdit class="task__icon task__icon--footer" />
           </button>
@@ -315,7 +315,7 @@ const setExpandedHeight = computed(() => {
 // Watchers
 watch(
   () => props.data,
-  () => {
+  async () => {
     calculateExpandedHeight();
   }
 );
@@ -337,12 +337,18 @@ async function deleteTaskWrapper(): Promise<void> {
  * Used to provide an accurate number to the CSS so the height can be
  * animated smoothly without compromise.
  */
-function calculateExpandedHeight(): void {
+async function calculateExpandedHeight(): Promise<void> {
   if (!expandable.value) return;
   // Remove zero height class (if it exists) so height can be correctly recalculated for updates
   expandable.value.classList.remove("task__expandable--height-zero");
+  await nextTick();
   expandableHeight.value = expandable.value.clientHeight;
   expandable.value.classList.add("task__expandable--height-zero");
+}
+
+function handleEditMode(): void {
+  editMode.value = true;
+  isExpanded.value = false;
 }
 
 // Hooks
