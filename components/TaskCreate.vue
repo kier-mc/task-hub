@@ -227,7 +227,6 @@ async function updateTaskWrapper(taskData: NewTaskData) {
   if (!props.editData) {
     throw new Error("Cannot update task. No edit data supplied");
   }
-  console.log(taskData);
   requestInProgress.value = true;
   await taskStore.updateTask(taskData, props.editData.task_id);
   await taskStore.fetchData(true);
