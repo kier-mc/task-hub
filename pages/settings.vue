@@ -383,17 +383,27 @@ watch(receiver.value.localisation, () => {
 });
 
 // Functions
+/**
+ * Assignment function that looks up relevant data and assigns it to local variables.
+ * Ensures data is synchronised with the back end.
+ */
 function assignPersonalValues() {
   personal.value.name = userStore.getName;
 }
-
+/**
+ * Assignment function that looks up relevant data and assigns it to local variables.
+ * Ensures data is synchronised with the back end.
+ */
 function assignWeatherValues() {
   weather.value.locale = userStore.getLocale;
   weather.value.country = userStore.getCountryName;
   receiver.value.weather.term = weather.value.country;
   receiver.value.weather.data = $countries.searchByID(userStore.getCountryID!);
 }
-
+/**
+ * Assignment function that looks up relevant data and assigns it to local variables.
+ * Ensures data is synchronised with the back end.
+ */
 function assignLocalisationValues() {
   const format = userStore.getPreferredLocaleFormatting;
   const predicate = format?.substring(format.length - 2) as CountryISOCode;
@@ -401,19 +411,27 @@ function assignLocalisationValues() {
   receiver.value.localisation.term = data.country_name;
   receiver.value.localisation.data = data;
 }
-
+/**
+ * Assignment function that looks up relevant data and assigns it to local variables.
+ * Ensures data is synchronised with the back end.
+ */
 function assignUnitValues() {
   units.value.temperature = userStore.getPreferredTemperatureUnit;
   units.value.speed = userStore.getPreferredSpeedUnit;
 }
-
+/**
+ * Wrapper function that combines individual assignment functions into one for brevity.
+ */
 function assignValues() {
   assignPersonalValues();
   assignWeatherValues();
   assignLocalisationValues();
   assignUnitValues();
 }
-
+/**
+ * Wrapper function that calls the user store updatePreferences method and then redirects
+ * the user back to the hub after the call is complete.
+ */
 async function updateSettingsWrapper() {
   await userStore.updatePreferences(preferences.value);
   await navigateTo("/hub");
