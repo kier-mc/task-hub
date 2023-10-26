@@ -278,7 +278,11 @@ export const useTaskStore = defineStore("tasks", {
         );
         return;
       }
-      if (tags && tags.length) {
+      if (tags) {
+        await useSupabaseClient<Database>()
+          .from("tasks_tags")
+          .delete()
+          .eq("task_id", task_id);
         const { error } = await useSupabaseClient<Database>()
           .from("tasks_tags")
           .upsert($tasks.tags.prepareDataForDBInsert(task_id, tags))
