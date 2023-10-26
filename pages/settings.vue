@@ -416,6 +416,7 @@ function assignValues() {
 
 async function updateSettingsWrapper() {
   await userStore.updatePreferences(preferences.value);
+  await navigateTo("/hub");
 }
 
 onMounted(async () => {
