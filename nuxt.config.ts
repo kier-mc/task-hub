@@ -6,7 +6,7 @@ export default defineNuxtConfig({
       cert: "localhost.pem",
     },
   },
-  modules: ["@pinia/nuxt", "nuxt-vitest", "@nuxtjs/supabase", "@vueuse/nuxt"],
+  modules: ["@pinia/nuxt", "@nuxtjs/supabase", "@vueuse/nuxt", "@nuxt/test-utils/module"],
   pinia: {
     autoImports: ["defineStore", "useStore"],
   },
