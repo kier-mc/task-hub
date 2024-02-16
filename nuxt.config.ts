@@ -7,9 +7,6 @@ export default defineNuxtConfig({
     },
   },
   modules: ["@pinia/nuxt", "@nuxtjs/supabase", "@vueuse/nuxt", "@nuxt/test-utils/module"],
-  pinia: {
-    autoImports: ["defineStore", "useStore"],
-  },
   imports: {
     dirs: ["stores"],
   },
