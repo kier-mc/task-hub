@@ -1,10 +1,5 @@
-// @vitest-environment nuxt
-
 // Types
-import type {
-  LoginCredentialData,
-  NewAccountCredentialData,
-} from "~/types/credentials";
+import type { LoginCredentialData, NewAccountCredentialData } from "~/types/credentials";
 
 // Testing functions
 import { setActivePinia, createPinia } from "pinia";
@@ -44,9 +39,7 @@ describe("Tests related to logging in", () => {
   });
   test("Blank credentials fail and push an error notification", async () => {
     await loginUser(ref(loginCredentials));
-    expect(notificationsStore.message).toBe(
-      "Login failed. Please ensure all fields are filled in."
-    );
+    expect(notificationsStore.message).toBe("Login failed. Please ensure all fields are filled in.");
   });
   test("Invalid credentials fail and push an error notification", async () => {
     // Data
@@ -56,10 +49,7 @@ describe("Tests related to logging in", () => {
     const mockData = {
       error: { message: "Invalid login credentials" },
     };
-    const mocksignInWithPassword = vi.spyOn(
-      useSupabaseClient().auth,
-      "signInWithPassword"
-    );
+    const mocksignInWithPassword = vi.spyOn(useSupabaseClient().auth, "signInWithPassword");
     //@ts-ignore
     mocksignInWithPassword.mockResolvedValueOnce(mockData);
     // Calls
@@ -109,9 +99,7 @@ describe("Tests related to creating an account", () => {
   });
   // Reset values, notification store data and mocks
   beforeEach(() => {
-    const { email, password, name, location, locale } = toRefs(
-      newAccountCredentials.value
-    );
+    const { email, password, name, location, locale } = toRefs(newAccountCredentials.value);
     email.value = null;
     password.value = null;
     name.value = null;
@@ -128,15 +116,11 @@ describe("Tests related to creating an account", () => {
     // Calls
     await createUser(newAccountCredentials);
     // Assertions
-    expect(notificationsStore.message).toBe(
-      "Please ensure all fields are filled in."
-    );
+    expect(notificationsStore.message).toBe("Please ensure all fields are filled in.");
   });
   test("An invalid email fails and pushes an error notification", async () => {
     // Data
-    const { email, password, name, location, locale } = toRefs(
-      newAccountCredentials.value
-    );
+    const { email, password, name, location, locale } = toRefs(newAccountCredentials.value);
     email.value = "invalidemail@domain.com";
     password.value = "validpassword";
     name.value = "User";
@@ -157,15 +141,11 @@ describe("Tests related to creating an account", () => {
     await createUser(newAccountCredentials);
     // Assertions
     expect(mockSignUp).toHaveBeenCalledOnce();
-    expect(notificationsStore.message).toBe(
-      "Unable to validate email address: invalid format"
-    );
+    expect(notificationsStore.message).toBe("Unable to validate email address: invalid format");
   });
   test("A password of less than 12 characters fails and pushes an error notification", async () => {
     // Data
-    const { email, password, name, location, locale } = toRefs(
-      newAccountCredentials.value
-    );
+    const { email, password, name, location, locale } = toRefs(newAccountCredentials.value);
     email.value = "validemail@domain.com";
     password.value = "tooshort";
     name.value = "User";
@@ -186,15 +166,11 @@ describe("Tests related to creating an account", () => {
     await createUser(newAccountCredentials);
     // Assertions
     expect(mockSignUp).toHaveBeenCalledOnce();
-    expect(notificationsStore.message).toBe(
-      "Password should be at least 12 characters"
-    );
+    expect(notificationsStore.message).toBe("Password should be at least 12 characters");
   });
   test("Valid credentials succeed and push a success notification", async () => {
     // Data
-    const { email, password, name, location, locale } = toRefs(
-      newAccountCredentials.value
-    );
+    const { email, password, name, location, locale } = toRefs(newAccountCredentials.value);
     email.value = "validemail@domain.com";
     password.value = "validpassword";
     name.value = "User";
@@ -216,9 +192,7 @@ describe("Tests related to creating an account", () => {
   });
   test("Using a preexisting email fails and pushes an error notification", async () => {
     // Data
-    const { email, password, name, location, locale } = toRefs(
-      newAccountCredentials.value
-    );
+    const { email, password, name, location, locale } = toRefs(newAccountCredentials.value);
     email.value = "validemail@domain.com";
     password.value = "validpassword";
     name.value = "User";
@@ -237,9 +211,7 @@ describe("Tests related to creating an account", () => {
     await createUser(newAccountCredentials);
     // Assertions
     expect(mockSignUp).toHaveBeenCalledOnce();
-    expect(notificationsStore.message).toBe(
-      "Email address is already registered."
-    );
+    expect(notificationsStore.message).toBe("Email address is already registered.");
   });
 });
 

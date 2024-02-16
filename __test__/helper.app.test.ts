@@ -1,5 +1,3 @@
-// @vitest-environment nuxt
-
 // Vitest
 import { describe, test, expect } from "vitest";
 
